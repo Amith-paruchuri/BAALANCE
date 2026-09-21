@@ -322,11 +322,11 @@ export function computeDynamicSynthesis(
   if (isDiscordance) {
     rootCauseCulprit = `Biomarker-Calendar Discordance Detected: Hair cortisol averaged ${cumulativeAvgCortisol} pg/mg (+${cumulativeSurgePct}% above baseline) with an acute surge to ${august} pg/mg, despite minimal/zero scheduled calendar meetings (${Math.round(totalMeetings)}h total). Standard desk meeting conclusions are withheld. Complete intake with Tricha AI to document your clinical ward duties, study workload, or irregular shift patterns.`;
   } else if (cumulativeAvgCortisol > 16.0) {
-    rootCauseCulprit = `Across the full 90-day testing window, cumulative hair cortisol averaged ${cumulativeAvgCortisol} pg/mg (+${cumulativeSurgePct}% above baseline). The primary driver was ${totalLateCalls} cumulative evening calls past 7:00 PM${totalFlights > 0 ? ` and ${totalFlights} timezone travel shifts` : ''} that caused severe deep sleep deficits, accumulating high sustained strain.`;
+    rootCauseCulprit = `Across the full 90-day testing window, cumulative hair cortisol averaged ${cumulativeAvgCortisol} pg/mg (+${cumulativeSurgePct}% above baseline). The primary driver was ${totalLateCalls} cumulative evening calls past 7:00 PM${totalFlights > 0 ? ` and ${totalFlights} timezone travel shifts` : ''} that repeatedly breached evening recovery boundaries, accumulating high sustained strain.`;
   } else if (cumulativeAvgCortisol > 13.0) {
-    rootCauseCulprit = `Cumulative 90-day hair cortisol averaged ${cumulativeAvgCortisol} pg/mg (+${cumulativeSurgePct}% above baseline). Moderate cumulative strain accumulated from elevated meeting volume and sporadic evening calls, though overall sleep architecture shows resilient recovery.`;
+    rootCauseCulprit = `Cumulative 90-day hair cortisol averaged ${cumulativeAvgCortisol} pg/mg (+${cumulativeSurgePct}% above baseline). Moderate cumulative strain accumulated from elevated meeting volume and sporadic evening calls, though overall circadian architecture shows resilient recovery.`;
   } else {
-    rootCauseCulprit = `Cumulative 90-day hair cortisol is in a healthy, balanced range (${cumulativeAvgCortisol} pg/mg average vs 11.0 baseline). Your schedule and sleep habits maintain optimal resilience across the entire 90-day period.`;
+    rootCauseCulprit = `Cumulative 90-day hair cortisol is in a healthy, balanced range (${cumulativeAvgCortisol} pg/mg average vs 11.0 baseline). Your protected evening schedule and recovery habits maintain optimal resilience across the entire 90-day period.`;
   }
 
   return {

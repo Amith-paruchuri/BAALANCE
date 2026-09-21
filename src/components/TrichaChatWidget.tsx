@@ -282,7 +282,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
       const fallbackMsg: ChatMessage = {
         id: `tricha-err-${Date.now()}`,
         role: 'model',
-        text: `Based on your Month 2 peak (${segments[1]?.cortisolPgPerMg || 28.4} pg/mg) and Month 1 reading (${segments[0]?.cortisolPgPerMg || 15.6} pg/mg), your body experienced delayed stress recovery. Even with fewer daytime meetings, taking late calls past 7:00 PM kept your heart rate high and cut deep sleep under 45 minutes, preventing full stress clearance.`,
+        text: `Based on your Month 2 peak (${segments[1]?.cortisolPgPerMg || 28.4} pg/mg) and Month 1 reading (${segments[0]?.cortisolPgPerMg || 15.6} pg/mg), your body experienced delayed stress recovery. Even with fewer daytime meetings, taking late calls past 7:00 PM kept sympathetic arousal high and delayed circadian recovery into late evening, preventing full stress clearance.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages(prev => [...prev, fallbackMsg]);
@@ -315,7 +315,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                 )}
               </div>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                AI health guide for your hair cortisol, calendar workload, and sleep recovery
+                AI health guide for your hair cortisol, calendar workload, and circadian recovery
               </p>
             </div>
           </div>

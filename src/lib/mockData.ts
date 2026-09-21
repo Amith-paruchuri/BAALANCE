@@ -40,7 +40,7 @@ export const CLINICAL_SURGE_SEGMENTS: HairCortisolSegment[] = [
     referenceBaseline: 11.0,
     status: 'baseline',
     clinicalStatusLabel: 'Normal Healthy Baseline',
-    clinicalNote: 'Stress hormone levels well within normal range (5.0–14.0 pg/mg). Good sleep patterns and steady energy.',
+    clinicalNote: 'Stress hormone levels well within normal range (5.0–14.0 pg/mg). Consistent recovery habits and steady daily energy.',
   },
   {
     id: 2,
@@ -279,17 +279,17 @@ export const CLINICAL_FALLBACK_SYNTHESIS: GeminiSynthesisResult = {
     {
       id: 'circadian-reset',
       category: 'circadian',
-      categoryLabel: 'Daily Sleep & Light Reset',
+      categoryLabel: 'Daily Circadian & Light Reset',
       title: 'Morning Light & Evening Wind-Down',
       iconType: 'sun',
       badge: 'Immediate Priority',
-      description: 'Reset your natural daily energy rhythm to fall asleep faster and wake up refreshed.',
+      description: 'Reset your natural daily energy rhythm to protect evening recovery and restorative downtime.',
       actionItems: [
         'Wait 60–90 minutes after waking up before drinking your first coffee to let natural alertness kick in.',
         'Get 10–15 minutes of direct morning sunlight outdoors within 30 minutes of waking.',
-        'Dim bright screens after 9:30 PM to let your body naturally produce sleep hormones.',
+        'Dim bright screens after 9:30 PM to let your body naturally initiate parasympathetic wind-down.',
       ],
-      impactMetric: 'Helps restore deep restorative sleep by 35% within 14 days.',
+      impactMetric: 'Helps restore evening autonomic recovery and healthy cortisol within 14 days.',
     },
     {
       id: 'calendar-boundary',
@@ -304,7 +304,7 @@ export const CLINICAL_FALLBACK_SYNTHESIS: GeminiSynthesisResult = {
         'Add 15-minute buffers between long meetings to step away and decompress.',
         'Block Tuesday and Thursday mornings as focus time with zero meetings.',
       ],
-      impactMetric: 'Stops late-night adrenaline spikes, bringing deep sleep back above 1.1 hours.',
+      impactMetric: 'Stops late-night adrenaline spikes, restoring evening downtime and full physiological recovery.',
     },
     {
       id: 'salon-audit',

@@ -130,7 +130,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
         <div className="flex flex-col items-center space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-[#E2E8F0] text-xs font-semibold text-slate-700 shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#3186FF]" />
-            <span>Powered by Gemini 2.5 Flash</span>
+            <span>Powered by Gemini 3.6 Flash</span>
           </div>
 
           <BaalanceLogo size="xl" showTagline={true} animated={true} />
