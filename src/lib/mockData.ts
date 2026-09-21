@@ -86,7 +86,7 @@ export const WEEKLY_12_WEEK_TELEMETRY: WeeklyTelemetry[] = [
     restingHeartRate: 54,
     hrvRmssd: 68,
     isSleepDeficit: false,
-    triggerDetails: 'Baseline week: Regulated circadian alignment, stable restorative sleep.',
+    triggerDetails: 'Baseline week: Regulated circadian alignment, balanced schedule.',
   },
   {
     weekNumber: 2,
@@ -134,7 +134,7 @@ export const WEEKLY_12_WEEK_TELEMETRY: WeeklyTelemetry[] = [
     restingHeartRate: 57,
     hrvRmssd: 58,
     isSleepDeficit: false,
-    triggerDetails: 'Initial climb: First cross-coast travel; minor sleep friction.',
+    triggerDetails: 'Initial climb: First cross-coast travel; minor schedule friction.',
   },
   // August: Acute Surge (Weeks 5 to 8)
   {
@@ -151,7 +151,7 @@ export const WEEKLY_12_WEEK_TELEMETRY: WeeklyTelemetry[] = [
     restingHeartRate: 62,
     hrvRmssd: 44,
     isSleepDeficit: true,
-    triggerDetails: 'Pre-launch sprint: 6 evening calls past 8 PM; initial sleep drop.',
+    triggerDetails: 'Pre-launch sprint: 6 evening calls past 8 PM breaking recovery boundaries.',
   },
   {
     weekNumber: 6,
@@ -167,7 +167,7 @@ export const WEEKLY_12_WEEK_TELEMETRY: WeeklyTelemetry[] = [
     restingHeartRate: 67,
     hrvRmssd: 28,
     isSleepDeficit: true,
-    triggerDetails: 'Trigger: 44 hrs meetings + 9 late calls + SFO/LHR red-eye flight + 58% deep sleep drop.',
+    triggerDetails: 'Trigger: 44 hrs meetings + 9 late calls past 7 PM + SFO/LHR red-eye flight.',
   },
   {
     weekNumber: 7,
@@ -183,7 +183,7 @@ export const WEEKLY_12_WEEK_TELEMETRY: WeeklyTelemetry[] = [
     restingHeartRate: 69,
     hrvRmssd: 22,
     isSleepDeficit: true,
-    triggerDetails: 'Peak Crisis: 46.5 hrs load, 11 late calls, 4 timezone hops; Deep sleep crashed to 27 min.',
+    triggerDetails: 'Peak Crisis: 46.5 hrs load, 11 late calls past 7 PM, 4 timezone hops.',
   },
   {
     weekNumber: 8,
@@ -199,7 +199,7 @@ export const WEEKLY_12_WEEK_TELEMETRY: WeeklyTelemetry[] = [
     restingHeartRate: 65,
     hrvRmssd: 31,
     isSleepDeficit: true,
-    triggerDetails: 'Post-launch aftermath: High sympathetic tone and prolonged nocturnal cortisol elevation.',
+    triggerDetails: 'Post-launch aftermath: High stress burden and continued evening workload.',
   },
   // September: Incomplete Recovery (Weeks 9 to 12)
   {
@@ -232,7 +232,7 @@ export const WEEKLY_12_WEEK_TELEMETRY: WeeklyTelemetry[] = [
     restingHeartRate: 61,
     hrvRmssd: 43,
     isSleepDeficit: false,
-    triggerDetails: 'Sub-optimal recovery: Parasympathetic reactivation dampened by midnight screen exposure.',
+    triggerDetails: 'Sub-optimal recovery: Biological reset dampened by late evening screen exposure.',
   },
   {
     weekNumber: 11,
@@ -272,9 +272,9 @@ export const CLINICAL_FALLBACK_SYNTHESIS: GeminiSynthesisResult = {
   allostaticLoadScore: 78,
   allostaticCategory: 'High Stress Load',
   strainLevel: 'High',
-  rootCauseCulprit: 'The workload crunch caused a sharp stress spike (28.4 pg/mg) that failed to reset because of 23 late-evening calls after 7:00 PM and 4 cross-timezone flights that cut restorative deep sleep in half.',
+  rootCauseCulprit: 'The workload crunch caused a sharp stress spike (28.4 pg/mg) that failed to reset because of 23 late-evening calls after 7:00 PM and 4 cross-timezone flights that repeatedly breached daily recovery boundaries.',
   hpaAxisTrajectory: 'Stress spike in Weeks 6–7 did not fully clear in Weeks 9–12 because late-night calls kept the body in an active alert state.',
-  circadianDesynchronySummary: '4 cross-timezone flights combined with 23 calls after 7:00 PM cut restorative deep sleep down to 42 minutes per night (normal is 75+ minutes), preventing full recovery.',
+  circadianDesynchronySummary: '4 cross-timezone flights combined with 23 calls after 7:00 PM disrupted regular evening wind-down boundaries, preventing full biological recovery.',
   protocols: [
     {
       id: 'circadian-reset',

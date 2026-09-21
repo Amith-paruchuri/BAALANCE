@@ -354,7 +354,7 @@
         "restingHeartRate": 56,
         "hrvRmssd": 65,
         "isSleepDeficit": false,
-        "triggerDetails": "Baseline week: Regulated circadian alignment, stable restorative sleep."
+        "triggerDetails": "Baseline week: Regulated circadian alignment, balanced schedule."
       },
       {
         "weekNumber": 2,
@@ -402,7 +402,7 @@
         "restingHeartRate": 57,
         "hrvRmssd": 62,
         "isSleepDeficit": false,
-        "triggerDetails": "Initial climb: First cross-coast travel; minor sleep friction."
+        "triggerDetails": "Initial climb: First cross-coast travel; minor schedule friction."
       },
       {
         "weekNumber": 5,
@@ -418,7 +418,7 @@
         "restingHeartRate": 56,
         "hrvRmssd": 65,
         "isSleepDeficit": false,
-        "triggerDetails": "Pre-launch sprint: 6 evening calls past 8 PM; initial sleep drop."
+        "triggerDetails": "Pre-launch sprint: 6 evening calls past 8 PM breaking recovery boundaries."
       },
       {
         "weekNumber": 6,
@@ -434,7 +434,7 @@
         "restingHeartRate": 56,
         "hrvRmssd": 65,
         "isSleepDeficit": false,
-        "triggerDetails": "Trigger: 44 hrs meetings + 9 late calls + SFO/LHR red-eye flight + 58% deep sleep drop."
+        "triggerDetails": "Trigger: 44 hrs meetings + 9 late calls past 7 PM + SFO/LHR red-eye flight."
       },
       {
         "weekNumber": 7,
@@ -450,7 +450,7 @@
         "restingHeartRate": 57,
         "hrvRmssd": 62,
         "isSleepDeficit": false,
-        "triggerDetails": "Peak Crisis: 46.5 hrs load, 11 late calls, 4 timezone hops; Deep sleep crashed to 27 min."
+        "triggerDetails": "Peak Crisis: 46.5 hrs load, 11 late calls past 7 PM, 4 timezone hops."
       },
       {
         "weekNumber": 8,
@@ -498,7 +498,7 @@
         "restingHeartRate": 56,
         "hrvRmssd": 65,
         "isSleepDeficit": false,
-        "triggerDetails": "Sub-optimal recovery: Parasympathetic reactivation dampened by midnight screen exposure."
+        "triggerDetails": "Sub-optimal recovery: Biological reset dampened by late evening screen exposure."
       },
       {
         "weekNumber": 11,
@@ -890,7 +890,7 @@
         "restingHeartRate": 56,
         "hrvRmssd": 65,
         "isSleepDeficit": false,
-        "triggerDetails": "Baseline week: Regulated circadian alignment, stable restorative sleep."
+        "triggerDetails": "Baseline week: Regulated circadian alignment, balanced schedule."
       },
       {
         "weekNumber": 2,
@@ -938,7 +938,7 @@
         "restingHeartRate": 57,
         "hrvRmssd": 62,
         "isSleepDeficit": false,
-        "triggerDetails": "Initial climb: First cross-coast travel; minor sleep friction."
+        "triggerDetails": "Initial climb: First cross-coast travel; minor schedule friction."
       },
       {
         "weekNumber": 5,
@@ -954,7 +954,7 @@
         "restingHeartRate": 56,
         "hrvRmssd": 65,
         "isSleepDeficit": false,
-        "triggerDetails": "Pre-launch sprint: 6 evening calls past 8 PM; initial sleep drop."
+        "triggerDetails": "Pre-launch sprint: 6 evening calls past 8 PM breaking recovery boundaries."
       },
       {
         "weekNumber": 6,
@@ -970,7 +970,7 @@
         "restingHeartRate": 56,
         "hrvRmssd": 65,
         "isSleepDeficit": false,
-        "triggerDetails": "Trigger: 44 hrs meetings + 9 late calls + SFO/LHR red-eye flight + 58% deep sleep drop."
+        "triggerDetails": "Trigger: 44 hrs meetings + 9 late calls past 7 PM + SFO/LHR red-eye flight."
       },
       {
         "weekNumber": 7,
@@ -986,7 +986,7 @@
         "restingHeartRate": 54,
         "hrvRmssd": 68,
         "isSleepDeficit": false,
-        "triggerDetails": "Peak Crisis: 46.5 hrs load, 11 late calls, 4 timezone hops; Deep sleep crashed to 27 min."
+        "triggerDetails": "Peak Crisis: 46.5 hrs load, 11 late calls past 7 PM, 4 timezone hops."
       },
       {
         "weekNumber": 8,
@@ -1034,7 +1034,7 @@
         "restingHeartRate": 56,
         "hrvRmssd": 65,
         "isSleepDeficit": false,
-        "triggerDetails": "Sub-optimal recovery: Parasympathetic reactivation dampened by midnight screen exposure."
+        "triggerDetails": "Sub-optimal recovery: Biological reset dampened by late evening screen exposure."
       },
       {
         "weekNumber": 11,
@@ -1968,7 +1968,7 @@
         "restingHeartRate": 54,
         "hrvRmssd": 68,
         "isSleepDeficit": false,
-        "triggerDetails": "Baseline week: Regulated circadian alignment, stable restorative sleep."
+        "triggerDetails": "Baseline week: Regulated circadian alignment, balanced schedule."
       },
       {
         "weekNumber": 2,
@@ -2016,7 +2016,7 @@
         "restingHeartRate": 57,
         "hrvRmssd": 58,
         "isSleepDeficit": false,
-        "triggerDetails": "Initial climb: First cross-coast travel; minor sleep friction."
+        "triggerDetails": "Initial climb: First cross-coast travel; minor schedule friction."
       },
       {
         "weekNumber": 5,
@@ -2032,7 +2032,7 @@
         "restingHeartRate": 62,
         "hrvRmssd": 44,
         "isSleepDeficit": true,
-        "triggerDetails": "Pre-launch sprint: 6 evening calls past 8 PM; initial sleep drop."
+        "triggerDetails": "Pre-launch sprint: 6 evening calls past 8 PM breaking recovery boundaries."
       },
       {
         "weekNumber": 6,
@@ -2048,7 +2048,7 @@
         "restingHeartRate": 67,
         "hrvRmssd": 28,
         "isSleepDeficit": true,
-        "triggerDetails": "Trigger: 44 hrs meetings + 9 late calls + SFO/LHR red-eye flight + 58% deep sleep drop."
+        "triggerDetails": "Trigger: 44 hrs meetings + 9 late calls past 7 PM + SFO/LHR red-eye flight."
       },
       {
         "weekNumber": 7,
@@ -2064,7 +2064,7 @@
         "restingHeartRate": 69,
         "hrvRmssd": 22,
         "isSleepDeficit": true,
-        "triggerDetails": "Peak Crisis: 46.5 hrs load, 11 late calls, 4 timezone hops; Deep sleep crashed to 27 min."
+        "triggerDetails": "Peak Crisis: 46.5 hrs load, 11 late calls past 7 PM, 4 timezone hops."
       },
       {
         "weekNumber": 8,
@@ -2112,7 +2112,7 @@
         "restingHeartRate": 61,
         "hrvRmssd": 43,
         "isSleepDeficit": false,
-        "triggerDetails": "Sub-optimal recovery: Parasympathetic reactivation dampened by midnight screen exposure."
+        "triggerDetails": "Sub-optimal recovery: Biological reset dampened by late evening screen exposure."
       },
       {
         "weekNumber": 11,
