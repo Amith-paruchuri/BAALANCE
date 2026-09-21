@@ -23,22 +23,22 @@ interface GoogleAccountChooserModalProps {
 
 const PRESET_ACCOUNTS: GoogleAccount[] = [
   {
-    name: 'PARUCHURI VENKATA SAI',
-    email: 'paruchuri.3833@aiims.edu',
-    avatarText: 'P',
-    avatarBg: 'bg-slate-700',
-  },
-  {
     name: 'PARUCHURI SAI AMITH',
     email: 'p.v.saiamith@gmail.com',
     avatarText: 'P',
     avatarBg: 'bg-emerald-700',
   },
   {
+    name: 'PARUCHURI VENKATA SAI',
+    email: 'paruchuri.3833@aiims.edu',
+    avatarText: 'P',
+    avatarBg: 'bg-slate-700',
+  },
+  {
     name: 'Amith Paruchuri',
-    email: 'choticopy33@gmail.com',
+    email: 'amithparuchuri@gmail.com',
     avatarText: 'A',
-    avatarBg: 'bg-[#5B89A6]',
+    avatarBg: 'bg-[#3186FF]',
   },
 ];
 
@@ -240,8 +240,8 @@ export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps>
           </h2>
           <p className="text-xs sm:text-sm text-[#202124] mt-1.5 font-normal">
             to continue to{' '}
-            <span className="text-[#0b57d0] hover:underline font-medium">
-              BAALANCE ({targetDomain})
+            <span className="text-[#0b57d0] hover:underline font-bold">
+              BAALANCE
             </span>
           </p>
 

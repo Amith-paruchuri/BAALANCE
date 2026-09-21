@@ -735,27 +735,28 @@ export default function BaalanceApp() {
     const userBundle = loadUserDataForEmail(cleanEmail);
     const hasLocalOnboarded = typeof window !== 'undefined' && !!localStorage.getItem(`baalance_user_has_onboarded_${cleanEmail}`);
 
-    // If local storage is empty, check server store as fallback
+    // Always query server store if local user bundle is missing, ensuring single source of truth across devices
     let serverBundle: any = null;
-    if (!userBundle && !hasLocalOnboarded) {
-      try {
-        const res = await fetch(`/api/storage/user-profile?email=${encodeURIComponent(cleanEmail)}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.found && data.profile) {
-            serverBundle = data;
-          }
+    try {
+      const res = await fetch(`/api/storage/user-profile?email=${encodeURIComponent(cleanEmail)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.found && data.profile) {
+          serverBundle = data;
         }
-      } catch (_) {}
-    }
+      }
+    } catch (_) {}
 
-    const isReturningUser = !userData.isNewUser && (hasLocalOnboarded || !!userBundle || !!serverBundle);
+    // Strict account uniqueness: An email can only have ONE unique account.
+    // If ANY record exists (locally or on server), always load the existing account.
+    const accountExists = Boolean(hasLocalOnboarded || userBundle || serverBundle);
+    const isReturningUser = accountExists;
 
     if (isReturningUser) {
       // Returning user: restore their exact profile, hair cortisol segments, and synced calendar telemetry
       const targetProfile: UserProfile = userBundle?.profile || serverBundle?.profile || {
         ...userProfile,
-        name: userData.name,
+        name: serverBundle?.profile?.name || userBundle?.profile?.name || userData.name,
         email: cleanEmail,
         isDemo: false,
       };
