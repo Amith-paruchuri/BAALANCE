@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { User, X, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { User, X, ChevronDown, Key, AlertCircle, RefreshCw, Sparkles, CheckCircle2 } from 'lucide-react';
+import { signInWithGoogle, getEffectiveSupabaseAnonKey } from '@/lib/supabase';
 
 export interface GoogleAccount {
   name: string;
@@ -17,21 +18,21 @@ interface GoogleAccountChooserModalProps {
   onClose: () => void;
   onSelectAccount: (account: { name: string; email: string }) => void;
   targetDomain?: string;
+  googleAuthError?: string | null;
 }
 
 const PRESET_ACCOUNTS: GoogleAccount[] = [
-  {
-    name: 'PARUCHURI SAI AMITH',
-    email: 'p.v.saiamith@gmail.com',
-    avatarText: 'P',
-    avatarBg: 'bg-emerald-700',
-  },
   {
     name: 'PARUCHURI VENKATA SAI',
     email: 'paruchuri.3833@aiims.edu',
     avatarText: 'P',
     avatarBg: 'bg-slate-700',
-    isSignedOut: true,
+  },
+  {
+    name: 'PARUCHURI SAI AMITH',
+    email: 'p.v.saiamith@gmail.com',
+    avatarText: 'P',
+    avatarBg: 'bg-emerald-700',
   },
   {
     name: 'Amith Paruchuri',
@@ -46,12 +47,20 @@ export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps>
   onClose,
   onSelectAccount,
   targetDomain = 'nyxivqlpikoffdopfmei.supabase.co',
+  googleAuthError,
 }) => {
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isCustomMode, setIsCustomMode] = useState(false);
   const [customName, setCustomName] = useState('');
   const [customEmail, setCustomEmail] = useState('');
+  const [isRetryingNative, setIsRetryingNative] = useState(false);
+  const [nativeError, setNativeError] = useState<string | null>(googleAuthError || null);
+
+  // Supabase Anon Key configuration helper
+  const [showKeyConfig, setShowKeyConfig] = useState(false);
+  const [anonKeyInput, setAnonKeyInput] = useState('');
+  const [keySavedMessage, setKeySavedMessage] = useState(false);
 
   if (!isOpen) return null;
 
@@ -66,7 +75,7 @@ export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps>
       });
       setIsLoading(false);
       onClose();
-    }, 650);
+    }, 500);
   };
 
   const handleCustomSubmit = (e: React.FormEvent) => {
@@ -81,21 +90,50 @@ export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps>
       });
       setIsLoading(false);
       onClose();
-    }, 650);
+    }, 500);
+  };
+
+  const handleRetryNativeOAuth = async () => {
+    setIsRetryingNative(true);
+    setNativeError(null);
+    try {
+      const res = await signInWithGoogle();
+      if (!res.success) {
+        setNativeError(res.error || 'Failed to start Google OAuth redirect.');
+      }
+    } catch (err: any) {
+      setNativeError(err?.message || 'Google OAuth error occurred.');
+    } finally {
+      setIsRetryingNative(false);
+    }
+  };
+
+  const handleSaveAnonKey = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanKey = anonKeyInput.trim();
+    if (cleanKey && typeof window !== 'undefined') {
+      localStorage.setItem('baalance_supabase_anon_key', cleanKey);
+      setKeySavedMessage(true);
+      setTimeout(() => {
+        setKeySavedMessage(false);
+        setShowKeyConfig(false);
+        handleRetryNativeOAuth();
+      }, 1000);
+    }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/40 backdrop-blur-xs animate-fade-in font-sans">
-      <div className="relative w-full max-w-[560px] bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-[560px] bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Top Progress Loading Bar (if authenticating) */}
-        {isLoading && (
+        {(isLoading || isRetryingNative) && (
           <div className="absolute top-0 left-0 right-0 h-1 bg-blue-100 overflow-hidden z-20">
             <div className="h-full bg-[#1a73e8] w-1/3 animate-pulse" style={{ animationDuration: '0.8s' }} />
           </div>
         )}
 
         {/* Modal Top Bar */}
-        <div className="px-7 pt-6 pb-2 flex items-center justify-between">
+        <div className="px-7 pt-6 pb-2 flex items-center justify-between shrink-0">
           {/* Google G Logo & Label */}
           <div className="flex items-center gap-2.5">
             <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -117,7 +155,7 @@ export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps>
               />
             </svg>
             <span className="text-xs sm:text-sm font-medium text-slate-700">
-              Sign in with Google
+              Google Workspace Authentication
             </span>
           </div>
 
@@ -130,20 +168,85 @@ export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps>
           </button>
         </div>
 
-        {/* Main Content Area */}
-        <div className="px-7 pt-4 pb-6">
+        {/* Scrollable Content Area */}
+        <div className="px-7 pt-2 pb-6 overflow-y-auto">
+          {/* Informative Provider Notice if native redirect was pending configuration */}
+          {nativeError && (
+            <div className="mb-4 p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-2">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <span className="font-bold block">Supabase Google Provider Notice:</span>
+                  <p className="text-[11px] text-amber-800 leading-relaxed">
+                    {nativeError.includes('Unsupported provider') || nativeError.includes('provider is not enabled')
+                      ? 'Google OAuth provider is not toggled ON in your Supabase dashboard yet. Go to Supabase → Authentication → Providers → Google to enable it with your Google Client ID & Secret.'
+                      : nativeError}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleRetryNativeOAuth}
+                  disabled={isRetryingNative}
+                  className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-[11px] flex items-center gap-1.5 transition-all"
+                >
+                  <RefreshCw className={`w-3 h-3 ${isRetryingNative ? 'animate-spin' : ''}`} />
+                  <span>Retry Native Google Redirect</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowKeyConfig(!showKeyConfig)}
+                  className="px-2.5 py-1 bg-white hover:bg-amber-100 border border-amber-300 text-amber-900 font-medium rounded-lg text-[11px] flex items-center gap-1"
+                >
+                  <Key className="w-3 h-3 text-amber-700" />
+                  <span>Configure Anon Key</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Optional inline Anon Key config */}
+          {showKeyConfig && (
+            <form onSubmit={handleSaveAnonKey} className="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+              <label className="block text-[11px] font-bold text-slate-700">
+                Supabase Anon Public Key (starts with eyJ...):
+              </label>
+              <input
+                type="text"
+                required
+                value={anonKeyInput}
+                onChange={(e) => setAnonKeyInput(e.target.value)}
+                placeholder="Paste your NEXT_PUBLIC_SUPABASE_ANON_KEY"
+                className="w-full text-xs font-mono px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white"
+              />
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-slate-500">
+                  {keySavedMessage ? '✓ Key saved to browser cache!' : 'Will persist for your current browser session'}
+                </span>
+                <button
+                  type="submit"
+                  className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold"
+                >
+                  Save & Connect
+                </button>
+              </div>
+            </form>
+          )}
+
           <h2 className="text-2xl sm:text-3xl font-normal text-[#202124] tracking-tight">
             Choose an account
           </h2>
           <p className="text-xs sm:text-sm text-[#202124] mt-1.5 font-normal">
             to continue to{' '}
-            <span className="text-[#0b57d0] hover:underline font-medium cursor-pointer">
-              {targetDomain}
+            <span className="text-[#0b57d0] hover:underline font-medium">
+              BAALANCE ({targetDomain})
             </span>
           </p>
 
           {/* Account Selection List */}
-          <div className="mt-6 border-t border-slate-200/80 divide-y divide-slate-200/80">
+          <div className="mt-5 border-t border-slate-200/80 divide-y divide-slate-200/80">
             {!isCustomMode ? (
               <>
                 {PRESET_ACCOUNTS.map((account) => {
@@ -152,9 +255,9 @@ export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps>
                     <button
                       key={account.email}
                       type="button"
-                      disabled={isLoading}
+                      disabled={isLoading || isRetryingNative}
                       onClick={() => handleAccountClick(account)}
-                      className={`w-full text-left py-3.5 px-2.5 flex items-center justify-between hover:bg-[#F8F9FA] transition-colors rounded-xl ${
+                      className={`w-full text-left py-3 px-2.5 flex items-center justify-between hover:bg-[#F8F9FA] transition-colors rounded-xl ${
                         isThisLoading ? 'bg-blue-50/60 ring-1 ring-blue-300' : ''
                       }`}
                     >
@@ -179,15 +282,15 @@ export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps>
                         </div>
                       </div>
 
-                      {/* Right Indicator: Signed Out or Spinner */}
+                      {/* Right Indicator */}
                       <div className="shrink-0 ml-3">
                         {isThisLoading ? (
                           <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                        ) : account.isSignedOut ? (
-                          <span className="text-[11px] text-slate-500 font-normal">
-                            Signed out
+                        ) : (
+                          <span className="text-[11px] text-blue-600 font-semibold px-2 py-0.5 rounded-full bg-blue-50 border border-blue-100">
+                            1-Click Sign In
                           </span>
-                        ) : null}
+                        )}
                       </div>
                     </button>
                   );
@@ -196,15 +299,15 @@ export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps>
                 {/* Option: Use another account */}
                 <button
                   type="button"
-                  disabled={isLoading}
+                  disabled={isLoading || isRetryingNative}
                   onClick={() => setIsCustomMode(true)}
-                  className="w-full text-left py-3.5 px-2.5 flex items-center gap-3.5 hover:bg-[#F8F9FA] transition-colors rounded-xl"
+                  className="w-full text-left py-3 px-2.5 flex items-center gap-3.5 hover:bg-[#F8F9FA] transition-colors rounded-xl"
                 >
                   <div className="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 shrink-0">
                     <User className="w-4 h-4" />
                   </div>
                   <span className="text-xs sm:text-sm font-medium text-[#202124]">
-                    Use another account
+                    Use another Google account
                   </span>
                 </button>
               </>
@@ -221,20 +324,20 @@ export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps>
                     autoFocus
                     value={customEmail}
                     onChange={(e) => setCustomEmail(e.target.value)}
-                    placeholder="e.g. yourname@gmail.com"
+                    placeholder="e.g. name@gmail.com"
                     className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1a73e8]"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Display Name
+                    Full Name
                   </label>
                   <input
                     type="text"
                     value={customName}
                     onChange={(e) => setCustomName(e.target.value)}
-                    placeholder="Full Name"
+                    placeholder="e.g. Dr. Amith Paruchuri"
                     className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1a73e8]"
                   />
                 </div>
@@ -252,7 +355,7 @@ export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps>
                     disabled={isLoading}
                     className="px-5 py-2 rounded-xl bg-[#1a73e8] hover:bg-blue-700 text-white text-xs font-semibold shadow-xs"
                   >
-                    {isLoading ? 'Connecting...' : 'Next'}
+                    {isLoading ? 'Connecting...' : 'Sign In with Google'}
                   </button>
                 </div>
               </form>
@@ -261,7 +364,7 @@ export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps>
         </div>
 
         {/* Footer (Matches Google Auth Footer) */}
-        <div className="px-7 py-3 bg-[#F8F9FA] border-t border-slate-200/80 flex flex-wrap items-center justify-between text-[11px] text-slate-600">
+        <div className="px-7 py-3 bg-[#F8F9FA] border-t border-slate-200/80 flex flex-wrap items-center justify-between text-[11px] text-slate-600 shrink-0">
           <div className="flex items-center gap-1 cursor-pointer hover:text-slate-800">
             <span>English (United States)</span>
             <ChevronDown className="w-3 h-3" />

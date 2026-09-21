@@ -61,6 +61,7 @@ import {
 } from '@/lib/types';
 import { BaalanceLogo } from './BaalanceLogo';
 import { GoogleAccountChooserModal } from './GoogleAccountChooserModal';
+import { signInWithGoogle } from '@/lib/supabase';
 
 interface AuthAndOnboardingModalProps {
   isOpen: boolean;
@@ -114,6 +115,25 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleChooserOpen, setIsGoogleChooserOpen] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
+
+  const handleGoogleAuthClick = async () => {
+    setIsGoogleLoading(true);
+    setGoogleAuthError(null);
+    try {
+      const res = await signInWithGoogle();
+      if (!res.success) {
+        setGoogleAuthError(res.error || 'Google OAuth provider needs configuration.');
+        setIsGoogleChooserOpen(true);
+      }
+    } catch (err: any) {
+      setGoogleAuthError(err?.message || 'Failed to start Google sign-in.');
+      setIsGoogleChooserOpen(true);
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   // Role states
   const [isCustomRole, setIsCustomRole] = useState(
@@ -379,8 +399,9 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
               {/* Continue with Google Workspace */}
               <button
                 type="button"
-                onClick={() => setIsGoogleChooserOpen(true)}
-                className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-[#E2E8F0] hover:bg-[#F0F4FA] font-medium text-xs text-[#000000] shadow-sm transition-colors"
+                disabled={isGoogleLoading}
+                onClick={handleGoogleAuthClick}
+                className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-[#E2E8F0] hover:bg-[#F0F4FA] font-medium text-xs text-[#000000] shadow-sm transition-colors cursor-pointer disabled:opacity-60"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
                   <path
@@ -400,7 +421,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                     d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.59 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
                   />
                 </svg>
-                Continue with Google Workspace
+                {isGoogleLoading ? 'Connecting to Google...' : 'Continue with Google Workspace'}
               </button>
 
               <div className="relative flex items-center justify-center my-4">
@@ -1186,6 +1207,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
           setStep('questionnaire');
         }}
         targetDomain="nyxivqlpikoffdopfmei.supabase.co"
+        googleAuthError={googleAuthError}
       />
     </div>
   );

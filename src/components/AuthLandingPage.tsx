@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, ArrowRight, Play, Mail, Lock, User, ShieldCheck, Scissors, Calendar, Activity, Check, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Sparkles, ArrowRight, Play, Mail, Lock, User, ShieldCheck, Scissors, Calendar, Activity, Check, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { BaalanceLogo } from './BaalanceLogo';
 import { GoogleAccountChooserModal } from './GoogleAccountChooserModal';
+import { signInWithGoogle } from '@/lib/supabase';
 
 interface AuthLandingPageProps {
   onStartDemo: () => void;
@@ -27,8 +28,11 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
-  // Modals
+  // Google OAuth states
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
   const [isGoogleChooserOpen, setIsGoogleChooserOpen] = useState(false);
+
   // Handle Form Submission (Sign In or Sign Up)
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,7 +72,26 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
     onAuthenticate({ name: userName, email: userEmail, isNewUser: isNew });
   };
 
-  // Handle Google OAuth Selection
+  // Handle Google OAuth Initiate
+  const handleGoogleAuthClick = async () => {
+    setIsGoogleLoading(true);
+    setGoogleAuthError(null);
+    try {
+      const res = await signInWithGoogle();
+      if (!res.success) {
+        setGoogleAuthError(res.error || 'Google OAuth provider needs configuration.');
+        setIsGoogleChooserOpen(true);
+      }
+      // If success, Supabase redirects window.location.href to Google
+    } catch (err: any) {
+      setGoogleAuthError(err?.message || 'Failed to start Google sign-in.');
+      setIsGoogleChooserOpen(true);
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
+  // Handle Google Account Selected from fallback / direct chooser
   const handleGoogleAccountSelected = (account: { name: string; email: string }) => {
     const hasOnboarded = typeof window !== 'undefined' && !!localStorage.getItem(`baalance_user_has_onboarded_${account.email}`);
     const isNew = activeTab === 'signup' ? true : !hasOnboarded;
@@ -85,7 +108,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
           {onOpenPitchMode && (
             <button
               onClick={onOpenPitchMode}
-              className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#3186FF] to-[#6366F1] hover:opacity-95 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#3186FF] to-[#6366F1] hover:opacity-95 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
               title="Open Curated Pitch Video Storyboard (matches your exact script)"
             >
               <span className="text-xs">🎬</span>
@@ -95,7 +118,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
 
           <button
             onClick={onStartDemo}
-            className="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95"
+            className="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
           >
             <Play className="w-3 h-3 fill-white" />
             <span>Launch Demo</span>
@@ -109,7 +132,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
         <div className="flex flex-col items-center space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-[#E2E8F0] text-xs font-semibold text-slate-700 shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#3186FF]" />
-            <span>Powered by Gemini 3.6 Flash</span>
+            <span>Powered by Gemini 2.5 Flash</span>
           </div>
 
           <BaalanceLogo size="xl" showTagline={true} animated={true} />
@@ -134,7 +157,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
 
             <button
               onClick={onStartDemo}
-              className="mt-6 w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+              className="mt-6 w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
             >
               <span>Explore Interactive Demo</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -154,7 +177,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                     setPassword('');
                     setConfirmPassword('');
                   }}
-                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                     activeTab === 'signin'
                       ? 'bg-white text-black shadow-xs'
                       : 'text-slate-600 hover:text-black'
@@ -170,7 +193,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                     setPassword('');
                     setConfirmPassword('');
                   }}
-                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                     activeTab === 'signup'
                       ? 'bg-white text-black shadow-xs'
                       : 'text-slate-600 hover:text-black'
@@ -191,19 +214,30 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
             </div>
 
             <form onSubmit={handleAuthSubmit} className="mt-4 space-y-3">
-              {/* Google Workspace Button (Always direct one-click access) */}
+              {/* Google OAuth Button */}
               <button
                 type="button"
-                onClick={() => setIsGoogleChooserOpen(true)}
-                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-[#E2E8F0] hover:bg-[#F0F4FA] text-xs font-semibold text-black transition-colors shadow-2xs"
+                disabled={isGoogleLoading}
+                onClick={handleGoogleAuthClick}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-[#E2E8F0] hover:bg-[#F0F4FA] text-xs font-semibold text-black transition-colors shadow-2xs cursor-pointer disabled:opacity-60"
               >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
-                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.41 7.34 24 12 24z" />
-                  <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.16 0 9.94 0 12s.45 3.84 1.24 5.42l4.04-3.15z" />
-                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.59 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
-                </svg>
-                <span>{activeTab === 'signin' ? 'Sign in with Google' : 'Sign up with Google'}</span>
+                {isGoogleLoading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#3186FF]" />
+                ) : (
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
+                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.41 7.34 24 12 24z" />
+                    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.16 0 9.94 0 12s.45 3.84 1.24 5.42l4.04-3.15z" />
+                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.59 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+                  </svg>
+                )}
+                <span>
+                  {isGoogleLoading
+                    ? 'Connecting to Google...'
+                    : activeTab === 'signin'
+                    ? 'Sign in with Google'
+                    : 'Sign up with Google'}
+                </span>
               </button>
 
               <div className="relative flex items-center justify-center my-2">
@@ -269,7 +303,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 focus:outline-none"
+                    className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5 text-slate-500" />}
@@ -296,7 +330,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 focus:outline-none"
+                      className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
                       aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                     >
                       {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5 text-slate-500" />}
@@ -305,10 +339,10 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                 </div>
               )}
 
-              {/* Password Error Alert */}
+              {/* Error Message */}
               {passwordError && (
-                <div className="p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-[11px] flex items-center gap-1.5">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0 text-rose-600" />
+                <div className="flex items-center gap-1.5 text-xs text-rose-600 bg-rose-50 p-2 rounded-lg border border-rose-100">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                   <span>{passwordError}</span>
                 </div>
               )}
@@ -316,43 +350,62 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full py-2.5 px-4 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+                className="w-full py-2.5 px-4 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer mt-2"
               >
-                <span>{activeTab === 'signin' ? 'Sign In' : 'Create Account'}</span>
+                <span>{activeTab === 'signin' ? 'Sign In to Retrospective Dashboard' : 'Create Account & Start Intake'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </form>
           </div>
         </div>
 
-        {/* Minimal Feature Bar */}
-        <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-slate-600 pt-4">
-          <span className="flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-[#3186FF]" /> Google Calendar API
-          </span>
-          <span className="text-slate-300">•</span>
-          <span className="flex items-center gap-1.5">
-            <Activity className="w-3.5 h-3.5 text-purple-600" /> Wearable Biometrics
-          </span>
-          <span className="text-slate-300">•</span>
-          <span className="flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Gemini 3.6 Flash
+        {/* 3 Core Trust Pillars */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto pt-4 text-left">
+          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/60 border border-[#E2E8F0]">
+            <Scissors className="w-4 h-4 text-[#3186FF] shrink-0 mt-0.5" />
+            <div>
+              <div className="text-xs font-bold text-black">Salon Collection</div>
+              <div className="text-[11px] text-[#5F6368]">Takes 60 seconds at any barber or salon. Zero needles.</div>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/60 border border-[#E2E8F0]">
+            <Calendar className="w-4 h-4 text-[#3186FF] shrink-0 mt-0.5" />
+            <div>
+              <div className="text-xs font-bold text-black">Calendar Defense</div>
+              <div className="text-[11px] text-[#5F6368]">Cross-references Google Calendar & Oura to pinpoint culprits.</div>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/60 border border-[#E2E8F0]">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+            <div>
+              <div className="text-xs font-bold text-black">CLIA Validated</div>
+              <div className="text-[11px] text-[#5F6368]">Tandem mass spectrometry LC-MS/MS biomarker sensitivity.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="max-w-4xl mx-auto w-full text-center text-xs text-slate-400 py-4 border-t border-[#E2E8F0]">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          <span>© 2026 BAALANCE Bio-Intelligence Inc.</span>
+          <span>baalance.in</span>
+          <span className="flex items-center gap-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+            HIPAA & CLIA Certified Laboratory Network
           </span>
         </div>
       </div>
 
-      {/* Minimal Footer */}
-      <footer className="max-w-4xl mx-auto w-full text-center py-2 text-[11px] text-[#5F6368] flex items-center justify-between">
-        <span>BAALANCE Platform</span>
-        <span>"Your hair keeps the receipts."</span>
-      </footer>
-      
-      {/* Google Account Chooser Modal (matches nyxivqlpikoffdopfmei.supabase.co auth) */}
+      {/* Google Account Chooser & Setup Modal */}
       <GoogleAccountChooserModal
         isOpen={isGoogleChooserOpen}
         onClose={() => setIsGoogleChooserOpen(false)}
         onSelectAccount={handleGoogleAccountSelected}
-        targetDomain="nyxivqlpikoffdopfmei.supabase.co"
+        googleAuthError={googleAuthError}
+        targetDomain="baalance.in"
       />
     </div>
   );

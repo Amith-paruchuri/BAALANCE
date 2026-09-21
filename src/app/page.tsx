@@ -37,6 +37,7 @@ import {
 } from '@/lib/types';
 import { computeDynamicSynthesis } from '@/lib/gemini';
 import { saveUserDataToStorage, loadCachedUserData, loadUserDataForEmail } from '@/lib/storageService';
+import { getSupabaseClient, signOutUser } from '@/lib/supabase';
 import {
   Sparkles,
   Calendar,
@@ -74,10 +75,10 @@ import {
 
 export default function BaalanceApp() {
   // Navigation & Flow Stage
-  // 'auth' = Initial landing with demo callout & login/signup
+  // 'auth' = Initial landing with demo callout & login/signup (Default: login page opens first)
   // 'wizard' = 4-step real functional user onboarding (First Login only)
-  // 'dashboard' = full retrospective diagnostic platform (Defaults to demo dashboard)
-  const [appStage, setAppStage] = useState<'auth' | 'wizard' | 'dashboard'>('dashboard');
+  // 'dashboard' = full retrospective diagnostic platform (Shown once authenticated or demo clicked)
+  const [appStage, setAppStage] = useState<'auth' | 'wizard' | 'dashboard'>('auth');
 
   // Bottom Navigation Active Tab
   const [dashboardTab, setDashboardTab] = useState<DashboardTab>('stress');
@@ -527,16 +528,67 @@ export default function BaalanceApp() {
 
   // Restore stored user profile from Supabase/local cache or open demo directly if query param present
   useEffect(() => {
+    // 1. Check URL parameters for explicit demo mode
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       if (params.get('demo') === 'true' || params.get('mode') === 'demo') {
         handleStartDemo();
         return;
       }
+      if (params.get('pitch') === 'true') {
+        setIsPitchMode(true);
+      }
+
+      // Check if redirected from Google OAuth with error
+      if (window.location.hash.includes('error=')) {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const errorDesc = hashParams.get('error_description') || hashParams.get('error') || 'Google authentication was not completed.';
+        console.warn('[BAALANCE Auth] OAuth error from callback:', errorDesc);
+      }
     }
 
+    // 2. Supabase Google OAuth Session Listener & Callback Processing
+    const supabase = getSupabaseClient();
+    let authSubscription: { unsubscribe: () => void } | null = null;
+
+    if (supabase) {
+      // Check existing session (e.g. from prior Google login)
+      supabase.auth.getSession().then(({ data: { session }, error }) => {
+        if (!error && session?.user?.email) {
+          const user = session.user;
+          const userEmail = user.email!;
+          const userName = user.user_metadata?.full_name || user.user_metadata?.name || userEmail.split('@')[0];
+          handleAuthenticate({
+            name: userName,
+            email: userEmail,
+            isNewUser: false,
+          });
+        }
+      }).catch(console.warn);
+
+      // Listen for auth state changes (crucial for Google OAuth redirect callback)
+      const { data } = supabase.auth.onAuthStateChange((event, session) => {
+        if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.user?.email) {
+          const user = session.user;
+          const userEmail = user.email!;
+          const userName = user.user_metadata?.full_name || user.user_metadata?.name || userEmail.split('@')[0];
+          handleAuthenticate({
+            name: userName,
+            email: userEmail,
+            isNewUser: false,
+          });
+        } else if (event === 'SIGNED_OUT') {
+          handleSignOut();
+        }
+      });
+      authSubscription = data.subscription;
+    }
+
+    // 3. Restore cached authenticated user from local storage
     const cached = loadCachedUserData();
-    if (cached.profile && cached.profile.email) {
+    const activeEmail = typeof window !== 'undefined' ? localStorage.getItem('baalance_active_user_email') : null;
+
+    if (activeEmail && cached.profile && cached.profile.email && !cached.profile.isDemo) {
       setUserProfile(cached.profile);
       if (cached.calendarIcalUrl || cached.profile.calendarIcalUrl) {
         setSavedCalendarIcalUrl(cached.calendarIcalUrl || cached.profile.calendarIcalUrl || '');
@@ -566,6 +618,9 @@ export default function BaalanceApp() {
         });
         setTelemetry(sanitizedTelemetry);
       }
+
+      setDemoMode(false);
+      setAppStage('dashboard');
     }
 
     if (typeof window !== 'undefined') {
@@ -573,8 +628,7 @@ export default function BaalanceApp() {
       localStorage.removeItem('baalance_stored_ical_url');
       localStorage.removeItem('baalance_stored_calendar_events');
 
-      const activeEmail = cached.profile?.email || localStorage.getItem('baalance_active_user_email') || '';
-      const cleanEmail = activeEmail.toLowerCase().trim();
+      const cleanEmail = (activeEmail || '').toLowerCase().trim();
       const storedIcal = cleanEmail
         ? (localStorage.getItem(`baalance_stored_ical_url_${cleanEmail}`) || cached.calendarIcalUrl || cached.profile?.calendarIcalUrl || '')
         : '';
@@ -614,6 +668,12 @@ export default function BaalanceApp() {
         setCalendarRulesApplied(true);
       }
     }
+
+    return () => {
+      if (authSubscription) {
+        authSubscription.unsubscribe();
+      }
+    };
   }, []);
 
   // Handler: Start Demo Experience directly from Landing Page or Wizard
@@ -952,6 +1012,7 @@ export default function BaalanceApp() {
 
   // Sign out handler
   const handleSignOut = () => {
+    signOutUser().catch(console.warn);
     if (typeof window !== 'undefined') {
       localStorage.removeItem('baalance_active_user_email');
     }
@@ -960,7 +1021,7 @@ export default function BaalanceApp() {
     setTelemetry(WEEKLY_12_WEEK_TELEMETRY);
     setSavedCalendarIcalUrl('');
     setSavedCalendarEvents([]);
-    setVerifiedCalendarEmail('alex.mercer@gmail.com');
+    setVerifiedCalendarEmail('');
     autoSyncedRootUrlRef.current = null;
     setAppStage('auth');
     setDashboardTab('stress');
