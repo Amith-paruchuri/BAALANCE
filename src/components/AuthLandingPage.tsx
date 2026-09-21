@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, ArrowRight, Play, Mail, Lock, User, ShieldCheck, Scissors, Calendar, Activity, Check, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Sparkles, ArrowRight, Play, Mail, Lock, User, Activity, Check, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { BaalanceLogo } from './BaalanceLogo';
 import { GoogleAccountChooserModal } from './GoogleAccountChooserModal';
 import { signInWithGoogle } from '@/lib/supabase';
@@ -238,20 +238,6 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                 </span>
               </button>
 
-              {/* Fast Direct Google Account Selector */}
-              <button
-                type="button"
-                onClick={() => setIsGoogleChooserOpen(true)}
-                className="w-full flex items-center justify-between py-2 px-3 rounded-xl bg-[#F0F4FA] hover:bg-blue-50 text-[11px] text-[#1a73e8] font-medium border border-blue-200/60 transition-colors cursor-pointer"
-                title="Select from your verified Google accounts for direct 1-click access"
-              >
-                <span className="flex items-center gap-1.5 min-w-0">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-                  <span className="truncate">Fast Sign-In: <strong>p.v.saiamith@gmail.com</strong></span>
-                </span>
-                <span className="text-[10px] bg-blue-100/80 px-2 py-0.5 rounded font-bold shrink-0">1-Click</span>
-              </button>
-
               <div className="relative flex items-center justify-center my-2">
                 <div className="border-t border-[#E2E8F0] w-full" />
                 <span className="bg-white px-2 text-[10px] text-slate-400 uppercase tracking-wider absolute">
@@ -369,46 +355,6 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
               </button>
             </form>
           </div>
-        </div>
-
-        {/* 3 Core Trust Pillars */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto pt-4 text-left">
-          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/60 border border-[#E2E8F0]">
-            <Scissors className="w-4 h-4 text-[#3186FF] shrink-0 mt-0.5" />
-            <div>
-              <div className="text-xs font-bold text-black">Salon Collection</div>
-              <div className="text-[11px] text-[#5F6368]">Takes 60 seconds at any barber or salon. Zero needles.</div>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/60 border border-[#E2E8F0]">
-            <Calendar className="w-4 h-4 text-[#3186FF] shrink-0 mt-0.5" />
-            <div>
-              <div className="text-xs font-bold text-black">Calendar Defense</div>
-              <div className="text-[11px] text-[#5F6368]">Cross-references Google Calendar & Oura to pinpoint culprits.</div>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/60 border border-[#E2E8F0]">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-            <div>
-              <div className="text-xs font-bold text-black">CLIA Validated</div>
-              <div className="text-[11px] text-[#5F6368]">Tandem mass spectrometry LC-MS/MS biomarker sensitivity.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="max-w-4xl mx-auto w-full text-center text-xs text-slate-400 py-4 border-t border-[#E2E8F0]">
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-          <span>© 2026 BAALANCE Bio-Intelligence Inc.</span>
-          <span>baalance.in</span>
-          <span className="flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-            HIPAA & CLIA Certified Laboratory Network
-          </span>
-        </div>
       </div>
 
       {/* Google Account Chooser & Setup Modal */}
