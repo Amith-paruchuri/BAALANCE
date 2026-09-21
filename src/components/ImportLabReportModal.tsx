@@ -149,21 +149,21 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
       setM2Val(14.2); // Clearing (August)
       setM3Val(9.8);  // Optimal recovery at root (September)
       setTestDate('Nov 14, 2026');
-      setExtractedSummary('Full recovery achieved: strictly logged off by 7 PM, 8+ hours restorative sleep, and normal healthy cortisol baseline.');
+      setExtractedSummary('Full recovery achieved: strictly logged off by 7 PM, restored evening downtime, and normal healthy cortisol baseline.');
     } else if (presetType === 'crunch') {
       setReportName('Case-2-Deadline-Crunch.pdf');
       setM1Val(11.2); // Baseline at tip (July)
       setM2Val(28.4); // August spike
       setM3Val(32.4); // Acute severe spike at root (September)
       setTestDate('Sep 20, 2026');
-      setExtractedSummary('High work crunch: 50+ hours of meetings, late-night calls past 9 PM, and <5h sleep driving severe cortisol surge into hair root.');
+      setExtractedSummary('High work crunch: 50+ hours of meetings, late-night calls past 9 PM, and disrupted recovery routines driving severe cortisol surge into hair root.');
     } else {
       setReportName('Case-3-Lingering-Fatigue.pdf');
       setM1Val(11.2); // July (Hair Tip)
       setM2Val(28.4); // August (Mid-Shaft)
       setM3Val(15.6); // September (Scalp Root)
       setTestDate('Sep 18, 2026');
-      setExtractedSummary('Slow recovery: major deadline over, but midnight screen habits and restless sleep kept stress hormones mildly elevated.');
+      setExtractedSummary('Slow recovery: major deadline over, but midnight screen habits and continued evening triage kept stress hormones mildly elevated.');
     }
     setUploadSuccess(true);
   };
@@ -184,7 +184,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
         status: m1Val > 20 ? 'acute_surge' : m1Val > 14 ? 'incomplete_recovery' : 'baseline',
         clinicalStatusLabel: m1Val > 20 ? 'Historical Spike' : m1Val > 14 ? 'Mild Strain' : 'Optimal Baseline',
         clinicalNote: m1Val <= 11.0
-          ? 'Standard 25h weekly meetings, steady 7.5h sleep, and regular schedule kept stress in a healthy, balanced range.'
+          ? 'Standard 25h weekly meetings, regular schedule, and protected evenings kept stress in a healthy, balanced range.'
           : m1Val > 20
           ? 'Elevated historical stress baseline with heavy kickoff load.'
           : 'Mildly elevated baseline workload with early project sprints.',

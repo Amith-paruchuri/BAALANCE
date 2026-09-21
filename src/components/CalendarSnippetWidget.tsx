@@ -1173,8 +1173,8 @@ export const CalendarSnippetWidget: React.FC<CalendarSnippetWidgetProps> = ({
   }
 
   const dynamicSleepImpact = feedSource === 'clinical_benchmark'
-    ? 'causing deep sleep to drop from 1.45 hours down to 42 minutes.'
-    : `suppressing restorative deep sleep and delaying circadian recovery across high-workload weeks.`;
+    ? 'causing sustained nocturnal cortisol elevation and suppressing evening down-regulation.'
+    : `elevating evening cortisol levels and delaying autonomic recovery across high-workload weeks.`;
 
   return (
     <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card overflow-hidden font-sans">
@@ -1731,8 +1731,13 @@ export const CalendarSnippetWidget: React.FC<CalendarSnippetWidgetProps> = ({
                           {matchingEvents.map(evt => (
                             <div
                               key={evt.id}
+                              onClick={() => {
+                                if (onApplyRules) {
+                                  onApplyRules();
+                                }
+                              }}
                               className={`p-1.5 rounded-lg text-left border shadow-2xs transition-transform hover:scale-[1.02] cursor-pointer ${evt.colorBg}`}
-                              title={`${evt.title} (${evt.startTime} - ${evt.endTime})`}
+                              title={evt.isCurfewBreach ? `${evt.title} (${evt.startTime} - ${evt.endTime}) • Click to apply Calendar Defense & Reschedule` : `${evt.title} (${evt.startTime} - ${evt.endTime}) • Click to inspect Calendar Defense`}
                             >
                               <div className="font-bold text-[10px] leading-tight truncate flex items-center gap-1">
                                 {evt.category === 'birthday' && <span className="shrink-0">🎂</span>}
@@ -1790,9 +1795,15 @@ export const CalendarSnippetWidget: React.FC<CalendarSnippetWidgetProps> = ({
             currentWeekEvents.map(evt => (
               <div
                 key={evt.id}
-                className={`p-2.5 rounded-xl transition-colors flex items-center justify-between gap-3 ${
-                  evt.isCurfewBreach ? 'bg-rose-50/70 border border-rose-200' : 'hover:bg-slate-50'
+                onClick={() => {
+                  if (onApplyRules) {
+                    onApplyRules();
+                  }
+                }}
+                className={`p-2.5 rounded-xl transition-colors flex items-center justify-between gap-3 cursor-pointer ${
+                  evt.isCurfewBreach ? 'bg-rose-50/70 border border-rose-200 hover:bg-rose-100/70' : 'hover:bg-slate-50'
                 }`}
+                title={evt.isCurfewBreach ? `${evt.title} • Click to apply Calendar Defense & Reschedule` : `${evt.title} • Click to inspect Calendar Defense`}
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-12 text-center font-mono">
