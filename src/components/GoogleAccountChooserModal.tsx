@@ -21,37 +21,18 @@ interface GoogleAccountChooserModalProps {
   googleAuthError?: string | null;
 }
 
-const PRESET_ACCOUNTS: GoogleAccount[] = [
-  {
-    name: 'PARUCHURI SAI AMITH',
-    email: 'p.v.saiamith@gmail.com',
-    avatarText: 'P',
-    avatarBg: 'bg-emerald-700',
-  },
-  {
-    name: 'PARUCHURI VENKATA SAI',
-    email: 'paruchuri.3833@aiims.edu',
-    avatarText: 'P',
-    avatarBg: 'bg-slate-700',
-  },
-  {
-    name: 'Amith Paruchuri',
-    email: 'amithparuchuri@gmail.com',
-    avatarText: 'A',
-    avatarBg: 'bg-[#3186FF]',
-  },
-];
+const PRESET_ACCOUNTS: GoogleAccount[] = [];
 
 export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps> = ({
   isOpen,
   onClose,
   onSelectAccount,
-  targetDomain = 'nyxivqlpikoffdopfmei.supabase.co',
+  targetDomain = 'baalance.in',
   googleAuthError,
 }) => {
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isCustomMode, setIsCustomMode] = useState(false);
+  const [isCustomMode, setIsCustomMode] = useState(true);
   const [customName, setCustomName] = useState('');
   const [customEmail, setCustomEmail] = useState('');
   const [isRetryingNative, setIsRetryingNative] = useState(false);
@@ -337,19 +318,22 @@ export const GoogleAccountChooserModal: React.FC<GoogleAccountChooserModalProps>
                     type="text"
                     value={customName}
                     onChange={(e) => setCustomName(e.target.value)}
-                    placeholder="e.g. Dr. Amith Paruchuri"
+                    placeholder="e.g. Alex Morgan"
                     className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1a73e8]"
                   />
                 </div>
 
                 <div className="flex items-center justify-between pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsCustomMode(false)}
-                    className="text-xs text-slate-600 hover:text-black"
-                  >
-                    ← Back to account list
-                  </button>
+                  {PRESET_ACCOUNTS.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsCustomMode(false)}
+                      className="text-xs text-slate-600 hover:text-black"
+                    >
+                      ← Back to account list
+                    </button>
+                  )}
+                  <div className="flex-1" />
                   <button
                     type="submit"
                     disabled={isLoading}
