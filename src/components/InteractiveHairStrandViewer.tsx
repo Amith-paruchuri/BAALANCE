@@ -735,7 +735,7 @@ export const InteractiveHairStrandViewer: React.FC<InteractiveHairStrandViewerPr
 
         {/* RIGHT COLUMN: 3 ATTRIBUTED SEGMENT CARDS (JULY, AUGUST, SEPTEMBER) */}
         <div className="flex flex-col justify-between gap-3 sm:gap-3.5 h-full">
-          {segmentList.map(({ seg, id, monthTitle, position, surgePercent, description, accentColor, bgActive }) => {
+          {segmentList.map(({ seg, id, monthTitle, surgePercent, description, accentColor, bgActive }) => {
             const isActive = activeSegmentId === id;
             const isEditing = editingSegmentId === id;
             const badge = getStatusBadge(seg.cortisolPgPerMg);
@@ -779,10 +779,6 @@ export const InteractiveHairStrandViewer: React.FC<InteractiveHairStrandViewerPr
                         <SlidersHorizontal className="w-2.5 h-2.5" />
                         <span>{isEditing ? 'Done' : 'Edit'}</span>
                       </button>
-                    </div>
-
-                    <div className="text-[10px] text-slate-500 font-mono mt-0.5">
-                      {position}
                     </div>
                   </div>
 
