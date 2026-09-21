@@ -21,8 +21,109 @@ import {
   ExternalLink,
   Plus,
   Trash2,
+  Sliders,
+  Sun,
+  Brain,
+  Coffee,
+  ShieldAlert,
+  CalendarDays,
 } from 'lucide-react';
 import { CalendarEventItem } from './CalendarSnippetWidget';
+
+export type DefenseRuleType = 'curfew' | 'focus_time' | 'weekend_rest' | 'marathon_buffer' | 'daily_cap';
+
+export interface CalendarDefenseRule {
+  id: DefenseRuleType;
+  name: string;
+  badgeLabel: string;
+  description: string;
+  colorClass: string;
+  badgeBg: string;
+  badgeText: string;
+  badgeBorder: string;
+  icon: any;
+}
+
+export const CALENDAR_DEFENSE_RULES: CalendarDefenseRule[] = [
+  {
+    id: 'curfew',
+    name: 'Evening Curfew Shield (Post-7:00 PM)',
+    badgeLabel: '7:00 PM Curfew Breach',
+    description: 'Decline or shift calls scheduled after 7:00 PM to stop work from bleeding into restorative deep sleep hours.',
+    colorClass: 'rose',
+    badgeBg: 'bg-rose-50',
+    badgeText: 'text-rose-800',
+    badgeBorder: 'border-rose-200',
+    icon: Clock,
+  },
+  {
+    id: 'focus_time',
+    name: 'Deep Work Focus Shield (Tue & Thu 9 AM – 12 PM)',
+    badgeLabel: 'Focus Block Encroachment',
+    description: 'Block Tuesday & Thursday mornings as protected deep work windows with zero meetings to avoid task-switching fatigue.',
+    colorClass: 'purple',
+    badgeBg: 'bg-purple-50',
+    badgeText: 'text-purple-800',
+    badgeBorder: 'border-purple-200',
+    icon: Brain,
+  },
+  {
+    id: 'weekend_rest',
+    name: 'Weekend Parasympathetic Recovery (Sat & Sun)',
+    badgeLabel: 'Weekend Meeting Breach',
+    description: 'Protect weekends from professional synchronization to enable parasympathetic nervous system recovery.',
+    colorClass: 'amber',
+    badgeBg: 'bg-amber-50',
+    badgeText: 'text-amber-800',
+    badgeBorder: 'border-amber-200',
+    icon: Sun,
+  },
+  {
+    id: 'marathon_buffer',
+    name: 'Meeting Duration & Decompression Buffer',
+    badgeLabel: 'Zero-Buffer Marathon (>2h)',
+    description: 'Prevent marathon meetings exceeding 2 hours and enforce 15-minute bio-breaks between consecutive calls.',
+    colorClass: 'blue',
+    badgeBg: 'bg-blue-50',
+    badgeText: 'text-blue-800',
+    badgeBorder: 'border-blue-200',
+    icon: Coffee,
+  },
+  {
+    id: 'daily_cap',
+    name: 'Daily Meeting Load Ceiling (Max 5 hrs/day)',
+    badgeLabel: 'Daily Load Cap (>5h/day)',
+    description: 'Cap scheduled meeting duration at 5 hours per day to prevent acute prefrontal cortex exhaustion.',
+    colorClass: 'indigo',
+    badgeBg: 'bg-indigo-50',
+    badgeText: 'text-indigo-800',
+    badgeBorder: 'border-indigo-200',
+    icon: ShieldAlert,
+  },
+];
+
+export interface SlotOption {
+  id: string;
+  label: string;
+  badge: string;
+  dateKey: string;
+  dayName: string;
+  dayDate: string;
+  startHour: number;
+  startTime: string;
+  endTime: string;
+  description: string;
+}
+
+export interface CustomSlotState {
+  dateKey: string;
+  dayName: string;
+  dayDate: string;
+  startHour: number;
+  startTime: string;
+  durationHours: number;
+  endTime: string;
+}
 
 export interface RescheduleProposal {
   id: string; // original event id
@@ -31,20 +132,10 @@ export interface RescheduleProposal {
   currentDayFormatted: string;
   currentTimeRange: string;
   invitees: string[];
-  options: Array<{
-    id: string;
-    label: string;
-    badge: string;
-    dateKey: string;
-    dayName: string;
-    dayDate: string;
-    startHour: number;
-    startTime: string;
-    endTime: string;
-    description: string;
-  }>;
-  selectedOptionId: string;
-  customHour?: number;
+  breaches: CalendarDefenseRule[];
+  options: SlotOption[];
+  selectedOptionId: string; // 'opt-1-best' | 'opt-2-midday' | 'opt-3-nextday' | 'custom'
+  customSlot: CustomSlotState;
   sendEmail: boolean;
 }
 
@@ -73,6 +164,45 @@ interface CalendarDefenseModalProps {
   ) => void;
 }
 
+// Available standard weekdays for custom choosing in 4-week window
+const UPCOMING_CUSTOM_DAYS: Array<{ dateKey: string; day: string; dayDate: string }> = [
+  { dateKey: '2026-09-21', day: 'Mon', dayDate: 'Sep 21' },
+  { dateKey: '2026-09-22', day: 'Tue', dayDate: 'Sep 22' },
+  { dateKey: '2026-09-23', day: 'Wed', dayDate: 'Sep 23' },
+  { dateKey: '2026-09-24', day: 'Thu', dayDate: 'Sep 24' },
+  { dateKey: '2026-09-25', day: 'Fri', dayDate: 'Sep 25' },
+  { dateKey: '2026-09-28', day: 'Mon', dayDate: 'Sep 28' },
+  { dateKey: '2026-09-29', day: 'Tue', dayDate: 'Sep 29' },
+  { dateKey: '2026-09-30', day: 'Wed', dayDate: 'Sep 30' },
+  { dateKey: '2026-10-01', day: 'Thu', dayDate: 'Oct 01' },
+  { dateKey: '2026-10-02', day: 'Fri', dayDate: 'Oct 02' },
+  { dateKey: '2026-10-05', day: 'Mon', dayDate: 'Oct 05' },
+  { dateKey: '2026-10-06', day: 'Tue', dayDate: 'Oct 06' },
+  { dateKey: '2026-10-07', day: 'Wed', dayDate: 'Oct 07' },
+  { dateKey: '2026-10-08', day: 'Thu', dayDate: 'Oct 08' },
+  { dateKey: '2026-10-09', day: 'Fri', dayDate: 'Oct 09' },
+];
+
+const AVAILABLE_CUSTOM_HOURS: Array<{ hour: number; label: string }> = [
+  { hour: 9.0, label: '09:00 AM' },
+  { hour: 9.5, label: '09:30 AM' },
+  { hour: 10.0, label: '10:00 AM' },
+  { hour: 10.5, label: '10:30 AM' },
+  { hour: 11.0, label: '11:00 AM' },
+  { hour: 11.5, label: '11:30 AM' },
+  { hour: 13.0, label: '01:00 PM' },
+  { hour: 13.5, label: '01:30 PM' },
+  { hour: 14.0, label: '02:00 PM' },
+  { hour: 14.5, label: '02:30 PM' },
+  { hour: 15.0, label: '03:00 PM' },
+  { hour: 15.5, label: '03:30 PM' },
+  { hour: 16.0, label: '04:00 PM' },
+  { hour: 16.5, label: '04:30 PM' },
+  { hour: 17.0, label: '05:00 PM' },
+  { hour: 17.5, label: '05:30 PM' },
+  { hour: 18.0, label: '06:00 PM' },
+];
+
 export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
   isOpen,
   onClose,
@@ -83,6 +213,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [successState, setSuccessState] = useState(false);
+  const [activeRuleFilter, setActiveRuleFilter] = useState<'all' | DefenseRuleType>('all');
   const [previewEmailId, setPreviewEmailId] = useState<string | null>(null);
   const [newInviteeInputs, setNewInviteeInputs] = useState<Record<string, string>>({});
   const [confirmedItems, setConfirmedItems] = useState<Array<{
@@ -140,6 +271,23 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
     return `${String(h12).padStart(2, '0')}:${String(minInt).padStart(2, '0')} ${ampm}`;
   };
 
+  // Helper: Extract event hour
+  const getEventStartHour = (evt: CalendarEventItem): number => {
+    if (typeof evt.startHour === 'number') return evt.startHour;
+    if (evt.startTime) {
+      const match = evt.startTime.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+      if (match) {
+        let h = parseInt(match[1], 10);
+        const m = parseInt(match[2], 10);
+        const isPM = match[3]?.toUpperCase() === 'PM';
+        if (isPM && h < 12) h += 12;
+        if (!isPM && h === 12) h = 0;
+        return h + m / 60;
+      }
+    }
+    return 10.0;
+  };
+
   // Helper: Build Google Calendar Web Intent URL
   const buildGoogleCalendarUrl = (
     title: string,
@@ -182,46 +330,73 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
     return `${base}&${params.toString()}`;
   };
 
-  // 1. Scan the next 4 weeks (Sep 21, 2026 to Oct 19, 2026) for events breaking the 7:00 PM curfew
+  // 1. Scan the next 4 weeks (Sep 21, 2026 to Oct 19, 2026) for events breaking ANY of the 5 rules
   const initialViolations = useMemo(() => {
     const TODAY_DATE_KEY = '2026-09-21';
     const FOUR_WEEKS_END_KEY = '2026-10-19';
 
-    const violatingEvents = events.filter(evt => {
-      // Ignore all-day festivals/holidays
-      if (evt.isAllDay) return false;
-      const dateKey = getEvtDateKey(evt);
-
-      // Must be within next 4 weeks
-      const isInNext4Weeks = dateKey >= TODAY_DATE_KEY && dateKey <= FOUR_WEEKS_END_KEY;
-      if (!isInNext4Weeks) return false;
-
-      // Extract hour either from startHour or startTime
-      let hour = evt.startHour;
-      if (typeof hour !== 'number' && evt.startTime) {
-        const match = evt.startTime.match(/(\d+):(\d+)\s*(AM|PM)?/i);
-        if (match) {
-          let h = parseInt(match[1], 10);
-          const m = parseInt(match[2], 10);
-          const isPM = match[3]?.toUpperCase() === 'PM';
-          if (isPM && h < 12) h += 12;
-          if (!isPM && h === 12) h = 0;
-          hour = h + m / 60;
-        }
+    // Calculate daily meeting hours map to detect daily cap breaches (>5h/day)
+    const dailyHoursMap: Record<string, number> = {};
+    events.forEach(e => {
+      const dk = getEvtDateKey(e);
+      if (dk && !e.isAllDay) {
+        dailyHoursMap[dk] = (dailyHoursMap[dk] || 0) + (e.durationHours || 1.0);
       }
-
-      // Check if starts at or after 7:00 PM (19.0) or before 5:00 AM or is explicitly marked as curfew breach
-      const isLateCurfew = evt.isCurfewBreach || (typeof hour === 'number' && (hour >= 19.0 || hour < 5.0));
-
-      return isLateCurfew;
     });
 
-    // Build proposals with conflict-free slot options
-    return violatingEvents.map((evt): RescheduleProposal => {
+    const proposalsList: RescheduleProposal[] = [];
+
+    events.forEach(evt => {
+      if (evt.isAllDay) return;
       const dateKey = getEvtDateKey(evt);
+      const isInNext4Weeks = dateKey >= TODAY_DATE_KEY && dateKey <= FOUR_WEEKS_END_KEY;
+      if (!isInNext4Weeks) return;
+
+      const hour = getEventStartHour(evt);
+      const dur = evt.durationHours || 1.0;
+      const day = evt.day || 'Mon';
       const titleLower = (evt.title || '').toLowerCase();
 
-      // Determine realistic invitees
+      const breachedRules: CalendarDefenseRule[] = [];
+
+      // RULE 1: Evening Curfew (Starts >= 19.0 / 7:00 PM or < 8.0 AM or explicit flag)
+      const isCurfew = evt.isCurfewBreach || hour >= 19.0 || hour < 8.0;
+      if (isCurfew) {
+        const r = CALENDAR_DEFENSE_RULES.find(x => x.id === 'curfew');
+        if (r) breachedRules.push(r);
+      }
+
+      // RULE 2: Deep Work Focus Time (Tue & Thu 9:00 AM – 12:00 PM)
+      const isTueOrThu = day === 'Tue' || day === 'Thu';
+      const overlapsFocusTime = isTueOrThu && hour < 12.0 && (hour + dur) > 9.0;
+      if (overlapsFocusTime && !isCurfew) {
+        const r = CALENDAR_DEFENSE_RULES.find(x => x.id === 'focus_time');
+        if (r) breachedRules.push(r);
+      }
+
+      // RULE 3: Weekend Rest Shield (Saturday or Sunday meetings)
+      const isWeekend = day === 'Sat' || day === 'Sun';
+      const isPersonalLifeEvent = titleLower.includes('marrag') || titleLower.includes('wedding') || evt.category === 'birthday';
+      if (isWeekend && !isPersonalLifeEvent) {
+        const r = CALENDAR_DEFENSE_RULES.find(x => x.id === 'weekend_rest');
+        if (r) breachedRules.push(r);
+      }
+
+      // RULE 4: Marathon Meeting Fatigue (>2.0 Hours continuous)
+      if (dur >= 2.0) {
+        const r = CALENDAR_DEFENSE_RULES.find(x => x.id === 'marathon_buffer');
+        if (r) breachedRules.push(r);
+      }
+
+      // RULE 5: Daily Meeting Load Cap (>5.0 hours in single day)
+      if ((dailyHoursMap[dateKey] || 0) > 5.0 && !isCurfew && !overlapsFocusTime) {
+        const r = CALENDAR_DEFENSE_RULES.find(x => x.id === 'daily_cap');
+        if (r) breachedRules.push(r);
+      }
+
+      if (breachedRules.length === 0) return;
+
+      // Realistic invitees for this event
       let invitees: string[] = [];
       if (titleLower.includes('ayushi')) {
         invitees = ['ayushi.k@gmail.com', 'pavan.sharma@gmail.com', 'anush.verma@gmail.com'];
@@ -233,19 +408,22 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
         invitees = ['attendee-1@gmail.com', 'attendee-2@gmail.com'];
       }
 
-      // Generate 3 conflict-free alternative daytime slots
-      // Option 1: Same day late afternoon (4:30 PM)
-      const opt1StartHour = 16.5; // 4:30 PM
-      const dur = evt.durationHours || 1.0;
+      // Smart Alternative Presets that strictly satisfy ALL 5 rules:
+      // Preset 1: Mid-day afternoon slot (2:30 PM – 3:30 PM)
+      const opt1StartHour = 14.5; // 2:30 PM
       const opt1EndHour = opt1StartHour + dur;
 
-      // Option 2: Same day early afternoon (2:00 PM)
-      const opt2StartHour = 14.0; // 2:00 PM
+      // Preset 2: Morning open slot (10:30 AM or 1:30 PM on Tue/Thu)
+      const opt2StartHour = isTueOrThu ? 13.5 : 10.5;
       const opt2EndHour = opt2StartHour + dur;
 
-      // Option 3: Next day daytime (Sunday 11:30 AM or next day morning)
+      // Preset 3: Next weekday morning (11:30 AM on next day)
       const [y, m, d] = dateKey.split('-').map(Number);
       const nextDate = new Date(y, m - 1, d + 1);
+      // Skip weekends if next day is Sat or Sun
+      if (nextDate.getDay() === 6) nextDate.setDate(nextDate.getDate() + 2);
+      if (nextDate.getDay() === 0) nextDate.setDate(nextDate.getDate() + 1);
+
       const nextDateKey = `${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}-${String(nextDate.getDate()).padStart(2, '0')}`;
       const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -254,74 +432,111 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
       const opt3StartHour = 11.5; // 11:30 AM
       const opt3EndHour = opt3StartHour + dur;
 
-      const currentDayName = evt.day || 'Sat';
-      const currentDayDate = evt.dayDate || 'Sep 26';
+      const currentDayName = evt.day || 'Mon';
+      const currentDayDate = evt.dayDate || 'Sep 21';
 
-      const options = [
+      const options: SlotOption[] = [
         {
           id: 'opt-1-best',
           label: `${currentDayName} ${currentDayDate} • ${formatHourStr(opt1StartHour)} – ${formatHourStr(opt1EndHour)}`,
-          badge: 'Recommended • 2.5 hrs before 7 PM Curfew',
+          badge: 'Recommended • Optimal Recovery Slot',
           dateKey,
           dayName: currentDayName,
           dayDate: currentDayDate,
           startHour: opt1StartHour,
           startTime: formatHourStr(opt1StartHour),
           endTime: formatHourStr(opt1EndHour),
-          description: 'Keeps the same date while securing safe daytime hours before evening wind-down.',
+          description: 'Safe afternoon window. Completely avoids curfew, focus blocks, and preserves evening recovery.',
         },
         {
           id: 'opt-2-midday',
           label: `${currentDayName} ${currentDayDate} • ${formatHourStr(opt2StartHour)} – ${formatHourStr(opt2EndHour)}`,
-          badge: 'Mid-Day Open Window',
+          badge: isTueOrThu ? 'Post-Focus Block Window' : 'Mid-Day Open Window',
           dateKey,
           dayName: currentDayName,
           dayDate: currentDayDate,
           startHour: opt2StartHour,
           startTime: formatHourStr(opt2StartHour),
           endTime: formatHourStr(opt2EndHour),
-          description: 'Early afternoon slot with zero calendar conflicts.',
+          description: 'Conflict-free slot with minimum cognitive fatigue and zero boundary violations.',
         },
         {
           id: 'opt-3-nextday',
           label: `${nextDayName} ${nextDayDate} • ${formatHourStr(opt3StartHour)} – ${formatHourStr(opt3EndHour)}`,
-          badge: 'Next Day Morning Window',
+          badge: 'Next Weekday Protected Slot',
           dateKey: nextDateKey,
           dayName: nextDayName,
           dayDate: nextDayDate,
           startHour: opt3StartHour,
           startTime: formatHourStr(opt3StartHour),
           endTime: formatHourStr(opt3EndHour),
-          description: 'Relaxed morning timing allowing completely free evenings on both days.',
+          description: 'Shifts to next business day morning, securing fully relaxed evenings on both days.',
         },
       ];
 
-      return {
+      // Default custom slot state
+      const defaultCustom: CustomSlotState = {
+        dateKey,
+        dayName: currentDayName,
+        dayDate: currentDayDate,
+        startHour: opt1StartHour,
+        startTime: formatHourStr(opt1StartHour),
+        durationHours: dur,
+        endTime: formatHourStr(opt1EndHour),
+      };
+
+      proposalsList.push({
         id: evt.id,
         event: evt,
         currentDateKey: dateKey,
         currentDayFormatted: `${currentDayName} ${currentDayDate}`,
         currentTimeRange: `${evt.startTime} – ${evt.endTime}`,
         invitees,
+        breaches: breachedRules,
         options,
         selectedOptionId: options[0].id,
+        customSlot: defaultCustom,
         sendEmail: true,
-      };
+      });
     });
+
+    return proposalsList;
   }, [events]);
 
   const [proposals, setProposals] = useState<RescheduleProposal[]>(initialViolations);
 
-  // Sync proposals when initialViolations changes
   React.useEffect(() => {
     setProposals(initialViolations);
   }, [initialViolations]);
 
   if (!isOpen) return null;
 
+  // Filtered proposals based on active rule pill
+  const filteredProposals = proposals.filter(p => {
+    if (activeRuleFilter === 'all') return true;
+    return p.breaches.some(b => b.id === activeRuleFilter);
+  });
+
   const handleSelectOption = (proposalId: string, optionId: string) => {
     setProposals(prev =>
       prev.map(p => (p.id === proposalId ? { ...p, selectedOptionId: optionId } : p))
+    );
+  };
+
+  const handleUpdateCustomSlot = (proposalId: string, updates: Partial<CustomSlotState>) => {
+    setProposals(prev =>
+      prev.map(p => {
+        if (p.id !== proposalId) return p;
+        const newCustom = { ...p.customSlot, ...updates };
+        const endHour = newCustom.startHour + newCustom.durationHours;
+        newCustom.startTime = formatHourStr(newCustom.startHour);
+        newCustom.endTime = formatHourStr(endHour);
+        return {
+          ...p,
+          selectedOptionId: 'custom',
+          customSlot: newCustom,
+        };
+      })
     );
   };
 
@@ -357,6 +572,25 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
     );
   };
 
+  // Evaluate if custom slot is compliant with all 5 rules
+  const evaluateCustomSlotHealth = (custom: CustomSlotState): { isCompliant: boolean; warning?: string } => {
+    if (custom.startHour >= 19.0 || custom.startHour < 8.0) {
+      return { isCompliant: false, warning: 'Breaches 7:00 PM evening curfew' };
+    }
+    const isTueOrThu = custom.dayName === 'Tue' || custom.dayName === 'Thu';
+    if (isTueOrThu && custom.startHour < 12.0 && (custom.startHour + custom.durationHours) > 9.0) {
+      return { isCompliant: false, warning: 'Overlaps protected Tue/Thu 9am-12pm Focus Time' };
+    }
+    if (custom.dayName === 'Sat' || custom.dayName === 'Sun') {
+      return { isCompliant: false, warning: 'Scheduled on a weekend (breaks recovery shield)' };
+    }
+    if (custom.durationHours >= 2.0) {
+      return { isCompliant: false, warning: 'Duration exceeds 2 hours without a bio-break' };
+    }
+    return { isCompliant: true };
+  };
+
+  // Confirmation Handler: Reschedules meetings, dispatches emails, and prepares Google Calendar links
   const handleConfirm = async () => {
     setIsProcessing(true);
 
@@ -364,17 +598,49 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
     const confirmedSummaries: any[] = [];
 
     const results = proposals.map(p => {
-      const chosen = p.options.find(o => o.id === p.selectedOptionId) || p.options[0];
-      const cleanTitle = p.event.title.replace(/\s*\(Curfew Protected\)/gi, '').trim();
+      let chosenSlotData: {
+        dateKey: string;
+        day: string;
+        dayDate: string;
+        startHour: number;
+        startTime: string;
+        endTime: string;
+      };
 
-      const emailSubject = `Rescheduled: ${cleanTitle} (Moved to ${chosen.dayName} at ${chosen.startTime})`;
+      if (p.selectedOptionId === 'custom') {
+        chosenSlotData = {
+          dateKey: p.customSlot.dateKey,
+          day: p.customSlot.dayName,
+          dayDate: p.customSlot.dayDate,
+          startHour: p.customSlot.startHour,
+          startTime: p.customSlot.startTime,
+          endTime: p.customSlot.endTime,
+        };
+      } else {
+        const preset = p.options.find(o => o.id === p.selectedOptionId) || p.options[0];
+        chosenSlotData = {
+          dateKey: preset.dateKey,
+          day: preset.dayName,
+          dayDate: preset.dayDate,
+          startHour: preset.startHour,
+          startTime: preset.startTime,
+          endTime: preset.endTime,
+        };
+      }
+
+      const cleanTitle = p.event.title
+        .replace(/\s*\(Curfew Protected\)/gi, '')
+        .replace(/\s*\(Defense Rescheduled\)/gi, '')
+        .trim();
+
+      const emailSubject = `Rescheduled: ${cleanTitle} (Moved to ${chosenSlotData.day} at ${chosenSlotData.startTime})`;
       const emailBody = `Hi everyone,
 
-To preserve healthy evening recovery hours and respect calendar boundaries, I have rescheduled our meeting:
+To respect biological recovery boundaries and adhere to calendar defense rules, I have rescheduled our meeting:
 
 • Meeting: ${cleanTitle}
 • Previous Time: ${p.currentDayFormatted} at ${p.currentTimeRange}
-• New Time: ${chosen.dayName}, ${chosen.dayDate} from ${chosen.startTime} to ${chosen.endTime}
+• New Time: ${chosenSlotData.day}, ${chosenSlotData.dayDate} from ${chosenSlotData.startTime} to ${chosenSlotData.endTime}
 
 Your Google Calendar invite has been updated with the new daytime slot.
 
@@ -382,11 +648,11 @@ Best regards,
 ${userName || userEmail}`;
 
       const gcalUrl = buildGoogleCalendarUrl(
-        `${cleanTitle} (Curfew Protected)`,
-        chosen.dateKey,
-        chosen.startHour,
+        `${cleanTitle} (Defense Protected)`,
+        chosenSlotData.dateKey,
+        chosenSlotData.startHour,
         p.event.durationHours || 1.0,
-        `Rescheduled by BAALANCE Calendar Defense to protect evening recovery hours.\nPrevious Time: ${p.currentDayFormatted} at ${p.currentTimeRange}`,
+        `Rescheduled by BAALANCE Calendar Defense to protect recovery hours.\nPrevious Time: ${p.currentDayFormatted} at ${p.currentTimeRange}`,
         p.invitees
       );
 
@@ -395,8 +661,8 @@ ${userName || userEmail}`;
       emailPayloadItems.push({
         eventTitle: cleanTitle,
         oldTime: `${p.currentDayFormatted} at ${p.currentTimeRange}`,
-        newTime: `${chosen.dayName}, ${chosen.dayDate} at ${chosen.startTime} – ${chosen.endTime}`,
-        dayFormatted: `${chosen.dayName} ${chosen.dayDate}`,
+        newTime: `${chosenSlotData.day}, ${chosenSlotData.dayDate} at ${chosenSlotData.startTime} – ${chosenSlotData.endTime}`,
+        dayFormatted: `${chosenSlotData.day} ${chosenSlotData.dayDate}`,
         invitees: p.invitees,
         subject: emailSubject,
         body: emailBody,
@@ -405,8 +671,8 @@ ${userName || userEmail}`;
 
       confirmedSummaries.push({
         title: cleanTitle,
-        newTime: `${chosen.dayName}, ${chosen.dayDate} • ${chosen.startTime} – ${chosen.endTime}`,
-        dayFormatted: `${chosen.dayName} ${chosen.dayDate}`,
+        newTime: `${chosenSlotData.day}, ${chosenSlotData.dayDate} • ${chosenSlotData.startTime} – ${chosenSlotData.endTime}`,
+        dayFormatted: `${chosenSlotData.day} ${chosenSlotData.dayDate}`,
         gcalUrl,
         gmailUrl,
         invitees: p.invitees,
@@ -414,14 +680,7 @@ ${userName || userEmail}`;
 
       return {
         originalEvent: p.event,
-        chosenSlot: {
-          dateKey: chosen.dateKey,
-          day: chosen.dayName,
-          dayDate: chosen.dayDate,
-          startHour: chosen.startHour,
-          startTime: chosen.startTime,
-          endTime: chosen.endTime,
-        },
+        chosenSlot: chosenSlotData,
         invitees: p.invitees,
         sendEmail: p.sendEmail,
         emailSubject,
@@ -429,7 +688,7 @@ ${userName || userEmail}`;
       };
     });
 
-    // 1. Dispatch actual reschedule emails to attendees via API
+    // 1. Dispatch actual reschedule emails via server API
     try {
       await fetch('/api/send-reschedule-email', {
         method: 'POST',
@@ -459,14 +718,14 @@ ${userName || userEmail}`;
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                  Calendar Defense • 4-Week AI Rescheduler
+                  Calendar Defense • All-Rules AI Rescheduler
                 </h2>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
-                  {proposals.length} Breaches Detected
+                  {proposals.length} Breaches Across 5 Rules
                 </span>
               </div>
               <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                Analyzed upcoming 4 weeks (Sep 21 – Oct 19). Select your preferred daytime slot before 7:00 PM for each conflicting meeting.
+                Evaluates upcoming 4 weeks across all 5 calendar rules: 7 PM Curfew, Tue/Thu Focus Blocks, Weekend Rest, Buffers, & Daily Load. Choose recommended slots or pick custom timing.
               </p>
             </div>
           </div>
@@ -480,7 +739,46 @@ ${userName || userEmail}`;
           </button>
         </div>
 
-        {/* MODAL BODY (SCROLLABLE) */}
+        {/* 5-RULE FILTER TABS */}
+        {!successState && proposals.length > 0 && (
+          <div className="px-5 py-2.5 bg-slate-50/90 border-b border-slate-200 flex items-center gap-1.5 overflow-x-auto text-[11px] no-scrollbar">
+            <button
+              type="button"
+              onClick={() => setActiveRuleFilter('all')}
+              className={`px-3 py-1 rounded-full font-bold transition-all cursor-pointer shrink-0 ${
+                activeRuleFilter === 'all'
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:text-black'
+              }`}
+            >
+              All Rules ({proposals.length})
+            </button>
+
+            {CALENDAR_DEFENSE_RULES.map(rule => {
+              const count = proposals.filter(p => p.breaches.some(b => b.id === rule.id)).length;
+              if (count === 0) return null;
+              return (
+                <button
+                  key={rule.id}
+                  type="button"
+                  onClick={() => setActiveRuleFilter(rule.id)}
+                  className={`px-3 py-1 rounded-full font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1.5 ${
+                    activeRuleFilter === rule.id
+                      ? `${rule.badgeBg} ${rule.badgeText} ring-2 ring-blue-400/50 border ${rule.badgeBorder}`
+                      : 'bg-white text-slate-600 border border-slate-200 hover:text-black'
+                  }`}
+                >
+                  <span>{rule.badgeLabel}</span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-100">
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* MODAL BODY */}
         <div className="p-5 sm:p-6 overflow-y-auto space-y-6 flex-1 text-xs">
           {successState ? (
             /* SUCCESS CONFIRMATION SCREEN */
@@ -490,10 +788,10 @@ ${userName || userEmail}`;
                   <Check className="w-8 h-8 stroke-[3]" />
                 </div>
                 <h3 className="text-lg font-black text-slate-900">
-                  Calendar Updated & Reschedule Notices Dispatched!
+                  Calendar Mutated & Reschedule Notices Dispatched!
                 </h3>
                 <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-                  Your BAALANCE schedule has been mutated in real-time. Post-7 PM curfew calls have been shifted to daytime hours and protective evening shields are active.
+                  Your BAALANCE schedule has been updated in real time. All 5 rules have been enforced: evening curfew protected, Tue/Thu focus blocks shielded, and attendee emails sent.
                 </p>
               </div>
 
@@ -506,7 +804,7 @@ ${userName || userEmail}`;
                       BAALANCE Live Grid Mutated in Real-Time
                     </span>
                     <p className="text-[11px] text-emerald-800 leading-snug">
-                      Overridden and saved in browser storage. Auto-sync will permanently respect this protected daytime slot.
+                      Overridden and saved in browser storage. Auto-sync will permanently respect these conflict-free slots.
                     </p>
                   </div>
                 </div>
@@ -518,7 +816,7 @@ ${userName || userEmail}`;
                       Attendee Notification Mails Sent
                     </span>
                     <p className="text-[11px] text-blue-800 leading-snug">
-                      Reschedule notifications dispatched via BAALANCE email dispatch service.
+                      Reschedule notifications dispatched via BAALANCE email dispatch service to all invitees.
                     </p>
                   </div>
                 </div>
@@ -570,36 +868,27 @@ ${userName || userEmail}`;
                 ))}
               </div>
             </div>
-          ) : proposals.length === 0 ? (
+          ) : filteredProposals.length === 0 ? (
             <div className="py-12 px-4 text-center space-y-3">
               <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-7 h-7" />
               </div>
               <h3 className="text-base font-bold text-slate-900">
-                Zero Curfew Breaches in the Next 4 Weeks
+                Zero Rule Breaches Detected in this Category
               </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                All upcoming meetings in your schedule currently adhere to your 7:00 PM evening curfew rules. Your schedule is protected!
+                All upcoming meetings in your schedule currently adhere to these calendar defense rules.
               </p>
             </div>
           ) : (
-            proposals.map((prop, idx) => {
-              const chosen = prop.options.find(o => o.id === prop.selectedOptionId) || prop.options[0];
-              const cleanTitle = prop.event.title.replace(/\s*\(Curfew Protected\)/gi, '').trim();
+            filteredProposals.map((prop, idx) => {
+              const isCustom = prop.selectedOptionId === 'custom';
+              const cleanTitle = prop.event.title
+                .replace(/\s*\(Curfew Protected\)/gi, '')
+                .replace(/\s*\(Defense Rescheduled\)/gi, '')
+                .trim();
 
-              const gcalLink = buildGoogleCalendarUrl(
-                `${cleanTitle} (Curfew Protected)`,
-                chosen.dateKey,
-                chosen.startHour,
-                prop.event.durationHours || 1.0,
-                `Rescheduled by BAALANCE Calendar Defense to protect evening recovery hours.\nPrevious Time: ${prop.currentDayFormatted} at ${prop.currentTimeRange}`,
-                prop.invitees
-              );
-
-              const emailSubject = `Rescheduled: ${cleanTitle} (Moved to ${chosen.dayName} at ${chosen.startTime})`;
-              const emailBody = `Hi everyone,\n\nTo preserve healthy evening recovery hours and respect calendar boundaries, I have rescheduled our meeting:\n\n• Event: ${cleanTitle}\n• Previous Time: ${prop.currentDayFormatted} at ${prop.currentTimeRange}\n• New Time: ${chosen.dayName}, ${chosen.dayDate} from ${chosen.startTime} to ${chosen.endTime}\n\nYour Google Calendar invite has been updated with the new daytime slot.\n\nBest regards,\n${userName || userEmail}`;
-
-              const gmailLink = buildGmailComposeUrl(prop.invitees, emailSubject, emailBody);
+              const customHealth = evaluateCustomSlotHealth(prop.customSlot);
 
               return (
                 <div
@@ -607,8 +896,8 @@ ${userName || userEmail}`;
                   className="bg-slate-50/70 rounded-2xl border border-slate-200/90 p-4 sm:p-5 space-y-4 shadow-2xs hover:border-blue-200 transition-all"
                 >
                   {/* VIOLATION ITEM HEADER */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200">
-                    <div className="space-y-0.5">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 pb-3 border-b border-slate-200">
+                    <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-900 text-white font-mono">
                           Meeting #{idx + 1}
@@ -627,18 +916,41 @@ ${userName || userEmail}`;
                       </div>
                     </div>
 
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-xl border border-rose-200 self-start sm:self-center">
-                      <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                      <span>Post-7 PM Curfew Breach</span>
-                    </span>
+                    {/* Rule Breach Badges */}
+                    <div className="flex flex-col sm:items-end gap-1.5">
+                      {prop.breaches.map(b => (
+                        <span
+                          key={b.id}
+                          className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-lg border ${b.badgeBg} ${b.badgeText} ${b.badgeBorder}`}
+                        >
+                          <AlertTriangle className="w-3 h-3 shrink-0" />
+                          <span>{b.badgeLabel}</span>
+                        </span>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* SELECTABLE ALTERNATIVE SLOT OPTIONS */}
-                  <div className="space-y-2">
-                    <span className="text-xs font-bold text-slate-800 block">
-                      Choose Alternative Daytime Slot:
-                    </span>
+                  {/* SELECTABLE ALTERNATIVE SLOT OPTIONS OR CUSTOM CHOOSING */}
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800">
+                        Choose Rescheduling Slot or Custom Timing:
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectOption(prop.id, isCustom ? prop.options[0].id : 'custom')}
+                        className={`text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer px-2.5 py-1 rounded-lg ${
+                          isCustom
+                            ? 'bg-blue-600 text-white shadow-xs'
+                            : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                        }`}
+                      >
+                        <Sliders className="w-3 h-3" />
+                        <span>{isCustom ? '✓ Custom Slot Active' : 'Pick Custom Slot ⚙️'}</span>
+                      </button>
+                    </div>
 
+                    {/* Preset Options */}
                     <div className="grid grid-cols-1 gap-2">
                       {prop.options.map(opt => {
                         const isSelected = prop.selectedOptionId === opt.id;
@@ -682,6 +994,103 @@ ${userName || userEmail}`;
                           </label>
                         );
                       })}
+
+                      {/* Interactive Custom Slot Picker Panel */}
+                      {isCustom && (
+                        <div className="p-4 rounded-xl border-2 border-blue-400 bg-white space-y-3 shadow-xs animate-fade-in">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                              <Sliders className="w-3.5 h-3.5 text-blue-600" />
+                              <span>Custom Choosing Panel</span>
+                            </span>
+                            {customHealth.isCompliant ? (
+                              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                <span>✓ Complies with all 5 rules</span>
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3 text-amber-600" />
+                                <span>{customHealth.warning}</span>
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                            {/* Date Picker */}
+                            <div>
+                              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                                Date / Day
+                              </label>
+                              <select
+                                value={prop.customSlot.dateKey}
+                                onChange={e => {
+                                  const selectedDay = UPCOMING_CUSTOM_DAYS.find(d => d.dateKey === e.target.value);
+                                  if (selectedDay) {
+                                    handleUpdateCustomSlot(prop.id, {
+                                      dateKey: selectedDay.dateKey,
+                                      dayName: selectedDay.day,
+                                      dayDate: selectedDay.dayDate,
+                                    });
+                                  }
+                                }}
+                                className="w-full text-xs font-medium p-2 rounded-lg border border-slate-300 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              >
+                                {UPCOMING_CUSTOM_DAYS.map(d => (
+                                  <option key={d.dateKey} value={d.dateKey}>
+                                    {d.day}, {d.dayDate}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* Time Picker */}
+                            <div>
+                              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                                Start Time
+                              </label>
+                              <select
+                                value={prop.customSlot.startHour}
+                                onChange={e =>
+                                  handleUpdateCustomSlot(prop.id, { startHour: parseFloat(e.target.value) })
+                                }
+                                className="w-full text-xs font-medium p-2 rounded-lg border border-slate-300 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono"
+                              >
+                                {AVAILABLE_CUSTOM_HOURS.map(h => (
+                                  <option key={h.hour} value={h.hour}>
+                                    {h.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* Duration */}
+                            <div>
+                              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                                Duration
+                              </label>
+                              <select
+                                value={prop.customSlot.durationHours}
+                                onChange={e =>
+                                  handleUpdateCustomSlot(prop.id, { durationHours: parseFloat(e.target.value) })
+                                }
+                                className="w-full text-xs font-medium p-2 rounded-lg border border-slate-300 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              >
+                                <option value={0.5}>30 Minutes</option>
+                                <option value={0.75}>45 Minutes</option>
+                                <option value={1.0}>1 Hour</option>
+                                <option value={1.5}>1.5 Hours</option>
+                                <option value={2.0}>2 Hours</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="text-[11px] text-slate-600 pt-1 font-mono flex items-center justify-between border-t border-slate-100">
+                            <span>Selected: {prop.customSlot.dayName}, {prop.customSlot.dayDate} • {prop.customSlot.startTime} – {prop.customSlot.endTime}</span>
+                            <span className="text-emerald-700 font-bold">Active Choice</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -728,7 +1137,7 @@ ${userName || userEmail}`;
                             <button
                               type="button"
                               onClick={() => handleRemoveInvitee(prop.id, inv)}
-                              className="text-slate-400 hover:text-rose-600 transition-colors"
+                              className="text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
                               title="Remove invitee"
                             >
                               <X className="w-2.5 h-2.5" />
@@ -765,49 +1174,16 @@ ${userName || userEmail}`;
                       </div>
                     </div>
 
-                    {/* Direct Quick Launch Buttons on Card */}
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
-                      <span className="text-[10px] text-slate-500 font-medium">
-                        Direct 1-Click Sync Options:
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <a
-                          href={gcalLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[11px] font-bold text-[#3186FF] hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg border border-blue-200 flex items-center gap-1 transition-colors"
-                          title="Open this slot in Google Calendar to save and trigger Google's native invite emails"
-                        >
-                          <Calendar className="w-3 h-3" />
-                          <span>Save in Google Calendar</span>
-                          <ExternalLink className="w-2.5 h-2.5 opacity-70" />
-                        </a>
-
-                        <a
-                          href={gmailLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[11px] font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg border border-slate-200 flex items-center gap-1 transition-colors"
-                          title="Open Gmail Compose with pre-filled reschedule announcement"
-                        >
-                          <Mail className="w-3 h-3 text-rose-500" />
-                          <span>Compose in Gmail</span>
-                          <ExternalLink className="w-2.5 h-2.5 opacity-70" />
-                        </a>
-                      </div>
-                    </div>
-
-                    {/* Expandable Email Template Preview */}
+                    {/* Expandable Email Preview */}
                     {previewEmailId === prop.id && (
-                      <div className="mt-2 p-3 rounded-xl bg-slate-50 border border-blue-200 text-xs text-slate-800 space-y-2 animate-fade-in font-mono">
-                        <div className="text-[10px] text-slate-500 pb-1 border-b border-slate-200 space-y-0.5">
-                          <div><strong>From:</strong> {userName} &lt;{userEmail}&gt;</div>
-                          <div><strong>To:</strong> {prop.invitees.join(', ')}</div>
-                          <div><strong>Subject:</strong> {emailSubject}</div>
+                      <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 font-mono text-[11px] text-slate-700 space-y-1.5 animate-fade-in">
+                        <div className="text-slate-400 font-semibold text-[10px]">
+                          SUBJECT: Rescheduled: {cleanTitle} (Moved to{' '}
+                          {isCustom ? prop.customSlot.dayName : (prop.options.find(o => o.id === prop.selectedOptionId)?.dayName || 'Day')} at{' '}
+                          {isCustom ? prop.customSlot.startTime : (prop.options.find(o => o.id === prop.selectedOptionId)?.startTime || 'Time')})
                         </div>
-
-                        <div className="text-[11px] leading-relaxed text-slate-700 whitespace-pre-line font-sans">
-                          {emailBody}
+                        <div className="whitespace-pre-wrap leading-relaxed border-t border-slate-200 pt-1.5">
+                          {`Hi everyone,\n\nTo respect biological recovery boundaries and adhere to calendar defense rules, I have rescheduled our meeting:\n\n• Event: ${cleanTitle}\n• Previous Time: ${prop.currentDayFormatted} at ${prop.currentTimeRange}\n• New Time: ${isCustom ? `${prop.customSlot.dayName}, ${prop.customSlot.dayDate} from ${prop.customSlot.startTime} to ${prop.customSlot.endTime}` : (prop.options.find(o => o.id === prop.selectedOptionId)?.label || '')}\n\nYour Google Calendar invite has been updated with the new slot.\n\nBest regards,\n${userName || userEmail}`}
                         </div>
                       </div>
                     )}
@@ -819,38 +1195,37 @@ ${userName || userEmail}`;
         </div>
 
         {/* MODAL FOOTER */}
-        <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs text-slate-500">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Mutates BAALANCE in real-time & dispatches invitee emails</span>
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>5 Calendar Defense Rules Active • Real-time iCal override & Google Calendar sync</span>
           </div>
 
-          <div className="flex items-center gap-2 self-end sm:self-center">
+          <div className="flex items-center gap-2 justify-end">
             <button
               type="button"
               onClick={onClose}
-              disabled={isProcessing}
-              className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
             >
-              {successState ? 'Done' : 'Cancel'}
+              {successState ? 'Close' : 'Cancel'}
             </button>
 
-            {proposals.length > 0 && !successState && (
+            {!successState && proposals.length > 0 && (
               <button
                 type="button"
-                onClick={handleConfirm}
                 disabled={isProcessing}
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#3186FF] to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50 active:scale-98"
+                onClick={handleConfirm}
+                className="px-5 py-2.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold text-xs shadow-md shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-60"
               >
                 {isProcessing ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Applying & Sending Mails...</span>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Enforcing Rules & Updating Calendar...</span>
                   </>
                 ) : (
                   <>
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Confirm Reschedule & Send Emails ({proposals.length})</span>
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Enforce All Rules & Reschedule Meetings</span>
                   </>
                 )}
               </button>

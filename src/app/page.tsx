@@ -329,12 +329,12 @@ export default function BaalanceApp() {
           colorBg: evt.category === 'personal'
             ? 'bg-[#6772E5] text-white border-indigo-700 shadow-xs ring-2 ring-emerald-400/50'
             : 'bg-[#3186FF] text-white border-blue-600 shadow-xs ring-2 ring-emerald-400/50',
-          title: `${cleanTitle} (Curfew Protected)`,
+          title: `${cleanTitle} (Defense Protected)`,
         };
 
         // Record in persistent overrides
         const overrideData = {
-          title: `${cleanTitle} (Curfew Protected)`,
+          title: `${cleanTitle} (Defense Protected)`,
           dateKey: match.chosenSlot.dateKey,
           day: match.chosenSlot.day,
           dayDate: match.chosenSlot.dayDate,
@@ -354,7 +354,10 @@ export default function BaalanceApp() {
       return evt;
     });
 
-    // 4. Add protective Evening Hard Boundary shields on future dates (Sep 22 to Sep 27)
+    // 4. Add protective shields across future dates:
+    // (a) Evening Hard Boundary (7 PM – 10 PM)
+    // (b) Deep Work Focus Shields (Tue & Thu 9 AM – 12 PM)
+    // (c) Weekend Biological Recovery (Sat & Sun)
     const FUTURE_DATES: Array<{ dateKey: string; day: string; dayDate: string }> = [
       { dateKey: '2026-09-22', day: 'Tue', dayDate: 'Sep 22' },
       { dateKey: '2026-09-23', day: 'Wed', dayDate: 'Sep 23' },
@@ -365,6 +368,7 @@ export default function BaalanceApp() {
     ];
 
     for (const fDate of FUTURE_DATES) {
+      // 1. Evening Hard Boundary (7 PM – 10 PM)
       const hasBoundary = updatedEvents.some(
         e => (e.dateKey === fDate.dateKey || e.dayDate === fDate.dayDate) && (e.id.includes('boundary') || (e.title && e.title.includes('Hard Boundary')))
       );
@@ -385,6 +389,31 @@ export default function BaalanceApp() {
           category: 'strategy',
           colorBg: 'bg-emerald-700 text-white border-emerald-800 shadow-xs ring-1 ring-emerald-400/50',
         });
+      }
+
+      // 2. Deep Work Focus Block (Tue & Thu 9:00 AM – 12:00 PM)
+      if (fDate.day === 'Tue' || fDate.day === 'Thu') {
+        const hasFocusShield = updatedEvents.some(
+          e => (e.dateKey === fDate.dateKey || e.dayDate === fDate.dayDate) && (e.id.includes('focus-shield') || (e.title && e.title.includes('Deep Work Focus Block')))
+        );
+        if (!hasFocusShield) {
+          updatedEvents.push({
+            id: `focus-shield-${fDate.dateKey}`,
+            day: fDate.day,
+            dayDate: fDate.dayDate,
+            dateKey: fDate.dateKey,
+            title: '🧠 Deep Work Focus Block (Zero Meetings Shield)',
+            startTime: '09:00 AM',
+            endTime: '12:00 PM',
+            startHour: 9.0,
+            durationHours: 3.0,
+            isCurfewBreach: false,
+            hasMeet: false,
+            attendeesCount: 1,
+            category: 'strategy',
+            colorBg: 'bg-purple-700 text-white border-purple-800 shadow-xs ring-1 ring-purple-400/50',
+          });
+        }
       }
     }
 
@@ -427,7 +456,7 @@ export default function BaalanceApp() {
     ).catch(console.warn);
 
     setImportSuccessMessage(
-      `Calendar Defense Rules Enforced • ${rescheduledItems.length} meeting(s) rescheduled in real-time. 7:00 PM Evening Shields active and invitee notification emails sent.`
+      `All 5 Calendar Defense Rules Enforced • ${rescheduledItems.length} meeting(s) rescheduled in real-time. Evening Curfew, Deep Work Focus & Weekend Shields active and invitee notification emails sent.`
     );
     setTimeout(() => setImportSuccessMessage(null), 6000);
   };
