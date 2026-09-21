@@ -93,9 +93,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
 
   // Handle Google Account Selected from fallback / direct chooser
   const handleGoogleAccountSelected = (account: { name: string; email: string }) => {
-    const hasOnboarded = typeof window !== 'undefined' && !!localStorage.getItem(`baalance_user_has_onboarded_${account.email}`);
-    const isNew = activeTab === 'signup' ? true : !hasOnboarded;
-    onAuthenticate({ name: account.name, email: account.email, isNewUser: isNew });
+    onAuthenticate({ name: account.name, email: account.email, isNewUser: false });
   };
 
   return (
@@ -238,6 +236,20 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                     ? 'Sign in with Google'
                     : 'Sign up with Google'}
                 </span>
+              </button>
+
+              {/* Fast Direct Google Account Selector */}
+              <button
+                type="button"
+                onClick={() => setIsGoogleChooserOpen(true)}
+                className="w-full flex items-center justify-between py-2 px-3 rounded-xl bg-[#F0F4FA] hover:bg-blue-50 text-[11px] text-[#1a73e8] font-medium border border-blue-200/60 transition-colors cursor-pointer"
+                title="Select from your verified Google accounts for direct 1-click access"
+              >
+                <span className="flex items-center gap-1.5 min-w-0">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                  <span className="truncate">Fast Sign-In: <strong>p.v.saiamith@gmail.com</strong></span>
+                </span>
+                <span className="text-[10px] bg-blue-100/80 px-2 py-0.5 rounded font-bold shrink-0">1-Click</span>
               </button>
 
               <div className="relative flex items-center justify-center my-2">

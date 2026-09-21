@@ -77,8 +77,8 @@ const PITCH_SCENES: PitchScene[] = [
     title: 'Chrono-Correlation & Calendar Defense',
     badge: 'Scene 5 • 1:12 - 1:35',
     scriptSnippet:
-      'Then, by integrating directly with your Google Calendar and wearable data, Gemini correlates the exact causes behind your stress surges—revealing, for example, that your July cortisol spike coincided with back-to-back project deadlines and late-night meetings. Gemini then delivers tailored lifestyle advice and proactive calendar adjustments for your daily routine. With a single tap of your approval, it directly executes those changes in your Google Calendar—rescheduling conflicts and notifying attendees.',
-    keyCallout: 'Gemini correlates cortisol spikes with late meetings & executes 1-click Google Calendar defense.',
+      'Then, by integrating directly with your Google Calendar and wearable data, Gemini correlates the exact causes behind your rise in stress—revealing, for example, that your July cortisol spike coincided with back-to-back project deadlines and late-night meetings. Gemini then delivers tailored lifestyle advice and proactive calendar adjustments for your daily routine. And with a single tap of your approval, it directly executes those changes in your Google Calendar and sends update emails to your invitees automatically.',
+    keyCallout: 'Gemini correlates cortisol spikes with late meetings & executes 1-click Google Calendar defense with auto-email.',
   },
   {
     id: 6,
