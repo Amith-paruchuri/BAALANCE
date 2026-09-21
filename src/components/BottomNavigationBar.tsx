@@ -46,6 +46,7 @@ export const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
       id: 'wearables',
       label: 'Wearables',
       icon: HeartPulse,
+      badge: 'Soon',
     },
     {
       id: 'tricha',

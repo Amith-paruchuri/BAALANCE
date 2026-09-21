@@ -355,6 +355,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
               </button>
             </form>
           </div>
+        </div>
       </div>
 
       {/* Google Account Chooser & Setup Modal */}

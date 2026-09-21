@@ -93,7 +93,7 @@ export const GeminiProtocolCards: React.FC<GeminiProtocolCardsProps> = ({
             Personalized Recovery Architecture
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Targeted chronobiological interventions to restore deep sleep and bring cortisol back to baseline
+            Targeted chronobiological interventions to protect evening boundaries and bring cortisol back to baseline
           </p>
         </div>
 

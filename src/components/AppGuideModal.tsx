@@ -70,17 +70,17 @@ export const AppGuideModal: React.FC<AppGuideModalProps> = ({
     {
       id: 'wearable-biometrics',
       tab: 'wearables' as DashboardTab,
-      badge: 'Pillar 3 • Physiological Impact',
-      title: 'Wearable Sleep Architecture Correlation',
+      badge: 'Pillar 3 • Acute Biometrics (Coming Soon)',
+      title: 'Wearable Telemetry: Acute vs. Chronic Stress',
       icon: HeartPulse,
       iconColor: 'text-purple-600 bg-purple-50 border-purple-200',
-      summary: 'Tracks how post-curfew calls directly crush restorative deep sleep and elevate nighttime heart rate.',
+      summary: 'Wearables capture acute minute-to-minute fluctuations in stress, while hair cortisol captures chronic cumulative stress levels.',
       keyPoints: [
-        'Ingests continuous nocturnal telemetry from Whoop 4.0 and Oura Ring to correlate nightly recovery against weekly meeting density.',
-        'Reveals how the August crunch week dropped restorative deep sleep from 1.45 hours to just 42 minutes, causing sustained physical exhaustion.',
-        'Monitors nocturnal Heart Rate Variability (HRV) and resting heart rate (RHR) to gauge autonomic nervous system strain.',
+        'Acute vs. Chronic: Wearables (Apple Watch, Whoop, Oura, Garmin) monitor instant HRV and heart rate, while hair cortisol tracks 90-day hormonal exposure.',
+        'Seamless Fusion: We are integrating direct Bluetooth and OAuth wearable syncing to fuse real-time acute strain with 90-day biological ground truth.',
+        'Autonomous Defense: Future models will automatically nudge calendar buffers when daytime HRV indicates elevated acute nervous system strain.',
       ],
-      actionLabel: 'Inspect Wearable Biometrics',
+      actionLabel: 'Preview Wearables Integration',
     },
     {
       id: 'allostatic-tricha',
@@ -91,7 +91,7 @@ export const AppGuideModal: React.FC<AppGuideModalProps> = ({
       iconColor: 'text-emerald-600 bg-emerald-50 border-emerald-200',
       summary: 'Google Gemini synthesizes all biometrics into a unified 0–100 Burnout Index with personalized recovery.',
       keyPoints: [
-        'Allostatic Load Score (0–100): A unified holistic burnout score calculated from cumulative hair cortisol, 12-week meeting volume, late calls, and deep sleep debt.',
+        'Allostatic Load Score (0–100): A unified holistic burnout score calculated from cumulative hair cortisol, 12-week meeting volume, and late calls past 7 PM.',
         'Dynamic Real-Time Recalculation: Adjusting hair values or syncing new calendar events instantly recalculates the score in real time.',
         'Tricha AI Guide: A conversational recovery assistant with full context of your 90-day test and calendar schedule, offering tailored circadian, calendar, and lifestyle protocols.',
       ],
@@ -119,7 +119,7 @@ export const AppGuideModal: React.FC<AppGuideModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Connecting 90-day hair cortisol chronobiology with real-time calendar and wearable telemetry
+                Connecting 90-day hair cortisol chronobiology with real-time Google Calendar intelligence
               </p>
             </div>
           </div>

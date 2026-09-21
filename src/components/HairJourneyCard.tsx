@@ -123,9 +123,9 @@ export const HairJourneyCard: React.FC<HairJourneyCardProps> = ({
       date: 'Sep 18, 2026',
       time: '10:00 AM IST',
       description:
-        '12-week cortisol timeline mapped against Google Calendar meeting hours and wearable sleep stages to isolate the exact lifestyle triggers behind biological strain.',
+        '12-week cortisol timeline mapped against Google Calendar meeting hours and curfew breaches to isolate the exact lifestyle triggers behind biological strain.',
       detailNote:
-        'Cross-correlation isolated 23 late-night calls after 7:00 PM and deep sleep debt as the root cause of delayed recovery into September.',
+        'Cross-correlation isolated 23 late-night calls after 7:00 PM as the primary driver delaying cortisol recovery into September.',
       icon: Sparkles,
       accentGradient: 'from-[#3186FF] to-blue-700',
       badgeBg: 'bg-blue-50 text-[#3186FF] border-blue-200',

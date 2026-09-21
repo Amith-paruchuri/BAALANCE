@@ -11,7 +11,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: 'BAALANCE | "Your hair keeps the receipts." — 90-Day Hair Cortisol Diagnostics',
-  description: 'Clinical-grade 90-day hair cortisol analysis correlating segmented ELISA lab values with Google Calendar workloads and wearable telemetry. Your hair keeps the receipts.',
+  description: 'Clinical-grade 90-day hair cortisol analysis correlating segmented ELISA lab values with Google Calendar workloads and chronobiology. Your hair keeps the receipts.',
   icons: {
     icon: '/favicon.ico',
   },
