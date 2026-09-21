@@ -49,7 +49,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
   const [m3Val, setM3Val] = useState<number>(curM3);
 
   const [reportName, setReportName] = useState('Hair-Cortisol-ELISA-Report-9842.pdf');
-  const [labPartner, setLabPartner] = useState('LAKME Salon & Delhi Diagnostic Laboratory');
+  const [labPartner, setLabPartner] = useState('Certified Partner Salon & Delhi Diagnostic Laboratory');
   const [testDate, setTestDate] = useState('Sep 18, 2026');
 
   // File upload state
@@ -200,7 +200,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
         referenceBaseline: 11.0,
         status: m2Val > 20 ? 'acute_surge' : m2Val > 14 ? 'incomplete_recovery' : 'baseline',
         clinicalStatusLabel: m2Val > 20 ? 'Stress Spike (Peak)' : m2Val > 14 ? 'Elevated Strain' : 'Normal Baseline',
-        clinicalNote: 'Peak workload crunch with 47.5h meeting weeks, 11 calls after 7 PM, and 4 flights cut restorative deep sleep down to 42 minutes.',
+        clinicalNote: 'Peak workload crunch with 47.5h meeting weeks, 11 calls after 7 PM, and 4 flights disrupted evening recovery routines.',
       },
       {
         id: 3,
@@ -214,10 +214,10 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
         status: m3Val > 20 ? 'acute_surge' : m3Val > 14 ? 'incomplete_recovery' : 'baseline',
         clinicalStatusLabel: m3Val > 20 ? 'Stress Spike' : m3Val > 14 ? 'Delayed Recovery' : 'Optimal Baseline',
         clinicalNote: m3Val <= 11.0
-          ? 'Full stress clearance achieved with healthy restorative deep sleep.'
+          ? 'Full stress clearance achieved with protected evening boundaries and regular schedule.'
           : m3Val > 20
           ? 'Acute ongoing stress surge with evening call interference.'
-          : 'Daytime meetings dropped by 32%, but taking 4 late calls/week after 7 PM kept sleep restless, delaying full recovery.',
+          : 'Daytime meetings dropped by 32%, but taking 4 late calls/week after 7 PM delayed full biological recovery.',
       },
     ];
 
@@ -330,7 +330,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                   {isExtracting ? 'Gemini Analyzing Document Authenticity...' : 'Drop your Hair Cortisol Report here'}
                 </div>
                 <p className="text-[11px] text-slate-500 mt-1 max-w-xs">
-                  Supports PDF or photo reports from partner salons (LAKME, etc.) or clinical diagnostic labs
+                  Supports PDF or photo reports from certified partner salons or clinical diagnostic labs
                 </p>
 
                 <span className="mt-3 px-3 py-1 bg-white border border-slate-200 rounded-xl text-[11px] font-bold text-[#3186FF] shadow-2xs">

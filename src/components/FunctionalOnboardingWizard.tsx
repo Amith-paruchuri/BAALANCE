@@ -325,7 +325,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
   // Step 3 Specimen & ELISA State
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [barcode, setBarcode] = useState('#BL-8942');
-  const [salonSite, setSalonSite] = useState('LAKME Salon, South Extension, Delhi');
+  const [salonSite, setSalonSite] = useState('Certified Partner Salon, South Extension, Delhi');
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [isExtractingPdf, setIsExtractingPdf] = useState(false);
   const [labUploadError, setLabUploadError] = useState<string>('');

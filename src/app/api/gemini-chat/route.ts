@@ -367,7 +367,7 @@ Elevated cortisol was merely the body's reaction. What actually caused the surge
 
 3. Protected Daytime Buffer Blocks: Add 15-minute buffers between back-to-back client calls and protect Tuesday and Thursday mornings as deep work time with zero meetings.
 
-In 8 weeks, a follow-up 10-second hair snip at LAKME Salon, South Extension, Delhi will confirm if your root cortisol has returned to under 12.0 pg/mg.`;
+In 8 weeks, a follow-up 10-second hair snip at our certified partner salon will confirm if your root cortisol has returned to under 12.0 pg/mg.`;
     } else if (
       q.includes('calendar') ||
       q.includes('meeting') ||
@@ -404,7 +404,7 @@ Deep sleep is the exact biological window when your brain and body clear circula
     ) {
       responseText = `Unlike blood or saliva tests which only capture how stressed you are in a single moment, hair grows at about 1 centimeter per month and continuously incorporates circulating stress hormones from hair follicle capillaries.
 
-Your 3.0 cm hair sample provided an exact 90-day biological record: Month 3 (${m3} pg/mg baseline), Month 2 (${m2} pg/mg surge), and Month 1 (${m1} pg/mg delayed recovery). A quick follow-up snip at LAKME Salon in 8 weeks will confirm your recovery progress.`;
+Your 3.0 cm hair sample provided an exact 90-day biological record: Month 3 (${m3} pg/mg baseline), Month 2 (${m2} pg/mg surge), and Month 1 (${m1} pg/mg delayed recovery). A quick follow-up snip at our partner salon in 8 weeks will confirm your recovery progress.`;
     } else {
       if (isDiscordant || isMedicalStudent) {
         responseText = `Hello ${firstName}. Based on your 90-day hair test (${m3} pg/mg baseline to ${m2} pg/mg peak to ${m1} pg/mg today), your body has experienced significant physiologic stress despite your Google Calendar having virtually no meetings (${realEventCount} events).

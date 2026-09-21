@@ -23,7 +23,7 @@ export const INITIAL_CHAIN_OF_CUSTODY: ChainOfCustody = {
   collectionSite: 'Posterior Vertex Scalp (18.5 mg)',
   sampleWeightMg: 18.5,
   currentStep: 4,
-  salonPartner: 'LAKME Salon, South Extension, Delhi',
+  salonPartner: 'Certified Partner Salon, South Extension, Delhi',
   courierTracking: 'Blue Dart Express (Air Priority - AWB #BLUEDART-DEL-9842)',
   elisaExtractionDate: 'Sep 16, 2026 • 02:00 PM IST',
 };
@@ -316,7 +316,7 @@ export const CLINICAL_FALLBACK_SYNTHESIS: GeminiSynthesisResult = {
       description: 'Check your progress with a quick 10-second hair snip during your next haircut.',
       actionItems: [
         'Snip fresh 1.0 cm root growth (~30 days) to confirm stress hormone returns below 12.0 pg/mg.',
-        'Complimentary 10-second snip at LAKME Salon, South Extension, Delhi on Nov 14, 2026.',
+        'Complimentary 10-second snip at Partner Salon, South Extension, Delhi on Nov 14, 2026.',
         'Compare lab results against your Month 1 baseline (15.6 pg/mg) to verify full recovery.',
       ],
       impactMetric: 'Clear, lab-verified confirmation that your body has returned to balance.',

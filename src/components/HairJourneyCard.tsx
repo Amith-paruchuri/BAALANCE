@@ -13,7 +13,6 @@ import {
   ChevronDown,
   ChevronUp,
   ShieldCheck,
-  Building2,
   Hash,
   FileCheck2,
   Check,
@@ -35,7 +34,7 @@ export const HairJourneyCard: React.FC<HairJourneyCardProps> = ({
       stepCode: '01',
       title: 'Salon Specimen Snip',
       phase: 'Partner Stylist Intake',
-      location: 'LAKME Salon • South Extension II, New Delhi',
+      location: 'Certified Salon Suite • South Extension II, New Delhi',
       date: 'Sep 14, 2026',
       time: '11:30 AM IST',
       description:
@@ -52,7 +51,7 @@ export const HairJourneyCard: React.FC<HairJourneyCardProps> = ({
       isDone: true,
       tags: [],
       custodyDetails: [
-        { label: 'Sample Envelope Barcode', value: 'LAKME-DEL-SE2-8941' },
+        { label: 'Sample Envelope Barcode', value: 'BL-DEL-SE2-8941' },
         { label: 'Specimen Length', value: '3.0 cm (90-Day Chrono-Window)' },
         { label: 'Custody Chain', value: 'Collected → Verified by Salon Manager' },
         { label: 'Storage Temperature', value: 'Ambient Dry (21°C, <40% RH)' },
@@ -171,16 +170,12 @@ export const HairJourneyCard: React.FC<HairJourneyCardProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5 font-medium">
-              From LAKME Salon haircut to certified endocrinology lab test and AI insight
+              From partner salon haircut to certified endocrinology lab test and AI insight
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
-            <Building2 className="w-3.5 h-3.5 text-slate-500" />
-            <span>LAKME Salon Partner</span>
-          </div>
           <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 shadow-2xs">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             <span>NABL / CLIA Accredited Lab</span>
