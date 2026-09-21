@@ -2249,7 +2249,7 @@ export default function BaalanceApp() {
           onClose={() => setIsDefenseModalOpen(false)}
           events={defenseEvents}
           userEmail={verifiedCalendarEmail || userProfile?.email || 'user@example.com'}
-          userName={userProfile?.fullName || 'User'}
+          userName={userProfile?.name || 'User'}
           onConfirmReschedules={handleConfirmDefenseReschedules}
         />
 
