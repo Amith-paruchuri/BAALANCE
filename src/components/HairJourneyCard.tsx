@@ -78,7 +78,7 @@ export const HairJourneyCard: React.FC<HairJourneyCardProps> = ({
       iconContainer: 'bg-gradient-to-br from-sky-500 to-blue-600 text-white ring-4 ring-sky-50 shadow-xs',
       badge: 'Delivered',
       isDone: true,
-      tags: ['Air Cargo Priority', 'Tamper-Evident Seal', '<18h Direct Transit'],
+      tags: [],
       custodyDetails: [
         { label: 'Air Waybill (AWB)', value: '#BLUEDART-DEL-9842-EXP' },
         { label: 'Transit Time', value: '16 hrs 45 mins' },
@@ -106,7 +106,7 @@ export const HairJourneyCard: React.FC<HairJourneyCardProps> = ({
       iconContainer: 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white ring-4 ring-purple-50 shadow-xs',
       badge: 'Assayed & Verified',
       isDone: true,
-      tags: ['3x 1cm Segments', '0.1 pg/mg Sensitivity', 'CLIA Baseline ~11.0'],
+      tags: [],
       custodyDetails: [
         { label: 'Assay Method', value: 'Competitive Luminescent Immunoassay (CLIA)' },
         { label: 'Instrument', value: 'SpectraMax iD3 Multi-Mode Reader' },
@@ -135,7 +135,7 @@ export const HairJourneyCard: React.FC<HairJourneyCardProps> = ({
       badge: 'Active & Ready',
       isDone: true,
       isCurrent: true,
-      tags: ['Google Calendar Correlated', 'Deep Sleep Debt Isolated', 'Burnout Score Calibrated'],
+      tags: [],
       custodyDetails: [
         { label: 'Model Architecture', value: 'Google Gemini 3.6 Flash Neural Engine' },
         { label: 'Telemetry Streams', value: 'Hair Biomarkers + Google Calendar + Sleep' },
