@@ -963,11 +963,11 @@ export const CalendarSnippetWidget: React.FC<CalendarSnippetWidgetProps> = ({
             onSyncTelemetry(parsed.weeklyTelemetry, file.name, '', formatted);
           }
         } else {
-          alert('No events found in this .ics file.');
+          setIcalError('No calendar events found in this .ics file. Please ensure the file was exported from Google Calendar.');
         }
       } catch (err) {
         console.warn('Error parsing .ics file:', err);
-        alert('Failed to parse .ics file.');
+        setIcalError('Failed to parse .ics file. Please ensure the file is in valid iCalendar format.');
       }
     };
     reader.readAsText(file);

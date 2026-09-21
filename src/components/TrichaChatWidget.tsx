@@ -35,7 +35,7 @@ const TRICHA_PROMPT_CHIPS = [
   'What do I do to reduce my stress levels?',
   'Why did my stress stay high when meetings dropped?',
   'What was the main culprit for my Month 2 spike?',
-  'How do calls after 7 PM hurt my deep sleep?',
+  'How do calls after 7 PM delay my recovery?',
   'When should I drink coffee to protect recovery?',
 ];
 

@@ -638,10 +638,21 @@ export default function BaalanceApp() {
         // Enforce canonical week-to-month mapping: Weeks 1-4 = July (1), Weeks 5-8 = August (2), Weeks 9-12 = September (3)
         const sanitizedTelemetry = cached.telemetry.map(t => {
           const m = (t.weekNumber <= 4 ? 1 : t.weekNumber <= 8 ? 2 : 3) as 1 | 2 | 3;
+          const cleanTrigger = t.triggerDetails
+            ? t.triggerDetails
+                .replace(/\s*\+\s*\d+%\s*deep\s*sleep\s*drop/gi, '')
+                .replace(/;\s*Deep\s*sleep\s*crashed\s*to\s*\d+\s*min\.?/gi, '.')
+                .replace(/,\s*stable\s*restorative\s*sleep/gi, ', balanced schedule')
+                .replace(/;\s*minor\s*sleep\s*friction/gi, '; minor schedule friction')
+                .replace(/;\s*initial\s*sleep\s*drop/gi, ' breaking recovery boundaries')
+                .replace(/\s*deep\s*sleep\s*/gi, ' recovery ')
+                .replace(/\s*sleep\s*/gi, ' recovery ')
+            : t.triggerDetails;
           return {
             ...t,
             month: m,
             monthLabel: m === 1 ? 'July' : m === 2 ? 'August' : 'September',
+            triggerDetails: cleanTrigger,
           };
         });
         setTelemetry(sanitizedTelemetry);

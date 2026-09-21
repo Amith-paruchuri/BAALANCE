@@ -16,7 +16,7 @@ export const ChainOfCustodyCard: React.FC<ChainOfCustodyCardProps> = ({
     {
       step: 1,
       label: 'Salon Snip',
-      sublabel: 'LAKME Delhi',
+      sublabel: 'Collection Hub',
       icon: Scissors,
     },
     {

@@ -260,7 +260,7 @@ export const GeminiProtocolCards: React.FC<GeminiProtocolCardsProps> = ({
                       </span>
                     </div>
                     <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-200">
-                      LAKME Salon
+                      Certified Partner Salon
                     </span>
                   </div>
                 )}
