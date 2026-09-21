@@ -129,7 +129,16 @@ export const ChronoCorrelationChart: React.FC<ChronoCorrelationChartProps> = ({
           {data.triggerDetails && (
             <div className="mt-1 pt-1 border-t border-slate-100 text-[9px] text-slate-600 leading-tight font-sans line-clamp-2">
               <span className="font-bold text-slate-700">Trigger: </span>
-              <span>{data.triggerDetails}</span>
+              <span>
+                {data.triggerDetails
+                  .replace(/\s*\+\s*\d+%\s*deep\s*sleep\s*drop/gi, '')
+                  .replace(/;\s*Deep\s*sleep\s*crashed\s*to\s*\d+\s*min\.?/gi, '.')
+                  .replace(/,\s*stable\s*restorative\s*sleep/gi, ', balanced schedule')
+                  .replace(/;\s*minor\s*sleep\s*friction/gi, '; minor schedule friction')
+                  .replace(/;\s*initial\s*sleep\s*drop/gi, ' breaking recovery boundaries')
+                  .replace(/\s*deep\s*sleep\s*/gi, ' recovery ')
+                  .replace(/\s*sleep\s*/gi, ' recovery ')}
+              </span>
             </div>
           )}
         </div>
