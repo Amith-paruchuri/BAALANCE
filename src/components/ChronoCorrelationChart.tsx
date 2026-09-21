@@ -110,45 +110,17 @@ export const ChronoCorrelationChart: React.FC<ChronoCorrelationChartProps> = ({
             </div>
           </div>
 
-          {/* Compressed Metrics Row: Workload + Deep Sleep Side-by-Side */}
-          <div className="grid grid-cols-2 gap-1.5 pt-1 text-[10px] font-mono">
-            {/* Workload */}
-            <div className="flex items-center justify-between bg-slate-50/90 px-2 py-0.5 rounded-lg border border-slate-100">
-              <span className="text-slate-500 font-sans text-[9px] font-medium">Workload:</span>
-              <span className="font-bold text-slate-900">
+          {/* Compressed Workload Row */}
+          <div className="pt-1 text-[10px] font-mono">
+            <div className="flex items-center justify-between bg-slate-50/90 px-2.5 py-1 rounded-lg border border-slate-100">
+              <span className="text-slate-600 font-sans text-[10px] font-medium">Google Calendar Load:</span>
+              <span className="font-bold text-slate-900 text-[11px]">
                 {data.meetingHours}h{' '}
                 {data.eveningCalls > 0 && (
-                  <span className="text-rose-600 font-semibold text-[8.5px]">
-                    ({data.eveningCalls}L)
+                  <span className="text-rose-600 font-semibold text-[9.5px]">
+                    ({data.eveningCalls} late past 7 PM)
                   </span>
                 )}
-              </span>
-            </div>
-
-            {/* Deep Sleep */}
-            <div className="flex items-center justify-between bg-purple-50/70 px-2 py-0.5 rounded-lg border border-purple-100/80">
-              <span className="text-purple-700 font-sans text-[9px] font-medium flex items-center gap-0.5">
-                <Moon className="w-2.5 h-2.5 text-purple-600" />
-                <span>Sleep:</span>
-              </span>
-              <span
-                className={`font-bold ${
-                  data.isSleepDeficit ? 'text-rose-600' : 'text-slate-900'
-                }`}
-              >
-                {data.deepSleepHours}h{' '}
-                <span className="text-[8px] font-normal text-slate-500 font-sans">
-                  ({data.isSleepDeficit ? 'Deficit' : 'Restored'})
-                </span>
-              </span>
-            </div>
-
-            {/* Heart & Recovery */}
-            <div className="col-span-2 flex items-center justify-between bg-slate-50/60 px-2 py-0.5 rounded-lg border border-slate-100/70 text-[9px] font-sans">
-              <span className="text-slate-500 font-medium">Heart & Recovery:</span>
-              <span className="font-mono text-slate-800 text-[9.5px]">
-                <strong>{data.restingHeartRate}</strong> bpm RHR •{' '}
-                <strong>{data.hrvRmssd}</strong> ms HRV
               </span>
             </div>
           </div>
@@ -188,7 +160,7 @@ export const ChronoCorrelationChart: React.FC<ChronoCorrelationChartProps> = ({
             )}
           </div>
           <p className="text-[11px] text-slate-500 mt-0.5">
-            Tracking monthly stress hormone levels across 12 weeks against calendar meeting load and deep sleep
+            Tracking monthly stress hormone levels across 12 weeks against Google Calendar meeting volume
           </p>
         </div>
 
@@ -201,10 +173,6 @@ export const ChronoCorrelationChart: React.FC<ChronoCorrelationChartProps> = ({
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 bg-[#1F2937] rounded-xs" />
             <span className="text-black font-semibold text-[11px]">Meeting Hours</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-rose-200 border border-rose-300 rounded-xs" />
-            <span className="text-rose-700 font-semibold text-[11px]">Sleep Deficit Weeks</span>
           </div>
         </div>
       </div>
@@ -278,17 +246,6 @@ export const ChronoCorrelationChart: React.FC<ChronoCorrelationChartProps> = ({
             </defs>
 
             <CartesianGrid stroke="#F1F5F9" strokeDasharray="3 3" vertical={false} />
-
-            {/* Shaded Area for Sleep Deficit Crash Weeks (Weeks 5 to 8) */}
-            <ReferenceArea
-              x1="Week 5"
-              x2="Week 8"
-              yAxisId="left"
-              fill="#FEE2E2"
-              fillOpacity={0.4}
-              stroke="#FECACA"
-              strokeDasharray="2 2"
-            />
 
             {/* Active Segment Focal Window Highlight */}
             <ReferenceArea

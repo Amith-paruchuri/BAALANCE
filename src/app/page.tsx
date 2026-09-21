@@ -8,7 +8,6 @@ import { AuthLandingPage } from '@/components/AuthLandingPage';
 import { FunctionalOnboardingWizard } from '@/components/FunctionalOnboardingWizard';
 import { HairJourneyCard } from '@/components/HairJourneyCard';
 import { InteractiveHairStrandViewer } from '@/components/InteractiveHairStrandViewer';
-import { SyncIntegrationsPanel } from '@/components/SyncIntegrationsPanel';
 import { ChronoCorrelationChart } from '@/components/ChronoCorrelationChart';
 import { GeminiProtocolCards } from '@/components/GeminiProtocolCards';
 import { GeminiChatDrawer } from '@/components/GeminiChatDrawer';
@@ -1169,7 +1168,6 @@ export default function BaalanceApp() {
                 const m3 = segments.find(s => s.id === 3)?.cortisolPgPerMg ?? 11.2;
                 const cumulativeAvgCortisol = parseFloat(((m1 + m2 + m3) / 3).toFixed(1));
                 const cumulativeSurgePct = Math.round(((cumulativeAvgCortisol - 11.0) / 11.0) * 100);
-                const sleepDeficitWeeks = telemetry.filter(w => w.isSleepDeficit).length;
 
                 const statusBadge = isHigh
                   ? {
@@ -1326,7 +1324,7 @@ export default function BaalanceApp() {
 
                         {/* Plain-English Synthesis Narrative */}
                         <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
-                          Synthesized as a single cumulative index across your 90-day hair specimen (3.0 cm), total calendar workload, and 12-week wearable sleep recovery.
+                          Synthesized as a single cumulative index across your 90-day hair specimen (3.0 cm) and 12-week Google Calendar workload.
                         </p>
                       </div>
                     </div>
@@ -1421,22 +1419,18 @@ export default function BaalanceApp() {
 
                       <div className="p-3 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                            <Moon className="w-4 h-4" />
+                          <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#3186FF] flex items-center justify-center shrink-0">
+                            <Clock className="w-4 h-4" />
                           </div>
                           <div>
-                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Cumulative Deep Sleep</div>
+                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Calendar Hours</div>
                             <div className="text-xs font-black text-black font-mono">
-                              {avgDeepSleep} <span className="text-[10px] font-normal text-slate-500">h/night avg</span>
+                              {totalMeetingHours} <span className="text-[10px] font-normal text-slate-500">hrs (12 wks)</span>
                             </div>
                           </div>
                         </div>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                          sleepDeficitWeeks > 0
-                            ? 'text-rose-700 bg-rose-50 border-rose-200'
-                            : 'text-emerald-700 bg-emerald-50 border-emerald-200'
-                        }`}>
-                          {sleepDeficitWeeks > 0 ? `${sleepDeficitWeeks} Deficit Weeks` : 'Restorative'}
+                        <span className="text-[10px] font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
+                          {Math.round(totalMeetingHours / 12)}h / wk avg
                         </span>
                       </div>
                     </div>
@@ -1452,7 +1446,7 @@ export default function BaalanceApp() {
                         <span>Find how this cumulative score is derived</span>
                       </div>
                       <div className="flex items-center gap-1.5 text-[#3186FF] font-bold">
-                        <span>{showScoreDerivation ? 'Hide Detailed Synthesis' : 'View 3-Stream Cumulative Clinical Breakdown & Culprit'}</span>
+                        <span>{showScoreDerivation ? 'Hide Detailed Synthesis' : 'View Dual-Stream Cumulative Clinical Breakdown & Culprit'}</span>
                         {showScoreDerivation ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </div>
                     </button>
@@ -1460,12 +1454,12 @@ export default function BaalanceApp() {
                     {/* Collapsible Content: 100% Cumulative 90-day breakdown */}
                     {showScoreDerivation && (
                       <div className="space-y-3 pt-2 animate-fade-in">
-                        {/* 3 Data Streams */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                        {/* 2 Data Streams: Hair Cortisol + Google Calendar */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                           <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
                             <div className="flex items-center gap-1.5 font-bold text-black">
                               <Droplet className="w-4 h-4 text-purple-600" />
-                              <span>1. 90-Day Cumulative Hair Cortisol</span>
+                              <span>1. 90-Day Cumulative Hair Cortisol (Biomarker Truth)</span>
                             </div>
                             <p className="text-[11px] text-slate-600 leading-relaxed">
                               Tested across your full 3.0 cm hair specimen (1 cm = 30 days): cumulative cortisol averaged <strong>{cumulativeAvgCortisol} pg/mg</strong> across the entire 90-day window (normal healthy baseline: 11.0 pg/mg), representing an overall <strong>+{cumulativeSurgePct}% cumulative stress burden</strong>.
@@ -1478,33 +1472,21 @@ export default function BaalanceApp() {
                             const isDiscordanceActive = isCalConnected && totalMeetingHours <= 5 && augustPeak > 16.0;
 
                             return (
-                              <>
-                                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
-                                  <div className="flex items-center gap-1.5 font-bold text-black">
-                                    <Calendar className="w-4 h-4 text-[#3186FF]" />
-                                    <span>2. 90-Day Cumulative Workload</span>
-                                  </div>
-                                  {isDiscordanceActive ? (
-                                    <p className="text-[11px] text-amber-900 leading-relaxed font-medium">
-                                      <strong>Biomarker-Calendar Discordance Active</strong>: 0 scheduled calendar meeting hours found across the 12 weeks before your haircut. Desk workload conclusions are withheld pending clinical intake.
-                                    </p>
-                                  ) : (
-                                    <p className="text-[11px] text-slate-600 leading-relaxed">
-                                      <strong>{totalMeetingHours} total meeting hours</strong> across the 90-day period with <strong>{totalEveningCalls} late-night calls after 7:00 PM</strong> and <strong>{totalFlights} cross-timezone flights</strong>.
-                                    </p>
-                                  )}
+                              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+                                <div className="flex items-center gap-1.5 font-bold text-black">
+                                  <Calendar className="w-4 h-4 text-[#3186FF]" />
+                                  <span>2. 90-Day Google Calendar Workload (Chronobiology)</span>
                                 </div>
-
-                                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
-                                  <div className="flex items-center gap-1.5 font-bold text-black">
-                                    <Moon className="w-4 h-4 text-indigo-600" />
-                                    <span>3. 90-Day Cumulative Sleep Architecture</span>
-                                  </div>
-                                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                                    Restorative deep sleep averaged <strong>{avgDeepSleep} hours/night</strong> across all 12 weeks with <strong>{sleepDeficitWeeks} chronic deficit weeks</strong>, while average resting heart rate remained at <strong>{avgRHR} bpm</strong>.
+                                {isDiscordanceActive ? (
+                                  <p className="text-[11px] text-amber-900 leading-relaxed font-medium">
+                                    <strong>Biomarker-Calendar Discordance Active</strong>: 0 scheduled calendar meeting hours found across the 12 weeks before your haircut. Desk workload conclusions are withheld pending clinical intake.
                                   </p>
-                                </div>
-                              </>
+                                ) : (
+                                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                                    <strong>{totalMeetingHours} total meeting hours</strong> across the 90-day period with <strong>{totalEveningCalls} late-night calls after 7:00 PM</strong> and <strong>{totalFlights} cross-timezone flights</strong>.
+                                  </p>
+                                )}
+                              </div>
                             );
                           })()}
                         </div>
@@ -1530,7 +1512,7 @@ export default function BaalanceApp() {
                                 </h4>
                               </div>
                               <p className="text-xs leading-relaxed">
-                                {synthesis.rootCauseCulprit || `High cortisol accumulation was the consequence. The root cause was ${totalEveningCalls} cumulative meetings scheduled past 7:00 PM${totalFlights > 0 ? ` and ${totalFlights} timezone travel shifts` : ''} that disrupted restorative deep sleep, preventing full physiological recovery across the quarter.`}
+                                {synthesis.rootCauseCulprit || `High cortisol accumulation was the biological consequence. The primary trigger was ${totalEveningCalls} cumulative meetings scheduled past 7:00 PM${totalFlights > 0 ? ` and ${totalFlights} timezone travel shifts` : ''} that repeatedly breached daily recovery boundaries across the quarter.`}
                               </p>
                             </div>
                           );
@@ -2367,10 +2349,10 @@ export default function BaalanceApp() {
                   Coming Soon
                 </div>
                 <h3 className="text-lg font-black text-black">
-                  Plug In Actual Wearable Data
+                  Wearable Biometrics Integration
                 </h3>
                 <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                  Direct OAuth and Bluetooth live-stream syncing for biometric wearables is currently in development and will be available in an upcoming release!
+                  Wearables capture acute minute-to-minute fluctuations in stress (HRV, heart rate spikes), while hair cortisol captures chronic cumulative stress levels over 90 days. We are integrating both so Gemini can autonomously protect your calendar.
                 </p>
               </div>
 
@@ -2382,7 +2364,7 @@ export default function BaalanceApp() {
                   </div>
                   <span className="text-[11px] font-bold text-slate-800">Whoop 4.0</span>
                   <span className="text-[9px] text-purple-700 font-bold bg-purple-50 px-1.5 py-0.2 rounded border border-purple-100">
-                    Coming Soon
+                    Beta Ready
                   </span>
                 </div>
 
@@ -2392,7 +2374,7 @@ export default function BaalanceApp() {
                   </div>
                   <span className="text-[11px] font-bold text-slate-800">Oura Ring</span>
                   <span className="text-[9px] text-purple-700 font-bold bg-purple-50 px-1.5 py-0.2 rounded border border-purple-100">
-                    Coming Soon
+                    In Testing
                   </span>
                 </div>
 
@@ -2402,18 +2384,18 @@ export default function BaalanceApp() {
                   </div>
                   <span className="text-[11px] font-bold text-slate-800">Apple Watch</span>
                   <span className="text-[9px] text-purple-700 font-bold bg-purple-50 px-1.5 py-0.2 rounded border border-purple-100">
-                    Coming Soon
+                    In Alpha
                   </span>
                 </div>
               </div>
 
               {/* Informative Callout */}
-              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-left text-xs text-amber-950 leading-relaxed flex items-start gap-2.5">
-                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-left text-xs text-blue-950 leading-relaxed flex items-start gap-2.5">
+                <Sparkles className="w-4 h-4 text-[#3186FF] shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold">Currently Displaying Demo Data:</span>
-                  <span className="text-amber-900 block mt-0.5 text-[11px]">
-                    The recovery score, deep sleep breakdown, and resting heart rate charts in this section are currently populated with clinical demo telemetry to illustrate circadian impact on cortisol recovery.
+                  <span className="font-bold">Hardware OAuth Pipeline:</span>
+                  <span className="text-blue-900 block mt-0.5 text-[11px]">
+                    Direct OAuth and Bluetooth BLE syncing are currently in closed testing. Google Calendar integration is fully active and live today!
                   </span>
                 </div>
               </div>
@@ -2423,7 +2405,7 @@ export default function BaalanceApp() {
                 onClick={() => setIsWearableModalOpen(false)}
                 className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-xs transition-colors cursor-pointer"
               >
-                Got It, Continue with Demo Data
+                Close Preview
               </button>
             </div>
           </div>

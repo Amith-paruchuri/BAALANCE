@@ -36,9 +36,8 @@ export const InteractiveHairStrandViewer: React.FC<InteractiveHairStrandViewerPr
     referenceBaseline: 11.0,
     status: 'baseline' as const,
     clinicalStatusLabel: 'Normal Baseline',
-    clinicalNote: 'Standard 25h weekly meetings, steady 7.5h sleep, and regular schedule kept stress in a healthy, balanced range.',
+    clinicalNote: 'Standard 25h weekly meetings and regular calendar schedule kept stress in a healthy, balanced range.',
   };
-
   // August: Mid-Shaft (1.0–2.0 cm, 30–60 Days Ago) -> Maps to Weeks 5 to 8 (id: 2)
   const segAugust = segments.find(s => s.id === 2) || {
     id: 2,
@@ -51,9 +50,8 @@ export const InteractiveHairStrandViewer: React.FC<InteractiveHairStrandViewerPr
     referenceBaseline: 11.0,
     status: 'acute_surge' as const,
     clinicalStatusLabel: 'Stress Spike (Peak)',
-    clinicalNote: 'Peak workload crunch with 47.5h meeting weeks, 11 calls after 7 PM, and 4 flights cut restorative deep sleep down to 42 minutes.',
+    clinicalNote: 'Peak workload crunch with 47.5h meeting weeks, 11 calls after 7 PM, and 4 flights disrupted evening recovery routines.',
   };
-
   // September: Scalp Root (0.0–1.0 cm, Last 30 Days) -> Maps to Weeks 9 to 12 (id: 3)
   const segSeptember = segments.find(s => s.id === 3) || {
     id: 3,
@@ -110,19 +108,19 @@ export const InteractiveHairStrandViewer: React.FC<InteractiveHairStrandViewerPr
   const getJulyDescription = (val: number) => {
     if (val > 20) return 'Elevated historic stress baseline with heavy quarterly kickoff commitments and travel disruptions.';
     if (val > 14) return 'Mildly elevated baseline workload with early project sprints and minor schedule friction.';
-    return 'Standard 25h weekly meetings, steady 7.5h sleep, and regular schedule kept stress in a healthy, balanced range.';
+    return 'Standard 25h weekly meetings and regular calendar schedule kept stress in a healthy, balanced range.';
   };
 
   const getAugustDescription = (val: number) => {
-    if (val > 20) return 'Peak workload crunch with high meeting density and late calls after 7 PM cut restorative deep sleep.';
-    if (val > 14) return 'Moderately elevated workload with sporadic evening calls caused minor sleep friction and intermediate cortisol climb.';
-    return 'Standard balanced schedule with regulated sleep hours kept cortisol comfortably in the healthy baseline zone.';
+    if (val > 20) return 'Peak workload crunch with high meeting density and 11 late calls after 7 PM caused severe stress spikes.';
+    if (val > 14) return 'Moderately elevated workload with sporadic evening calls caused schedule friction and intermediate cortisol climb.';
+    return 'Standard balanced schedule with protected evening hours kept cortisol comfortably in the healthy baseline zone.';
   };
 
   const getSeptemberDescription = (val: number) => {
     if (val > 20) return 'Active stress spike continues. Heavy meeting load and late calls past 7 PM are sustaining elevated cortisol.';
-    if (val > 14) return 'Daytime meetings dropped by 32%, but taking 4 late calls/week after 7 PM kept sleep restless, delaying full recovery.';
-    return 'Workload returned to healthy baseline; minimal evening calls and steady 7.5h sleep restored normal cortisol levels.';
+    if (val > 14) return 'Daytime meetings dropped by 32%, but taking 4 late calls/week after 7 PM delayed full biological recovery.';
+    return 'Workload returned to healthy baseline; minimal evening calls and restored calendar boundaries brought cortisol back to baseline.';
   };
 
   // Physical orientation:
@@ -801,7 +799,7 @@ export const InteractiveHairStrandViewer: React.FC<InteractiveHairStrandViewerPr
                   </div>
                 </div>
 
-                {/* Friendly Brief Description Associating Findings with Calendar & Wearables */}
+                {/* Friendly Brief Description Associating Findings with Calendar */}
                 <p className="text-[11px] text-slate-600 mt-1.5 leading-relaxed">
                   {description}
                 </p>

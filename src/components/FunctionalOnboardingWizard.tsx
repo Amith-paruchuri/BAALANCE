@@ -294,7 +294,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
     }
   };
 
-  // STEP 2: GOOGLE CALENDAR & WEARABLE INTEGRATIONS
+  // STEP 2: GOOGLE CALENDAR INTEGRATION
   const [calendarEmail, setCalendarEmail] = useState(
     initialProfile.email && initialProfile.email !== 'elena.rostova@gemini-biomed.ai' ? initialProfile.email : ''
   );

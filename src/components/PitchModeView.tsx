@@ -413,7 +413,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                 <div className="space-y-3.5 animate-fade-in">
                   <div className="p-3 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs">
                     <span className="text-[10px] uppercase font-bold tracking-wider text-[#3186FF]">The Correlation Engine</span>
-                    <h3 className="text-xs font-bold text-black mt-0.5">Hair Cortisol + Calendar + Wearables</h3>
+                    <h3 className="text-xs font-bold text-black mt-0.5">Hair Cortisol + Calendar</h3>
                   </div>
 
                   {/* 12-Week Chrono Correlation Multi-layer Chart */}
@@ -429,7 +429,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                       <span>Root Cause Identified by Gemini:</span>
                     </div>
                     <p className="text-[11px] text-rose-800 leading-relaxed">
-                      July Cortisol Spike correlated with <strong>back-to-back project deadlines (11 calls past 7 PM)</strong> + <strong>40% drop in deep sleep</strong>. Body never fully reset into August.
+                      July Cortisol Spike correlated with <strong>back-to-back project deadlines (11 calls past 7 PM)</strong> that repeatedly breached evening recovery boundaries.
                     </p>
                   </div>
                 </div>
