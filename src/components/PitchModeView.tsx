@@ -74,11 +74,11 @@ const PITCH_SCENES: PitchScene[] = [
   },
   {
     id: 5,
-    title: 'Chrono-Correlation (Calendar + Wearables)',
+    title: 'Chrono-Correlation & Calendar Defense',
     badge: 'Scene 5 • 1:12 - 1:35',
     scriptSnippet:
-      'Then, by integrating directly with your Google Calendar and wearable data, Gemini correlates the exact causes behind every spike—revealing, for instance, that your July spike coincided with back-to-back project deadlines and a 40% drop in deep sleep, and your body never fully reset in August—before delivering tailored lifestyle advice and recovery protocols for your daily routine.',
-    keyCallout: 'Correlate biomarker peaks with 47.5h meeting crunch & 40% deep sleep drop.',
+      'Then, by integrating directly with your Google Calendar and wearable data, Gemini correlates the exact causes behind your stress surges—revealing, for example, that your July cortisol spike coincided with back-to-back project deadlines and late-night meetings. Gemini then delivers tailored lifestyle advice and proactive calendar adjustments for your daily routine. With a single tap of your approval, it directly executes those changes in your Google Calendar—rescheduling conflicts and notifying attendees.',
+    keyCallout: 'Gemini correlates cortisol spikes with late meetings & executes 1-click Google Calendar defense.',
   },
   {
     id: 6,
@@ -429,7 +429,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                       <span>Root Cause Identified by Gemini:</span>
                     </div>
                     <p className="text-[11px] text-rose-800 leading-relaxed">
-                      August Cortisol Peak correlated with <strong>47.5h meeting crunch (11 calls past 7 PM)</strong> + <strong>40% drop in Whoop deep sleep</strong>. Body never reset in September.
+                      July Cortisol Spike correlated with <strong>back-to-back project deadlines (11 calls past 7 PM)</strong> + <strong>40% drop in deep sleep</strong>. Body never fully reset into August.
                     </p>
                   </div>
                 </div>
