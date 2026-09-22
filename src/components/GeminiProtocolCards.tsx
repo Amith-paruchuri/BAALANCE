@@ -27,7 +27,7 @@ interface GeminiProtocolCardsProps {
   calendarRulesApplied?: boolean;
 }
 
-export const GeminiProtocolCards: React.FC<GeminiProtocolCardsProps> = ({
+export const GeminiProtocolCards = React.memo<GeminiProtocolCardsProps>(({
   synthesis,
   isSynthesizing = false,
   onRefreshSynthesis,
@@ -271,4 +271,4 @@ export const GeminiProtocolCards: React.FC<GeminiProtocolCardsProps> = ({
       </div>
     </div>
   );
-};
+});

@@ -26,7 +26,7 @@ interface NavItem {
   hasDot?: boolean;
 }
 
-export const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
+export const BottomNavigationBar = React.memo<BottomNavigationBarProps>(({
   activeTab,
   onSelectTab,
   unreadChatAlert = false,
@@ -74,7 +74,7 @@ export const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
               key={item.id}
               type="button"
               onClick={() => onSelectTab(item.id)}
-              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all cursor-pointer relative select-none ${
+              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all active:scale-95 duration-75 cursor-pointer relative select-none ${
                 isActive
                   ? 'border-2 border-[#3186FF] bg-blue-50/80 text-[#3186FF] shadow-xs'
                   : 'border border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-100/70'
@@ -113,4 +113,4 @@ export const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
       </div>
     </nav>
   );
-};
+});
