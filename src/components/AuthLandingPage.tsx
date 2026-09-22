@@ -1,38 +1,20 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, ArrowRight, Play, Mail, Lock, User, Activity, Check, AlertCircle, Eye, EyeOff, Calendar } from 'lucide-react';
+import { Sparkles, ArrowRight, Play, Mail, Lock, User, Activity, Check, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { BaalanceLogo } from './BaalanceLogo';
 
 interface AuthLandingPageProps {
   onStartDemo: () => void;
   onAuthenticate: (userData: { name: string; email: string; isNewUser?: boolean }) => void;
-  onTryGoogleCalendar?: () => void;
   onOpenPitchMode?: () => void;
 }
 
 export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
   onStartDemo,
   onAuthenticate,
-  onTryGoogleCalendar,
-  onOpenPitchMode,
 }) => {
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
-  const nameInputRef = React.useRef<HTMLInputElement>(null);
-  const authCardRef = React.useRef<HTMLDivElement>(null);
-
-  // Switch to Sign Up mode and focus the name input to drive new account creation
-  const switchToSignUp = () => {
-    setActiveTab('signup');
-    setPasswordError(null);
-    setTimeout(() => {
-      nameInputRef.current?.focus();
-      authCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 60);
-    if (onTryGoogleCalendar) {
-      onTryGoogleCalendar();
-    }
-  };
   
   // Form fields - empty by default so user can enter their own credentials
   const [name, setName] = useState('');
@@ -85,23 +67,13 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
   return (
     <div className="min-h-screen bg-[#F0F4FA] flex flex-col justify-between p-4 sm:p-8 selection:bg-[#3186FF] selection:text-white font-sans">
       {/* Top Bar */}
-      <div className="max-w-5xl mx-auto w-full flex items-center justify-between gap-3">
+      <div className="max-w-5xl mx-auto w-full flex items-center justify-between">
         <BaalanceLogo size="sm" showTagline={false} animated={true} />
 
         <div className="flex items-center gap-2">
           <button
-            onClick={switchToSignUp}
-            className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#3186FF] to-[#4F46E5] hover:opacity-95 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95"
-            title="Create an account to connect your personal Google Calendar"
-          >
-            <Calendar className="w-3.5 h-3.5 text-white" />
-            <span className="hidden sm:inline">Try Integrating Your Google Calendar</span>
-            <span className="sm:hidden">Integrate Calendar</span>
-          </button>
-
-          <button
             onClick={onStartDemo}
-            className="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer shrink-0"
+            className="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
           >
             <Play className="w-3 h-3 fill-white" />
             <span>Launch Demo</span>
@@ -136,20 +108,6 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
               <p className="text-xs text-[#5F6368] mt-1">
                 90-day surge scenario with 3cm scrubber, Google Calendar load, and Tricha AI Co-Pilot.
               </p>
-
-              <div className="mt-3.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start gap-2 text-[11px] text-slate-600">
-                <Calendar className="w-3.5 h-3.5 text-[#3186FF] shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-semibold text-slate-700">Want to see your real schedule? </span>
-                  <button
-                    type="button"
-                    onClick={switchToSignUp}
-                    className="font-bold text-[#3186FF] hover:underline cursor-pointer inline"
-                  >
-                    Create an account to integrate your Google Calendar &rarr;
-                  </button>
-                </div>
-              </div>
             </div>
 
             <button
@@ -162,7 +120,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
           </div>
 
           {/* Option 2: Authentic Authentication Card (Sign In / Sign Up) */}
-          <div ref={authCardRef} className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-card hover:shadow-cardHover transition-all flex flex-col justify-between">
+          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-card hover:shadow-cardHover transition-all flex flex-col justify-between">
             <div>
               {/* Tab Switcher: Sign In vs Sign Up */}
               <div className="flex items-center p-1 bg-slate-100 rounded-xl mb-4 border border-slate-200/80">
@@ -208,47 +166,6 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                   ? 'Access your hair cortisol lab history and calendar analysis'
                   : 'Start tracking your burnout score with zero-friction salon collection'}
               </p>
-
-              {/* Callout: Try Integrating Your Google Calendar */}
-              {activeTab === 'signin' ? (
-                <div
-                  onClick={switchToSignUp}
-                  className="mt-3.5 p-2.5 rounded-xl bg-gradient-to-r from-blue-50/90 to-indigo-50/90 border border-blue-200/90 flex items-center justify-between gap-2 cursor-pointer hover:border-blue-400 hover:shadow-xs transition-all group"
-                  title="Create an account to connect your personal Google Calendar"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                      <Calendar className="w-4 h-4 text-[#3186FF]" />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-[11px] font-bold text-slate-800 leading-tight">
-                        Try integrating your own Google Calendar
-                      </p>
-                      <p className="text-[10px] text-slate-500 leading-tight mt-0.5">
-                        Curious about your real cortisol? Sign up to link your calendar
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-bold text-[#3186FF] group-hover:translate-x-0.5 transition-transform shrink-0 flex items-center gap-0.5">
-                    <span>Sign Up</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </span>
-                </div>
-              ) : (
-                <div className="mt-3.5 p-3 rounded-xl bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-purple-50/40 border border-blue-200/80 flex items-start gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
-                    <Calendar className="w-4 h-4 text-[#3186FF]" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs font-bold text-slate-900 leading-tight">
-                      Curious how your real schedule drives your cortisol?
-                    </p>
-                    <p className="text-[11px] text-slate-600 leading-tight mt-1">
-                      Create your account below. You will be able to connect your personal Google Calendar during intake to uncover curfew breaches and late-night meeting stress.
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
 
             <form onSubmit={handleAuthSubmit} className="mt-4 space-y-3">
@@ -262,7 +179,6 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                   <div className="relative">
                     <User className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
                     <input
-                      ref={nameInputRef}
                       type="text"
                       required
                       value={name}
@@ -363,20 +279,6 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </form>
-
-            {/* Bottom prompt for sign-in tab */}
-            {activeTab === 'signin' && (
-              <div className="mt-3 pt-2.5 border-t border-slate-100 text-center">
-                <button
-                  type="button"
-                  onClick={switchToSignUp}
-                  className="w-full text-center text-[11px] text-slate-500 hover:text-[#3186FF] transition-colors cursor-pointer flex items-center justify-center gap-1.5 py-1"
-                >
-                  <Calendar className="w-3 h-3 text-[#3186FF]" />
-                  <span>Curious about your real cortisol? <span className="font-semibold text-[#3186FF] underline underline-offset-2">Create an account to integrate your Google Calendar</span></span>
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>
