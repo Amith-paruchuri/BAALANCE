@@ -60,8 +60,6 @@ import {
   SomaticSymptom,
 } from '@/lib/types';
 import { BaalanceLogo } from './BaalanceLogo';
-import { GoogleAccountChooserModal } from './GoogleAccountChooserModal';
-import { signInWithGoogle } from '@/lib/supabase';
 
 interface AuthAndOnboardingModalProps {
   isOpen: boolean;
@@ -114,26 +112,6 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
   const [email, setEmail] = useState(userProfile.email || '');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isGoogleChooserOpen, setIsGoogleChooserOpen] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
-
-  const handleGoogleAuthClick = async () => {
-    setIsGoogleLoading(true);
-    setGoogleAuthError(null);
-    try {
-      const res = await signInWithGoogle();
-      if (!res.success) {
-        setGoogleAuthError(res.error || 'Google OAuth provider needs configuration.');
-        setIsGoogleChooserOpen(true);
-      }
-    } catch (err: any) {
-      setGoogleAuthError(err?.message || 'Failed to start Google sign-in.');
-      setIsGoogleChooserOpen(true);
-    } finally {
-      setIsGoogleLoading(false);
-    }
-  };
 
   // Role states
   const [isCustomRole, setIsCustomRole] = useState(
@@ -396,40 +374,6 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 </button>
               </div>
 
-              {/* Continue with Google Workspace */}
-              <button
-                type="button"
-                disabled={isGoogleLoading}
-                onClick={handleGoogleAuthClick}
-                className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-[#E2E8F0] hover:bg-[#F0F4FA] font-medium text-xs text-[#000000] shadow-sm transition-colors cursor-pointer disabled:opacity-60"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.41 7.34 24 12 24z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.16 0 9.94 0 12s.45 3.84 1.24 5.42l4.04-3.15z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.59 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                  />
-                </svg>
-                {isGoogleLoading ? 'Connecting to Google...' : 'Continue with Google Workspace'}
-              </button>
-
-              <div className="relative flex items-center justify-center my-4">
-                <div className="border-t border-[#E2E8F0] w-full" />
-                <span className="bg-white px-3 text-[11px] text-[#5F6368] uppercase tracking-wider absolute">
-                  or clinical credentials
-                </span>
-              </div>
 
               {/* Form */}
               <div className="space-y-3">
@@ -1193,22 +1137,6 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
           )}
         </div>
       </div>
-
-      <GoogleAccountChooserModal
-        isOpen={isGoogleChooserOpen}
-        onClose={() => setIsGoogleChooserOpen(false)}
-        onSelectAccount={(account) => {
-          setEmail(account.email);
-          onSaveProfile({
-            ...userProfile,
-            name: account.name,
-            email: account.email,
-          });
-          setStep('questionnaire');
-        }}
-        targetDomain="nyxivqlpikoffdopfmei.supabase.co"
-        googleAuthError={googleAuthError}
-      />
     </div>
   );
 };
