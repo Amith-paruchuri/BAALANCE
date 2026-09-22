@@ -99,6 +99,9 @@ export default function BaalanceApp() {
   // Dedicated Pitch Storyboard View Toggle
   const [isPitchMode, setIsPitchMode] = useState(false);
 
+  // Wizard starting step (defaults to Step 1; Step 2 if user clicks "Try Integrating Your Google Calendar")
+  const [wizardInitialStep, setWizardInitialStep] = useState<1 | 2 | 3 | 4>(1);
+
   // Phone Mockup Simulator Toggle (For Pitch Video recording and mobile preview)
   const [isPhoneMode, setIsPhoneMode] = useState(false);
 
@@ -784,8 +787,21 @@ export default function BaalanceApp() {
     }
   };
 
+  // Handler: User clicks "Try Integrating Your Google Calendar" from Auth Landing Page
+  const handleTryGoogleCalendar = () => {
+    setUserProfile({
+      ...INITIAL_USER_PROFILE,
+      name: '',
+      email: '',
+      isDemo: false,
+    });
+    setWizardInitialStep(2); // Jump directly to Step 2: Google Calendar Integration
+    setAppStage('wizard');
+  };
+
   // Handler: Authenticate user (First Login -> Wizard; Existing User -> Directly to Dashboard)
   const handleAuthenticate = async (userData: { name: string; email: string; isNewUser?: boolean }) => {
+    setWizardInitialStep(1);
     const cleanEmail = userData.email.toLowerCase().trim();
 
     // Check user-scoped local storage bundle
@@ -1138,7 +1154,7 @@ export default function BaalanceApp() {
         <AuthLandingPage
           onStartDemo={handleStartDemo}
           onAuthenticate={handleAuthenticate}
-          onOpenPitchMode={() => setIsPitchMode(true)}
+          onTryGoogleCalendar={handleTryGoogleCalendar}
         />
       </PhoneSimulatorFrame>
     );
@@ -1153,8 +1169,9 @@ export default function BaalanceApp() {
       >
         <FunctionalOnboardingWizard
           initialProfile={userProfile}
+          initialStep={wizardInitialStep}
           onComplete={handleWizardComplete}
-          onCancel={handleStartDemo}
+          onCancel={() => setAppStage('auth')}
           onStartDemo={handleStartDemo}
         />
       </PhoneSimulatorFrame>

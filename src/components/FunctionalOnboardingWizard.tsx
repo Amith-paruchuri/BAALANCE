@@ -80,6 +80,7 @@ interface FunctionalOnboardingWizardProps {
   }) => void;
   onCancel: () => void;
   onStartDemo?: () => void;
+  initialStep?: 1 | 2 | 3 | 4;
 }
 
 const PRESET_ROLES = [
@@ -199,8 +200,15 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
   onComplete,
   onCancel,
   onStartDemo,
+  initialStep = 1,
 }) => {
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(initialStep);
+
+  React.useEffect(() => {
+    if (initialStep) {
+      setCurrentStep(initialStep);
+    }
+  }, [initialStep]);
 
   // STEP 1: LIFESTYLE & STRESS PROFILE
   const [selectedRole, setSelectedRole] = useState(initialProfile.role || 'Tech Founder & AI Lead');
