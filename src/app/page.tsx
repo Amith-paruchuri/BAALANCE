@@ -125,22 +125,29 @@ export default function BaalanceApp() {
 
   // Compute current defense events for 4-week scanner modal
   const defenseEvents = React.useMemo(() => {
+    // If calendar defense rules have not been applied yet, strictly scan fresh DEFAULT_EVENTS
+    if (!calendarRulesApplied) {
+      return DEFAULT_EVENTS;
+    }
     if (savedCalendarEvents && savedCalendarEvents.length > 0) {
       return savedCalendarEvents;
     }
     if (typeof window !== 'undefined') {
       const cleanEmail = (verifiedCalendarEmail || userProfile?.email || '').toLowerCase().trim();
-      const storedKey = cleanEmail ? `baalance_stored_calendar_events_${cleanEmail}` : 'baalance_stored_calendar_events';
-      const raw = localStorage.getItem(storedKey);
-      if (raw) {
-        try {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        } catch (_) {}
+      const isDemo = !cleanEmail || userProfile?.isDemo || cleanEmail.includes('demo') || cleanEmail.includes('biotech.ai');
+      if (!isDemo) {
+        const storedKey = `baalance_stored_calendar_events_${cleanEmail}`;
+        const raw = localStorage.getItem(storedKey);
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          } catch (_) {}
+        }
       }
     }
     return DEFAULT_EVENTS;
-  }, [savedCalendarEvents, verifiedCalendarEmail, userProfile?.email]);
+  }, [calendarRulesApplied, savedCalendarEvents, verifiedCalendarEmail, userProfile?.email, userProfile?.isDemo]);
 
   // Handler: Apply Verified Google Calendar Telemetry directly to Dashboard
   const handleApplyCalendarTelemetry = (
@@ -421,13 +428,18 @@ export default function BaalanceApp() {
     setCalendarRulesApplied(true);
 
     if (typeof window !== 'undefined') {
-      localStorage.setItem('baalance_calendar_rules_applied', 'true');
-      if (cleanEmail) {
+      // Clean up legacy global un-scoped keys so demo sessions are never corrupted
+      localStorage.removeItem('baalance_calendar_rules_applied');
+      localStorage.removeItem('baalance_rescheduled_overrides');
+      localStorage.removeItem('baalance_stored_calendar_events');
+
+      // Only persist to localStorage for real authenticated accounts (never for demo)
+      const isDemoAccount = !cleanEmail || userProfile.isDemo || cleanEmail.includes('demo') || cleanEmail.includes('biotech.ai');
+      if (!isDemoAccount) {
+        localStorage.setItem(`baalance_calendar_rules_applied_${cleanEmail}`, 'true');
         localStorage.setItem(`baalance_rescheduled_overrides_${cleanEmail}`, JSON.stringify(existingOverrides));
         localStorage.setItem(`baalance_stored_calendar_events_${cleanEmail}`, JSON.stringify(updatedEvents));
       }
-      localStorage.setItem('baalance_rescheduled_overrides', JSON.stringify(existingOverrides));
-      localStorage.setItem('baalance_stored_calendar_events', JSON.stringify(updatedEvents));
     }
 
     // Update dynamic clinical score
@@ -666,9 +678,13 @@ export default function BaalanceApp() {
       // Clean up legacy global calendar keys to prevent any cross-account leakage
       localStorage.removeItem('baalance_stored_ical_url');
       localStorage.removeItem('baalance_stored_calendar_events');
+      localStorage.removeItem('baalance_calendar_rules_applied');
+      localStorage.removeItem('baalance_rescheduled_overrides');
 
       const cleanEmail = (activeEmail || '').toLowerCase().trim();
-      const storedIcal = cleanEmail
+      const isDemo = !cleanEmail || (cached.profile && cached.profile.isDemo) || cleanEmail.includes('demo') || cleanEmail.includes('biotech.ai');
+
+      const storedIcal = (!isDemo && cleanEmail)
         ? (localStorage.getItem(`baalance_stored_ical_url_${cleanEmail}`) || cached.calendarIcalUrl || cached.profile?.calendarIcalUrl || '')
         : '';
 
@@ -685,10 +701,10 @@ export default function BaalanceApp() {
         );
       } else {
         setSavedCalendarIcalUrl('');
-        if (cleanEmail) setVerifiedCalendarEmail(cleanEmail);
+        if (cleanEmail && !isDemo) setVerifiedCalendarEmail(cleanEmail);
       }
 
-      const storedEventsRaw = cleanEmail
+      const storedEventsRaw = (!isDemo && cleanEmail)
         ? localStorage.getItem(`baalance_stored_calendar_events_${cleanEmail}`)
         : null;
       if (storedEventsRaw) {
@@ -702,9 +718,12 @@ export default function BaalanceApp() {
         setSavedCalendarEvents([]);
       }
 
-      const rulesStored = localStorage.getItem('baalance_calendar_rules_applied');
-      if (rulesStored === 'true') {
-        setCalendarRulesApplied(true);
+      // Strictly restore rules applied ONLY for real authenticated non-demo accounts
+      if (!isDemo && cleanEmail) {
+        const rulesStored = localStorage.getItem(`baalance_calendar_rules_applied_${cleanEmail}`);
+        setCalendarRulesApplied(rulesStored === 'true');
+      } else {
+        setCalendarRulesApplied(false);
       }
     }
 
@@ -726,6 +745,26 @@ export default function BaalanceApp() {
       setTelemetry(WEEKLY_12_WEEK_TELEMETRY);
       setActiveSegmentId(2);
       setDemoMode(true);
+
+      // CRITICAL: Demo must ALWAYS start fresh with rules UN-ENFORCED so every visitor can experience Calendar Defense!
+      setCalendarRulesApplied(false);
+      setSavedCalendarEvents([]);
+      setSavedCalendarIcalUrl('');
+      setVerifiedCalendarEmail('');
+      autoSyncedRootUrlRef.current = null;
+
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('baalance_calendar_rules_applied');
+        localStorage.removeItem('baalance_rescheduled_overrides');
+        localStorage.removeItem('baalance_stored_calendar_events');
+        localStorage.removeItem('baalance_calendar_rules_applied_demo');
+        localStorage.removeItem('baalance_stored_calendar_events_demo');
+        localStorage.removeItem('baalance_rescheduled_overrides_demo');
+        localStorage.removeItem('baalance_calendar_rules_applied_alex.morgan@biotech.ai');
+        localStorage.removeItem('baalance_stored_calendar_events_alex.morgan@biotech.ai');
+        localStorage.removeItem('baalance_rescheduled_overrides_alex.morgan@biotech.ai');
+      }
+
       const dynamicResult = computeDynamicSynthesis(INITIAL_USER_PROFILE, CLINICAL_SURGE_SEGMENTS, WEEKLY_12_WEEK_TELEMETRY);
       setSynthesis(dynamicResult);
     } catch (e) {
@@ -790,6 +829,11 @@ export default function BaalanceApp() {
       const dynamicResult = computeDynamicSynthesis(targetProfile, targetSegments, targetTelemetry);
       setSynthesis(dynamicResult);
 
+      const rulesStored = (typeof window !== 'undefined' && cleanEmail)
+        ? localStorage.getItem(`baalance_calendar_rules_applied_${cleanEmail}`)
+        : null;
+      setCalendarRulesApplied(rulesStored === 'true');
+
       // Save as active session
       saveUserDataToStorage(targetProfile, targetSegments, targetTelemetry).catch(console.warn);
       setAppStage('dashboard');
@@ -831,6 +875,7 @@ export default function BaalanceApp() {
       setSavedCalendarEvents([]);
       setVerifiedCalendarEmail(cleanEmail);
       setDemoMode(false);
+      setCalendarRulesApplied(false);
       setAppStage('wizard');
     }
   };
@@ -1055,6 +1100,9 @@ export default function BaalanceApp() {
     signOutUser().catch(console.warn);
     if (typeof window !== 'undefined') {
       localStorage.removeItem('baalance_active_user_email');
+      localStorage.removeItem('baalance_calendar_rules_applied');
+      localStorage.removeItem('baalance_rescheduled_overrides');
+      localStorage.removeItem('baalance_stored_calendar_events');
     }
     setUserProfile(INITIAL_USER_PROFILE);
     setSegments(CLINICAL_SURGE_SEGMENTS);
@@ -1062,6 +1110,7 @@ export default function BaalanceApp() {
     setSavedCalendarIcalUrl('');
     setSavedCalendarEvents([]);
     setVerifiedCalendarEmail('');
+    setCalendarRulesApplied(false);
     autoSyncedRootUrlRef.current = null;
     setAppStage('auth');
     setDashboardTab('stress');

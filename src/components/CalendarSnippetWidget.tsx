@@ -591,11 +591,12 @@ export const CalendarSnippetWidget: React.FC<CalendarSnippetWidgetProps> = ({
       setActiveIcalUrl('');
       setFeedSource('clinical_benchmark');
       autoSyncedTargetRef.current = null;
-      const demoEvts = (initialEvents && initialEvents.length > 0) ? initialEvents : DEFAULT_EVENTS;
+      // If rules are not applied, strictly use fresh DEFAULT_EVENTS with visible curfew breaches
+      const demoEvts = (rulesApplied && initialEvents && initialEvents.length > 0) ? initialEvents : DEFAULT_EVENTS;
       setEvents(demoEvts);
       if (onEventsUpdated) onEventsUpdated(demoEvts);
     }
-  }, [userEmail, savedIcalUrl]);
+  }, [userEmail, savedIcalUrl, rulesApplied]);
 
   // Compute the 7 days of the current week (Sunday to Saturday)
   const weekDays = useMemo(() => {
@@ -766,15 +767,18 @@ export const CalendarSnippetWidget: React.FC<CalendarSnippetWidgetProps> = ({
         'bg-indigo-600 text-white border-indigo-700',
       ];
 
-      // Check persistent user reschedule overrides
+      // Check persistent user reschedule overrides (only for authenticated users when rules are active)
       let overrides: Record<string, any> = {};
       if (typeof window !== 'undefined') {
         const cleanEmail = userEmail ? userEmail.toLowerCase().trim() : '';
-        const rawOverrides = (cleanEmail ? localStorage.getItem(`baalance_rescheduled_overrides_${cleanEmail}`) : null) || localStorage.getItem('baalance_rescheduled_overrides');
-        if (rawOverrides) {
-          try {
-            overrides = JSON.parse(rawOverrides);
-          } catch (_) {}
+        const isDemo = !cleanEmail || cleanEmail.includes('demo') || cleanEmail.includes('biotech.ai');
+        if (!isDemo && rulesApplied) {
+          const rawOverrides = localStorage.getItem(`baalance_rescheduled_overrides_${cleanEmail}`);
+          if (rawOverrides) {
+            try {
+              overrides = JSON.parse(rawOverrides);
+            } catch (_) {}
+          }
         }
       }
 
