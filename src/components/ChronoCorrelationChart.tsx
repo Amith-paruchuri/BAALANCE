@@ -26,7 +26,7 @@ interface ChronoCorrelationChartProps {
   userRole?: string;
 }
 
-export const ChronoCorrelationChart: React.FC<ChronoCorrelationChartProps> = ({
+export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
   telemetry,
   activeSegmentId,
   onSelectWeek,
@@ -315,7 +315,7 @@ export const ChronoCorrelationChart: React.FC<ChronoCorrelationChartProps> = ({
               wrapperStyle={{ outline: 'none', zIndex: 50, pointerEvents: 'none' }}
             />
 
-            {/* Secondary Axis: Google Calendar Meeting Load Bars */}
+            {/* Secondary Axis: Google Calendar Meeting Load Bars (Instant 60fps responsiveness) */}
             <Bar
               yAxisId="right"
               dataKey="meetingHours"
@@ -323,6 +323,7 @@ export const ChronoCorrelationChart: React.FC<ChronoCorrelationChartProps> = ({
               radius={[4, 4, 0, 0]}
               barSize={16}
               opacity={0.85}
+              isAnimationActive={false}
               cursor="pointer"
             />
 
@@ -343,4 +344,4 @@ export const ChronoCorrelationChart: React.FC<ChronoCorrelationChartProps> = ({
       </div>
     </div>
   );
-};
+});

@@ -986,8 +986,10 @@ export default function BaalanceApp() {
     if (geminiDebounceRef.current) {
       clearTimeout(geminiDebounceRef.current);
     }
-    setIsSynthesizing(true);
     geminiDebounceRef.current = setTimeout(async () => {
+      setIsSynthesizing(true);
+      // Persist updated hair segments & telemetry once dragging settles
+      saveUserDataToStorage(userProfile, updatedSegments, updatedTelemetry).catch(console.warn);
       try {
         const localApiKey = typeof window !== 'undefined' ? localStorage.getItem('baalance_gemini_api_key') : null;
         const res = await fetch('/api/gemini-synthesis', {
@@ -1011,10 +1013,7 @@ export default function BaalanceApp() {
       } finally {
         setIsSynthesizing(false);
       }
-    }, 700);
-
-    // Persist updated hair segments & telemetry so it remains saved for next login
-    saveUserDataToStorage(userProfile, updatedSegments, updatedTelemetry).catch(console.warn);
+    }, 600);
   };
 
   // Load Clinical Surge Scenario

@@ -469,7 +469,7 @@ function maskIcalUrl(url: string): string {
   }
 }
 
-export const CalendarSnippetWidget: React.FC<CalendarSnippetWidgetProps> = ({
+export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
   userEmail,
   initialEvents,
   telemetry,
@@ -2086,4 +2086,4 @@ export const CalendarSnippetWidget: React.FC<CalendarSnippetWidgetProps> = ({
       )}
     </div>
   );
-};
+});

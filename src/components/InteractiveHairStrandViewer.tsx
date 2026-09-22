@@ -12,7 +12,7 @@ interface InteractiveHairStrandViewerProps {
   onLoadSurgeScenario: () => void;
 }
 
-export const InteractiveHairStrandViewer: React.FC<InteractiveHairStrandViewerProps> = ({
+export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewerProps>(({
   segments,
   activeSegmentId,
   onSelectSegment,
@@ -1021,4 +1021,4 @@ export const InteractiveHairStrandViewer: React.FC<InteractiveHairStrandViewerPr
       )}
     </div>
   );
-};
+});

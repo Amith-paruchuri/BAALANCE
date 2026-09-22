@@ -23,7 +23,7 @@ interface HairJourneyCardProps {
   currentStep?: number;
 }
 
-export const HairJourneyCard: React.FC<HairJourneyCardProps> = ({
+export const HairJourneyCard = React.memo<HairJourneyCardProps>(({
   currentStep = 4,
 }) => {
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
@@ -343,4 +343,4 @@ export const HairJourneyCard: React.FC<HairJourneyCardProps> = ({
       </div>
     </div>
   );
-};
+});
