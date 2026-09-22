@@ -1,0 +1,90 @@
+[
+  {
+    "id": "lead_p6os0oz",
+    "email": "vishnu@example.com",
+    "name": "Vishnu",
+    "source": "Account Sign-Up & Intake",
+    "device": "All Devices (Pending Beta)",
+    "role": "Medical Student / Clinical Scholar",
+    "sector": "Medicine & Healthcare",
+    "timestampIST": "2026-09-20T14:59:11.600Z",
+    "rawTimestamp": "2026-09-20T14:59:11.600Z"
+  },
+  {
+    "id": "lead_map03g8",
+    "email": "elena.rostova@gemini-biomed.ai",
+    "name": "Dr. Elena Rostova",
+    "source": "Clinical Demo User",
+    "device": "All Devices (Pending Beta)",
+    "role": "Tech Founder & AI Research Lead",
+    "sector": "Artificial Intelligence & Biotech",
+    "timestampIST": "2026-09-20T14:39:01.514Z",
+    "rawTimestamp": "2026-09-20T14:39:01.514Z"
+  },
+  {
+    "id": "lead_al1w9xi",
+    "email": "p.v.saiamith@gmail.com",
+    "name": "pavan kalyan",
+    "source": "Account Sign-Up & Intake",
+    "device": "All Devices (Pending Beta)",
+    "role": "Tech Founder & AI Research Lead",
+    "sector": "Artificial Intelligence & Biotech",
+    "timestampIST": "2026-09-20T15:58:00.198Z",
+    "rawTimestamp": "2026-09-20T15:58:00.198Z"
+  },
+  {
+    "id": "lead_x070v94",
+    "email": "paruchuri.3833@aiims.edu",
+    "name": "PARUCHURI VENKATA SAI",
+    "source": "Account Sign-Up & Intake",
+    "device": "All Devices (Pending Beta)",
+    "role": "Medical Student / Clinical Scholar",
+    "sector": "Medicine & Healthcare",
+    "timestampIST": "2026-09-20T15:58:15.019Z",
+    "rawTimestamp": "2026-09-20T15:58:15.019Z"
+  },
+  {
+    "id": "lead_dinawba",
+    "email": "karthik@gmail.com",
+    "name": "Karthik",
+    "source": "Account Sign-Up & Intake",
+    "device": "All Devices (Pending Beta)",
+    "role": "Executive / Corporate Professional",
+    "sector": "Finance & Strategy",
+    "timestampIST": "2026-09-20T16:18:08.648Z",
+    "rawTimestamp": "2026-09-20T16:18:08.648Z"
+  },
+  {
+    "id": "lead_jslctm8",
+    "email": "sanasinha@gmail.com",
+    "name": "sanasinha",
+    "source": "Account Sign-Up & Intake",
+    "device": "All Devices (Pending Beta)",
+    "role": "Tech Founder & AI Lead",
+    "sector": "Software & AI",
+    "timestampIST": "2026-09-20T16:34:47.668Z",
+    "rawTimestamp": "2026-09-20T16:34:47.668Z"
+  },
+  {
+    "id": "lead_inswvia",
+    "email": "shajty@gmail.com",
+    "name": "sai",
+    "source": "Account Sign-Up & Intake",
+    "device": "All Devices (Pending Beta)",
+    "role": "Resident Physician & Surgeon",
+    "sector": "Acute Healthcare",
+    "timestampIST": "2026-09-21T11:03:51.597Z",
+    "rawTimestamp": "2026-09-21T11:03:51.597Z"
+  },
+  {
+    "id": "lead_snnl5hs",
+    "email": "amithparuchuri@gmail.com",
+    "name": "Amith Paruchuri",
+    "source": "Account Sign-Up & Intake",
+    "device": "All Devices (Pending Beta)",
+    "role": "Medical Student / Clinical Scholar",
+    "sector": "Medicine & Healthcare",
+    "timestampIST": "2026-09-21T08:43:07.834Z",
+    "rawTimestamp": "2026-09-21T08:43:07.834Z"
+  }
+]

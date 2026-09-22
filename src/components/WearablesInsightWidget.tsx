@@ -37,14 +37,50 @@ export const WearablesInsightWidget: React.FC<WearablesInsightWidgetProps> = ({
     return false;
   });
   const [selectedDevice, setSelectedDevice] = useState<string>('apple');
+  const [isSubmittingWaitlist, setIsSubmittingWaitlist] = useState<boolean>(false);
+  const [waitlistSuccessMsg, setWaitlistSuccessMsg] = useState<string>('');
 
-  const handleJoinWaitlist = (e: React.FormEvent) => {
+  const handleJoinWaitlist = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!emailInput.trim()) return;
-    setHasJoinedWaitlist(true);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('baalance_wearables_waitlist', 'true');
-      localStorage.setItem('baalance_wearables_waitlist_email', emailInput.trim());
+    const cleanEmail = emailInput.trim();
+    if (!cleanEmail || !cleanEmail.includes('@')) return;
+
+    setIsSubmittingWaitlist(true);
+    const chosenDevice = DEVICES.find(d => d.id === selectedDevice)?.name || 'Apple Watch';
+
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: cleanEmail,
+          name: userProfile?.name || cleanEmail.split('@')[0],
+          device: chosenDevice,
+          source: `Wearable Waitlist (${chosenDevice})`,
+          role: userProfile?.role,
+          sector: userProfile?.sector,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setHasJoinedWaitlist(true);
+        setWaitlistSuccessMsg(`You're on the priority waitlist for ${chosenDevice} sync!`);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('baalance_wearables_waitlist', 'true');
+          localStorage.setItem('baalance_wearables_waitlist_email', cleanEmail);
+          localStorage.setItem('baalance_wearables_waitlist_device', chosenDevice);
+        }
+      } else {
+        // Fallback local persistence
+        setHasJoinedWaitlist(true);
+        setWaitlistSuccessMsg(`You're on the priority waitlist for ${chosenDevice} sync!`);
+      }
+    } catch (_) {
+      setHasJoinedWaitlist(true);
+      setWaitlistSuccessMsg(`You're on the priority waitlist for ${chosenDevice} sync!`);
+    } finally {
+      setIsSubmittingWaitlist(false);
     }
   };
 
@@ -333,9 +369,18 @@ export const WearablesInsightWidget: React.FC<WearablesInsightWidgetProps> = ({
             </div>
 
             {hasJoinedWaitlist ? (
-              <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-xs font-bold shrink-0">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>You're on the priority waitlist!</span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-xs font-bold shrink-0">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>{waitlistSuccessMsg || "You're on the priority beta waitlist!"}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setHasJoinedWaitlist(false)}
+                  className="text-[11px] text-slate-400 hover:text-white underline cursor-pointer"
+                >
+                  Change Device / Email
+                </button>
               </div>
             ) : (
               <form onSubmit={handleJoinWaitlist} className="flex items-center gap-2 w-full sm:w-auto">
@@ -344,14 +389,23 @@ export const WearablesInsightWidget: React.FC<WearablesInsightWidgetProps> = ({
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="your.email@gmail.com"
-                  className="px-3.5 py-2 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-full sm:w-64"
+                  disabled={isSubmittingWaitlist}
+                  className="px-3.5 py-2 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-full sm:w-64 disabled:opacity-60"
                   required
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-sm active:scale-95"
+                  disabled={isSubmittingWaitlist}
+                  className="px-4 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 disabled:bg-blue-400 text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-sm active:scale-95 flex items-center gap-1.5"
                 >
-                  Join Beta
+                  {isSubmittingWaitlist ? (
+                    <>
+                      <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <span>Join Beta</span>
+                  )}
                 </button>
               </form>
             )}

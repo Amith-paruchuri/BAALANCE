@@ -64,6 +64,35 @@ export async function POST(req: NextRequest) {
     });
     saveStoreToFile(serverProfileStore);
 
+    // 1b. Also update the consolidated leads ledger (JSON + Excel CSV)
+    try {
+      const { loadLeadsFromFile, saveLeadsToFile } = await import('@/lib/leadsService');
+      const { getISTDateInfo } = await import('@/lib/istTime');
+      const ist = getISTDateInfo(new Date());
+      const timestampIST = `${ist.year}-${String(ist.monthNum).padStart(2, '0')}-${String(ist.date).padStart(2, '0')} ${ist.time12h} IST`;
+      const currentLeads = loadLeadsFromFile();
+      const existingIdx = currentLeads.findIndex(l => l.email.toLowerCase() === email);
+      const leadEntry = {
+        id: existingIdx >= 0 ? currentLeads[existingIdx].id : `lead_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        email,
+        name: profile.name || email.split('@')[0],
+        source: profile.isDemo ? 'Clinical Demo User' : 'Account Sign-Up & Intake',
+        device: existingIdx >= 0 ? currentLeads[existingIdx].device : 'All Devices (Pending Beta)',
+        role: profile.role,
+        sector: profile.sector,
+        timestampIST,
+        rawTimestamp: now,
+      };
+      if (existingIdx >= 0) {
+        currentLeads[existingIdx] = { ...currentLeads[existingIdx], ...leadEntry };
+      } else {
+        currentLeads.unshift(leadEntry);
+      }
+      saveLeadsToFile(currentLeads);
+    } catch (leadErr) {
+      console.warn('[BAALANCE Storage] Lead ledger write notice:', leadErr);
+    }
+
     let supabasePersisted = false;
     let supabaseError: string | null = null;
 
