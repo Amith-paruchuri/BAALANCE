@@ -1,3 +1,5 @@
+import { getISTDateInfo, IST_OFFSET_MS } from '@/lib/istTime';
+
 export interface ParsedCalendarEvent {
   id: string;
   day: string; // 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun'
@@ -15,6 +17,10 @@ export interface ParsedCalendarEvent {
   dateKey: string; // 'YYYY-MM-DD'
   monthKey: 1 | 2 | 3; // 1 = July, 2 = August, 3 = September
   isAllDay?: boolean;
+  organizerEmail?: string;
+  organizerName?: string;
+  isUserOrganizer?: boolean;
+  attendees?: string[];
 }
 
 export function parseIcsContent(
@@ -52,12 +58,15 @@ export function parseIcsContent(
   let description = '';
   let location = '';
   let rrule = '';
+  let organizerRaw = '';
+  let attendeesRaw: string[] = [];
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const now = Date.now();
   const ninetyDaysAgo = now - 90 * 24 * 60 * 60 * 1000;
-  const oneWeekAhead = now + 7 * 24 * 60 * 60 * 1000;
+  // Expand 5 weeks (35 days) ahead to ensure the complete 4-week Calendar Defense window is populated
+  const futureScanningWindow = now + 35 * 24 * 60 * 60 * 1000;
 
   for (let i = 0; i < lines.length; i++) {
     let line = lines[i];
@@ -78,6 +87,8 @@ export function parseIcsContent(
       description = '';
       location = '';
       rrule = '';
+      organizerRaw = '';
+      attendeesRaw = [];
     } else if (trimmed.startsWith('END:VEVENT')) {
       inEvent = false;
       if (summary) {
@@ -107,7 +118,7 @@ export function parseIcsContent(
               untilDate = parseIcsDate(untilMatch[1]);
             }
 
-            const effectiveLimit = untilDate && untilDate.getTime() < oneWeekAhead ? untilDate.getTime() : oneWeekAhead;
+            const effectiveLimit = untilDate && untilDate.getTime() < futureScanningWindow ? untilDate.getTime() : futureScanningWindow;
 
             if (isYearly) {
               // Expand yearly recurring events (e.g. Birthdays, Annual Festivals) into active testing window
@@ -117,7 +128,7 @@ export function parseIcsContent(
                 if (yr >= baseYear) {
                   const occ = new Date(baseStart);
                   occ.setFullYear(yr);
-                  if ((!untilDate || occ.getTime() <= untilDate.getTime()) && occ.getTime() <= oneWeekAhead) {
+                  if ((!untilDate || occ.getTime() <= untilDate.getTime()) && occ.getTime() <= futureScanningWindow) {
                     occurrences.push(occ);
                   }
                 }
@@ -212,23 +223,44 @@ export function parseIcsContent(
             !titleLower.includes('cli') &&
             !titleLower.includes('bash');
 
-          for (const occ of occurrences) {
-            const hour = occ.getHours();
-            const minute = occ.getMinutes();
-            const startHour = isAllDay ? 0 : parseFloat((hour + minute / 60).toFixed(2));
-            const isCurfew = isAllDay ? false : (hour >= 19 || hour < 5);
-            const dayName = dayNames[occ.getDay()];
-            const monthName = monthNames[occ.getMonth()];
-            const dateFormatted = `${monthName} ${occ.getDate()}`;
-            const endOcc = new Date(occ.getTime() + durationMs);
+          // Extract organizer info
+          let organizerEmail = '';
+          let organizerName = '';
+          if (organizerRaw) {
+            const mMatch = organizerRaw.match(/mailto:([^\s;>,\"\']+)/i);
+            if (mMatch) organizerEmail = mMatch[1].trim();
+            else {
+              const eMatch = organizerRaw.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+              if (eMatch) organizerEmail = eMatch[1].trim();
+            }
+            const cnMatch = organizerRaw.match(/CN=([^:;]+)/i);
+            if (cnMatch) organizerName = cnMatch[1].replace(/^["']|["']$/g, '').trim();
+          }
 
-            const yyyy = occ.getFullYear();
-            const mm = String(occ.getMonth() + 1).padStart(2, '0');
-            const dd = String(occ.getDate()).padStart(2, '0');
-            const dateKey = `${yyyy}-${mm}-${dd}`;
+          // Extract attendees
+          const attendeeEmails: string[] = [];
+          for (const att of attendeesRaw) {
+            const mMatch = att.match(/mailto:([^\s;>,\"\']+)/i);
+            if (mMatch) attendeeEmails.push(mMatch[1].trim());
+            else {
+              const eMatch = att.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+              if (eMatch) attendeeEmails.push(eMatch[1].trim());
+            }
+          }
+
+          for (const occ of occurrences) {
+            const istInfo = getISTDateInfo(occ);
+            const endOcc = new Date(occ.getTime() + durationMs);
+            const endIstInfo = getISTDateInfo(endOcc);
+
+            const startHour = isAllDay ? 0 : istInfo.startHour;
+            const isCurfew = isAllDay ? false : istInfo.isCurfew;
+            const dayName = istInfo.dayName;
+            const dateFormatted = istInfo.dateFormatted;
+            const dateKey = istInfo.dateKey;
 
             // Map monthKey: 6 (July) -> 1, 7 (August) -> 2, 8 (September) -> 3
-            const calMonth = occ.getMonth();
+            const calMonth = istInfo.month;
             const monthKey: 1 | 2 | 3 = calMonth <= 6 ? 1 : calMonth === 7 ? 2 : 3;
 
             let category: 'core' | 'strategy' | 'late_sync' | 'incident' | 'all_hands' | 'birthday' | 'festival' | 'personal' | 'travel' = 'core';
@@ -255,18 +287,21 @@ export function parseIcsContent(
               day: dayName,
               dayDate: dateFormatted,
               title: summary,
-              startTime: isAllDay ? 'All Day' : formatTime12h(occ),
-              endTime: isAllDay ? 'All Day' : formatTime12h(endOcc),
+              startTime: isAllDay ? 'All Day' : istInfo.time12h,
+              endTime: isAllDay ? 'All Day' : endIstInfo.time12h,
               startHour,
               durationHours: isAllDay ? 0 : durationHours,
               isCurfewBreach: isCurfew,
               hasMeet,
-              attendeesCount: hasMeet ? 4 : 2,
+              attendeesCount: attendeeEmails.length > 0 ? attendeeEmails.length : (hasMeet ? 4 : 2),
               category,
               startDate: occ,
               dateKey,
               monthKey,
               isAllDay,
+              organizerEmail: organizerEmail || undefined,
+              organizerName: organizerName || undefined,
+              attendees: attendeeEmails.length > 0 ? attendeeEmails : undefined,
             });
           }
         }
@@ -292,6 +327,10 @@ export function parseIcsContent(
       } else if (trimmed.startsWith('RRULE;')) {
         const colonIdx = trimmed.indexOf(':');
         rrule = colonIdx !== -1 ? trimmed.slice(colonIdx + 1).trim() : '';
+      } else if (trimmed.startsWith('ORGANIZER')) {
+        organizerRaw = trimmed;
+      } else if (trimmed.startsWith('ATTENDEE')) {
+        attendeesRaw.push(trimmed);
       }
     }
   }
@@ -524,7 +563,8 @@ function parseIcsDate(dateStr: string): Date | null {
     if (isUtc) {
       return new Date(Date.UTC(year, month, day, hour, minute, second));
     }
-    return new Date(year, month, day, hour, minute, second);
+    // Floating / non-UTC time in Indian calendar feeds: anchor to IST
+    return new Date(Date.UTC(year, month, day, hour, minute, second) - IST_OFFSET_MS);
   }
 
   // Fallback: standard ISO date parse
@@ -537,11 +577,5 @@ function parseIcsDate(dateStr: string): Date | null {
 }
 
 function formatTime12h(d: Date): string {
-  let hours = d.getHours();
-  const minutes = d.getMinutes();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12;
-  hours = hours ? hours : 12;
-  const minStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
-  return `${hours}:${minStr} ${ampm}`;
+  return getISTDateInfo(d).time12h;
 }
