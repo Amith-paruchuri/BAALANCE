@@ -71,6 +71,7 @@ import {
   Briefcase,
   Check,
   Sun,
+  Download,
 } from 'lucide-react';
 
 export default function BaalanceApp() {
@@ -1823,24 +1824,34 @@ export default function BaalanceApp() {
 
                   {/* Top Action Buttons */}
                   <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                    <a
+                      href="/api/export-leads"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
+                      title="Download or view all submitted user emails and beta waitlist in Excel / CSV"
+                    >
+                      <Download className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Export Leads (Excel / CSV)</span>
+                    </a>
                     <button
                       type="button"
                       onClick={() => {
                         setModalStep('questionnaire');
                         setIsLifestyleModalOpen(true);
                       }}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
+                      className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer shrink-0"
                     >
                       <SlidersHorizontal className="w-3.5 h-3.5 text-[#3186FF]" />
-                      <span>Edit Intake Baseline</span>
+                      <span>Edit Baseline</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setAppStage('wizard')}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+                      className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>Re-run Intake Wizard</span>
+                      <span>Re-run Wizard</span>
                     </button>
                   </div>
                 </div>
