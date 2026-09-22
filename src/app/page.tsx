@@ -6,6 +6,7 @@ import { BottomNavigationBar, DashboardTab } from '@/components/BottomNavigation
 import { AuthAndOnboardingModal } from '@/components/AuthAndOnboardingModal';
 import { AuthLandingPage } from '@/components/AuthLandingPage';
 import { FunctionalOnboardingWizard } from '@/components/FunctionalOnboardingWizard';
+import { BaalanceLogo } from '@/components/BaalanceLogo';
 import { HairJourneyCard } from '@/components/HairJourneyCard';
 import { InteractiveHairStrandViewer } from '@/components/InteractiveHairStrandViewer';
 import { ChronoCorrelationChart } from '@/components/ChronoCorrelationChart';
@@ -77,7 +78,40 @@ export default function BaalanceApp() {
   // 'auth' = Initial landing with demo callout & login/signup (Default: login page opens first)
   // 'wizard' = 4-step real functional user onboarding (First Login only)
   // 'dashboard' = full retrospective diagnostic platform (Shown once authenticated or demo clicked)
-  const [appStage, setAppStage] = useState<'auth' | 'wizard' | 'dashboard'>('auth');
+  const [appStage, setAppStage] = useState<'auth' | 'wizard' | 'dashboard'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('demo') === 'true' || params.get('mode') === 'demo') {
+        return 'dashboard';
+      }
+      // If returning from Google OAuth, keep in 'auth' stage to show the verification screen
+      if (
+        window.location.search.includes('code=') ||
+        window.location.hash.includes('access_token=') ||
+        sessionStorage.getItem('baalance_oauth_in_flight') === 'true'
+      ) {
+        return 'auth';
+      }
+      const activeEmail = localStorage.getItem('baalance_active_user_email');
+      const cached = loadCachedUserData();
+      if (activeEmail && cached?.profile?.email && !cached?.profile?.isDemo) {
+        return 'dashboard';
+      }
+    }
+    return 'auth';
+  });
+
+  // Dedicated Google OAuth verification loader state
+  const [isAuthenticatingOAuth, setIsAuthenticatingOAuth] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return (
+        window.location.search.includes('code=') ||
+        window.location.hash.includes('access_token=') ||
+        sessionStorage.getItem('baalance_oauth_in_flight') === 'true'
+      );
+    }
+    return false;
+  });
 
   // Bottom Navigation Active Tab
   const [dashboardTab, setDashboardTab] = useState<DashboardTab>('stress');
@@ -580,49 +614,107 @@ export default function BaalanceApp() {
       }
 
       // Check if redirected from Google OAuth with error
-      if (window.location.hash.includes('error=')) {
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      if (window.location.hash.includes('error=') || window.location.search.includes('error=')) {
+        const hashParams = new URLSearchParams(
+          window.location.hash.includes('error=') ? window.location.hash.substring(1) : window.location.search
+        );
         const errorDesc = hashParams.get('error_description') || hashParams.get('error') || 'Google authentication was not completed.';
         console.warn('[BAALANCE Auth] OAuth error from callback:', errorDesc);
+        setIsAuthenticatingOAuth(false);
+        sessionStorage.removeItem('baalance_oauth_in_flight');
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
     }
 
-    // 2. Supabase Google OAuth Session Listener & Callback Processing
+    // 2. Supabase Google OAuth Session Listener & Direct Code Exchange
     const supabase = getSupabaseClient();
     let authSubscription: { unsubscribe: () => void } | null = null;
 
     if (supabase) {
-      // Check existing session (e.g. from prior Google login)
-      supabase.auth.getSession().then(({ data: { session }, error }) => {
-        if (!error && session?.user?.email) {
-          const user = session.user;
-          const userEmail = user.email!;
-          const userName = user.user_metadata?.full_name || user.user_metadata?.name || userEmail.split('@')[0];
-          handleAuthenticate({
-            name: userName,
-            email: userEmail,
-            isNewUser: false,
-          });
+      const handleAuthUser = async (user: any) => {
+        if (!user?.email) return;
+        const userEmail = user.email;
+        const userName = user.user_metadata?.full_name || user.user_metadata?.name || userEmail.split('@')[0];
+        
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('baalance_oauth_in_flight');
+          if (window.location.search.includes('code=') || window.location.hash.includes('access_token=')) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
         }
-      }).catch(console.warn);
+        setIsAuthenticatingOAuth(false);
+        await handleAuthenticate({
+          name: userName,
+          email: userEmail,
+          isNewUser: false,
+        });
+      };
+
+      // Directly process PKCE code or Hash access token if present in URL
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const authCode = params.get('code');
+
+        if (authCode) {
+          setIsAuthenticatingOAuth(true);
+          supabase.auth.exchangeCodeForSession(authCode)
+            .then(({ data, error }) => {
+              if (!error && data?.session?.user) {
+                handleAuthUser(data.session.user);
+              } else {
+                console.warn('[BAALANCE Auth] PKCE exchange notice:', error?.message);
+                supabase.auth.getSession().then(({ data: { session } }) => {
+                  if (session?.user) handleAuthUser(session.user);
+                  else setIsAuthenticatingOAuth(false);
+                });
+              }
+            })
+            .catch(err => {
+              console.warn('[BAALANCE Auth] PKCE exchange exception:', err);
+              setIsAuthenticatingOAuth(false);
+            });
+        } else if (window.location.hash.includes('access_token=')) {
+          setIsAuthenticatingOAuth(true);
+          supabase.auth.getSession().then(({ data: { session }, error }) => {
+            if (!error && session?.user) {
+              handleAuthUser(session.user);
+            } else {
+              setIsAuthenticatingOAuth(false);
+            }
+          });
+        } else {
+          // Normal mount: check existing session
+          supabase.auth.getSession().then(({ data: { session }, error }) => {
+            if (!error && session?.user?.email) {
+              handleAuthUser(session.user);
+            } else {
+              setIsAuthenticatingOAuth(false);
+            }
+          }).catch(() => setIsAuthenticatingOAuth(false));
+        }
+      }
 
       // Listen for auth state changes (crucial for Google OAuth redirect callback)
       const { data } = supabase.auth.onAuthStateChange((event, session) => {
-        if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.user?.email) {
-          const user = session.user;
-          const userEmail = user.email!;
-          const userName = user.user_metadata?.full_name || user.user_metadata?.name || userEmail.split('@')[0];
-          handleAuthenticate({
-            name: userName,
-            email: userEmail,
-            isNewUser: false,
-          });
+        if (
+          (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') &&
+          session?.user?.email
+        ) {
+          handleAuthUser(session.user);
         } else if (event === 'SIGNED_OUT') {
           handleSignOut();
         }
       });
       authSubscription = data.subscription;
     }
+
+    // Safety timeout: Ensure verification screen never hangs indefinitely
+    const safetyTimer = setTimeout(() => {
+      setIsAuthenticatingOAuth(false);
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('baalance_oauth_in_flight');
+      }
+    }, 4500);
 
     // 3. Restore cached authenticated user from local storage
     const cached = loadCachedUserData();
@@ -728,6 +820,7 @@ export default function BaalanceApp() {
     }
 
     return () => {
+      clearTimeout(safetyTimer);
       if (authSubscription) {
         authSubscription.unsubscribe();
       }
@@ -778,6 +871,10 @@ export default function BaalanceApp() {
 
   // Handler: Authenticate user (First Login -> Wizard; Existing User -> Directly to Dashboard)
   const handleAuthenticate = async (userData: { name: string; email: string; isNewUser?: boolean }) => {
+    setIsAuthenticatingOAuth(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('baalance_oauth_in_flight');
+    }
     const cleanEmail = userData.email.toLowerCase().trim();
 
     // Check user-scoped local storage bundle
@@ -1123,6 +1220,47 @@ export default function BaalanceApp() {
 
   // STAGE 1: AUTHENTICATION LANDING VIEW
   if (appStage === 'auth') {
+    if (isAuthenticatingOAuth) {
+      return (
+        <PhoneSimulatorFrame
+          isPhoneMode={isPhoneMode}
+          onTogglePhoneMode={() => setIsPhoneMode(!isPhoneMode)}
+        >
+          <div className="min-h-screen bg-[#F0F4FA] flex flex-col items-center justify-center p-4 sm:p-8 font-sans">
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-10 shadow-2xl max-w-md w-full text-center space-y-6 animate-fade-in relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-blue-100 overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-[#3186FF] to-emerald-500 w-1/2 animate-pulse" />
+              </div>
+
+              <div className="flex justify-center">
+                <BaalanceLogo size="lg" showTagline={false} animated={true} />
+              </div>
+
+              <div className="flex flex-col items-center space-y-3">
+                <div className="w-14 h-14 rounded-2xl bg-blue-50/80 border border-blue-100 flex items-center justify-center shadow-xs">
+                  <svg className="w-7 h-7 animate-spin" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="#3186FF" strokeWidth="3" fill="none" />
+                    <path className="opacity-75" fill="#3186FF" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                  </svg>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                  Verifying Google Account...
+                </h3>
+                <p className="text-xs text-slate-500 max-w-xs leading-relaxed">
+                  Securing your session and connecting your clinical biomarker dashboard
+                </p>
+              </div>
+
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-[11px] font-medium text-slate-600">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                <span>Single Unique Account Active</span>
+              </div>
+            </div>
+          </div>
+        </PhoneSimulatorFrame>
+      );
+    }
+
     return (
       <PhoneSimulatorFrame
         isPhoneMode={isPhoneMode}

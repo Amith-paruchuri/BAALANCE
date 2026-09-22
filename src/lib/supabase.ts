@@ -1,7 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 export const SUPABASE_PROJECT_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://nyxivqlpikoffdopfmei.supabase.co';
-export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55eGl2cWxwaWtvZmZkb3BmbWVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3OTg1ODIsImV4cCI6MjEwNDM3NDU4Mn0.ahMzFVHLBN67T3PaTyabfASXbimJQQMuU_dudXkj24o';
 
 let supabaseInstance: SupabaseClient | null = null;
 
@@ -13,7 +13,7 @@ export function getEffectiveSupabaseAnonKey(): string {
     const local = localStorage.getItem('baalance_supabase_anon_key');
     if (local && local.length > 20) return local;
   }
-  return '';
+  return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55eGl2cWxwaWtvZmZkb3BmbWVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3OTg1ODIsImV4cCI6MjEwNDM3NDU4Mn0.ahMzFVHLBN67T3PaTyabfASXbimJQQMuU_dudXkj24o';
 }
 
 export function hasValidSupabaseCredentials(): boolean {
@@ -23,7 +23,7 @@ export function hasValidSupabaseCredentials(): boolean {
 
 export function getSupabaseClient(): SupabaseClient | null {
   const effectiveKey = getEffectiveSupabaseAnonKey();
-  const anonKey = effectiveKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy';
+  const anonKey = effectiveKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55eGl2cWxwaWtvZmZkb3BmbWVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3OTg1ODIsImV4cCI6MjEwNDM3NDU4Mn0.ahMzFVHLBN67T3PaTyabfASXbimJQQMuU_dudXkj24o';
 
   if (!supabaseInstance) {
     try {
@@ -58,18 +58,27 @@ export async function signInWithGoogle(redirectTo?: string): Promise<{
 
   try {
     const targetRedirect = redirectTo || (typeof window !== 'undefined' ? `${window.location.origin}/` : undefined);
+    
+    // Set in-flight marker so app renders dedicated verification screen upon return
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('baalance_oauth_in_flight', 'true');
+    }
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: targetRedirect,
         queryParams: {
           access_type: 'offline',
-          prompt: 'consent',
+          prompt: 'select_account',
         },
       },
     });
 
     if (error) {
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('baalance_oauth_in_flight');
+      }
       return { success: false, error: error.message };
     }
 
@@ -81,6 +90,9 @@ export async function signInWithGoogle(redirectTo?: string): Promise<{
 
     return { success: true };
   } catch (err: any) {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('baalance_oauth_in_flight');
+    }
     return { success: false, error: err?.message || 'Failed to initialize Google authentication.' };
   }
 }
