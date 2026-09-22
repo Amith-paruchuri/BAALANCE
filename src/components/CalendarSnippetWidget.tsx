@@ -48,6 +48,10 @@ export interface CalendarEventItem {
   monthKey?: 1 | 2 | 3;
   isAllDay?: boolean;
   startDate?: Date;
+  organizerEmail?: string;
+  organizerName?: string;
+  isUserOrganizer?: boolean;
+  attendees?: string[];
 }
 
 interface CalendarSnippetWidgetProps {
@@ -88,6 +92,8 @@ export const DEFAULT_EVENTS: CalendarEventItem[] = [
     attendeesCount: 6,
     category: 'core',
     colorBg: 'bg-[#3186FF] text-white border-blue-600',
+    isUserOrganizer: true,
+    attendees: ['engineering-leads@company.com', 'product@company.com', 'qa-team@company.com'],
   },
   {
     id: 'evt-sep-2',
@@ -105,6 +111,10 @@ export const DEFAULT_EVENTS: CalendarEventItem[] = [
     attendeesCount: 4,
     category: 'late_sync',
     colorBg: 'bg-rose-600 text-white border-rose-700 ring-2 ring-rose-300',
+    organizerEmail: 'sarah.jenkins@us-counterparts.com',
+    organizerName: 'Sarah Jenkins (US Lead)',
+    isUserOrganizer: false,
+    attendees: ['sarah.jenkins@us-counterparts.com', 'mark.davis@us-counterparts.com', 'amithparuchuri@gmail.com'],
   },
   {
     id: 'evt-sep-3',
@@ -122,6 +132,8 @@ export const DEFAULT_EVENTS: CalendarEventItem[] = [
     attendeesCount: 7,
     category: 'core',
     colorBg: 'bg-emerald-600 text-white border-emerald-700',
+    isUserOrganizer: true,
+    attendees: ['squad-alpha@company.com', 'interns@company.com'],
   },
   {
     id: 'evt-sep-4',
@@ -139,6 +151,10 @@ export const DEFAULT_EVENTS: CalendarEventItem[] = [
     attendeesCount: 8,
     category: 'incident',
     colorBg: 'bg-rose-600 text-white border-rose-700 ring-2 ring-rose-300',
+    organizerEmail: 'incident-commander@devops.com',
+    organizerName: 'DevOps Incident Command',
+    isUserOrganizer: false,
+    attendees: ['incident-commander@devops.com', 'sre-oncall@devops.com', 'backend-leads@company.com'],
   },
   {
     id: 'evt-sep-5',
@@ -847,7 +863,7 @@ export const CalendarSnippetWidget: React.FC<CalendarSnippetWidgetProps> = ({
       setFeedSource('real_ical');
       setShowChangeInput(false);
       setIcalUrlInput('');
-      setLastSyncedTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      setLastSyncedTime(new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) + ' IST');
 
       // Auto-align calendar view: if current week has no events, jump to the week with events
       const currentKeys = new Set(weekDays.map(d => d.dateKey));
@@ -1231,6 +1247,10 @@ export const CalendarSnippetWidget: React.FC<CalendarSnippetWidgetProps> = ({
             {/* Current Month & Year Display */}
             <span className="text-sm sm:text-base font-bold text-slate-900 ml-1.5 font-sans">
               {weekHeaderTitle}
+            </span>
+            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>IST (UTC+5:30)</span>
             </span>
           </div>
         </div>

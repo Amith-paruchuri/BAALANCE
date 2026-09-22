@@ -159,13 +159,11 @@ export default function BaalanceApp() {
 
   // Compute current defense events for 4-week scanner modal
   const defenseEvents = React.useMemo(() => {
-    // If calendar defense rules have not been applied yet, strictly scan fresh DEFAULT_EVENTS
-    if (!calendarRulesApplied) {
-      return DEFAULT_EVENTS;
-    }
+    // 1. If user has live synced or integrated calendar events, always prioritize their real events
     if (savedCalendarEvents && savedCalendarEvents.length > 0) {
       return savedCalendarEvents;
     }
+    // 2. Check cached calendar events for this specific verified/logged-in user from localStorage
     if (typeof window !== 'undefined') {
       const cleanEmail = (verifiedCalendarEmail || userProfile?.email || '').toLowerCase().trim();
       const isDemo = !cleanEmail || userProfile?.isDemo || cleanEmail.includes('demo') || cleanEmail.includes('biotech.ai');
@@ -180,8 +178,9 @@ export default function BaalanceApp() {
         }
       }
     }
+    // 3. Fall back to clinical benchmark DEFAULT_EVENTS only for unintegrated demo/guest mode
     return DEFAULT_EVENTS;
-  }, [calendarRulesApplied, savedCalendarEvents, verifiedCalendarEmail, userProfile?.email, userProfile?.isDemo]);
+  }, [savedCalendarEvents, verifiedCalendarEmail, userProfile?.email, userProfile?.isDemo]);
 
   // Handler: Apply Verified Google Calendar Telemetry directly to Dashboard
   const handleApplyCalendarTelemetry = (

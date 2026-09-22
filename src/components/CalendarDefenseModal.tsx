@@ -29,6 +29,12 @@ import {
   CalendarDays,
 } from 'lucide-react';
 import { CalendarEventItem } from './CalendarSnippetWidget';
+import {
+  getISTDateInfo,
+  getTodayISTKey,
+  getUpcomingISTDays,
+  formatHourFloatTo12hIST,
+} from '@/lib/istTime';
 
 export type DefenseRuleType = 'curfew' | 'focus_time' | 'weekend_rest' | 'marathon_buffer' | 'daily_cap';
 
@@ -137,6 +143,9 @@ export interface RescheduleProposal {
   selectedOptionId: string; // 'opt-1-best' | 'opt-2-midday' | 'opt-3-nextday' | 'custom'
   customSlot: CustomSlotState;
   sendEmail: boolean;
+  isUserOrganizer: boolean;
+  organizerEmail?: string;
+  organizerName?: string;
 }
 
 interface CalendarDefenseModalProps {
@@ -163,25 +172,6 @@ interface CalendarDefenseModalProps {
     }>
   ) => void;
 }
-
-// Available standard weekdays for custom choosing in 4-week window
-const UPCOMING_CUSTOM_DAYS: Array<{ dateKey: string; day: string; dayDate: string }> = [
-  { dateKey: '2026-09-21', day: 'Mon', dayDate: 'Sep 21' },
-  { dateKey: '2026-09-22', day: 'Tue', dayDate: 'Sep 22' },
-  { dateKey: '2026-09-23', day: 'Wed', dayDate: 'Sep 23' },
-  { dateKey: '2026-09-24', day: 'Thu', dayDate: 'Sep 24' },
-  { dateKey: '2026-09-25', day: 'Fri', dayDate: 'Sep 25' },
-  { dateKey: '2026-09-28', day: 'Mon', dayDate: 'Sep 28' },
-  { dateKey: '2026-09-29', day: 'Tue', dayDate: 'Sep 29' },
-  { dateKey: '2026-09-30', day: 'Wed', dayDate: 'Sep 30' },
-  { dateKey: '2026-10-01', day: 'Thu', dayDate: 'Oct 01' },
-  { dateKey: '2026-10-02', day: 'Fri', dayDate: 'Oct 02' },
-  { dateKey: '2026-10-05', day: 'Mon', dayDate: 'Oct 05' },
-  { dateKey: '2026-10-06', day: 'Tue', dayDate: 'Oct 06' },
-  { dateKey: '2026-10-07', day: 'Wed', dayDate: 'Oct 07' },
-  { dateKey: '2026-10-08', day: 'Thu', dayDate: 'Oct 08' },
-  { dateKey: '2026-10-09', day: 'Fri', dayDate: 'Oct 09' },
-];
 
 const AVAILABLE_CUSTOM_HOURS: Array<{ hour: number; label: string }> = [
   { hour: 9.0, label: '09:00 AM' },
@@ -221,18 +211,27 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
     newTime: string;
     dayFormatted: string;
     gcalUrl: string;
+    gcalSearchUrl: string;
     gmailUrl: string;
     invitees: string[];
+    isUserOrganizer: boolean;
+    organizerEmail?: string;
+    organizerName?: string;
+    actionType: 'rescheduled_host' | 'proposed_invitee';
   }>>([]);
 
-  // Helper: Extract dateKey (YYYY-MM-DD) from event
+  // Generate upcoming 28 dynamic days in IST
+  const upcomingCustomDays = useMemo(() => {
+    return getUpcomingISTDays(28);
+  }, []);
+
+  // Helper: Extract dateKey (YYYY-MM-DD) from event in IST
   const getEvtDateKey = (evt: CalendarEventItem): string => {
-    if (evt.dateKey && typeof evt.dateKey === 'string') return evt.dateKey;
+    if (evt.dateKey && typeof evt.dateKey === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(evt.dateKey)) {
+      return evt.dateKey;
+    }
     if (evt.startDate) {
-      const d = new Date(evt.startDate);
-      if (!isNaN(d.getTime())) {
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-      }
+      return getISTDateInfo(evt.startDate).dateKey;
     }
     if (evt.dayDate) {
       const mMatch = String(evt.dayDate).match(/([A-Za-z]+)\s+(\d+)/);
@@ -263,12 +262,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
 
   // Helper: Format hour into 12-hour string (e.g. 16.5 -> "04:30 PM")
   const formatHourStr = (h: number): string => {
-    const normalized = ((h % 24) + 24) % 24;
-    const hourInt = Math.floor(normalized);
-    const minInt = Math.round((normalized - hourInt) * 60);
-    const h12 = hourInt % 12 || 12;
-    const ampm = hourInt >= 12 ? 'PM' : 'AM';
-    return `${String(h12).padStart(2, '0')}:${String(minInt).padStart(2, '0')} ${ampm}`;
+    return formatHourFloatTo12hIST(h);
   };
 
   // Helper: Extract event hour
@@ -288,7 +282,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
     return 10.0;
   };
 
-  // Helper: Build Google Calendar Web Intent URL
+  // Helper: Build Google Calendar Web Intent URL with strict IST timezone
   const buildGoogleCalendarUrl = (
     title: string,
     dateKey: string,
@@ -313,10 +307,16 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
     const params = new URLSearchParams({
       text: title,
       dates: `${startStamp}/${endStamp}`,
+      ctz: 'Asia/Kolkata', // STRICTLY ENFORCE IST TIMEZONE IN GOOGLE CALENDAR
       details: details,
       add: invitees.join(','),
     });
     return `${base}&${params.toString()}`;
+  };
+
+  // Helper: Build Google Calendar search link for invited events
+  const buildGoogleCalendarSearchUrl = (query: string): string => {
+    return `https://calendar.google.com/calendar/u/0/r/search?q=${encodeURIComponent(query)}&ctz=Asia/Kolkata`;
   };
 
   // Helper: Build Gmail Web Compose URL
@@ -330,10 +330,12 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
     return `${base}&${params.toString()}`;
   };
 
-  // 1. Scan the next 4 weeks (Sep 21, 2026 to Oct 19, 2026) for events breaking ANY of the 5 rules
+  // 1. Dynamically scan the active 4-week window in IST for events breaking ANY of the 5 rules
   const initialViolations = useMemo(() => {
-    const TODAY_DATE_KEY = '2026-09-21';
-    const FOUR_WEEKS_END_KEY = '2026-10-19';
+    const nowMs = Date.now();
+    // Scan from 3 days prior (to encompass current active week) up to 35 days (5 weeks) into future
+    const minScanKey = getISTDateInfo(nowMs - 3 * 24 * 60 * 60 * 1000).dateKey;
+    const maxScanKey = getISTDateInfo(nowMs + 35 * 24 * 60 * 60 * 1000).dateKey;
 
     // Calculate daily meeting hours map to detect daily cap breaches (>5h/day)
     const dailyHoursMap: Record<string, number> = {};
@@ -345,12 +347,15 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
     });
 
     const proposalsList: RescheduleProposal[] = [];
+    const cleanUserEmail = (userEmail || '').toLowerCase().trim();
 
     events.forEach(evt => {
       if (evt.isAllDay) return;
       const dateKey = getEvtDateKey(evt);
-      const isInNext4Weeks = dateKey >= TODAY_DATE_KEY && dateKey <= FOUR_WEEKS_END_KEY;
-      if (!isInNext4Weeks) return;
+      // Filter within active defense window
+      if (dateKey && (dateKey < minScanKey || dateKey > maxScanKey)) {
+        return;
+      }
 
       const hour = getEventStartHour(evt);
       const dur = evt.durationHours || 1.0;
@@ -396,16 +401,31 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
 
       if (breachedRules.length === 0) return;
 
-      // Realistic invitees for this event
+      // Determine Host vs Invitee
+      const organizerEmail = evt.organizerEmail || '';
+      const organizerName = evt.organizerName || '';
+      let isUserOrganizer = evt.isUserOrganizer ?? true;
+      if (organizerEmail && cleanUserEmail) {
+        isUserOrganizer = organizerEmail.toLowerCase() === cleanUserEmail;
+      }
+
+      // Attendees list
       let invitees: string[] = [];
-      if (titleLower.includes('ayushi')) {
-        invitees = ['ayushi.k@gmail.com', 'pavan.sharma@gmail.com', 'anush.verma@gmail.com'];
-      } else if (titleLower.includes('shaadi') || titleLower.includes('shadi') || evt.category === 'personal') {
-        invitees = ['family-circle@gmail.com', 'pavan.sharma@gmail.com'];
-      } else if (titleLower.includes('sync') || titleLower.includes('standup') || titleLower.includes('team')) {
-        invitees = ['engineering-leads@company.com', 'us-counterparts@company.com'];
+      if (evt.attendees && evt.attendees.length > 0) {
+        invitees = evt.attendees.filter(e => e.toLowerCase() !== cleanUserEmail);
       } else {
-        invitees = ['attendee-1@gmail.com', 'attendee-2@gmail.com'];
+        if (titleLower.includes('ayushi')) {
+          invitees = ['ayushi.k@gmail.com', 'pavan.sharma@gmail.com'];
+        } else if (titleLower.includes('shaadi') || titleLower.includes('shadi') || evt.category === 'personal') {
+          invitees = ['family-circle@gmail.com', 'pavan.sharma@gmail.com'];
+        } else if (titleLower.includes('sync') || titleLower.includes('standup') || titleLower.includes('team')) {
+          invitees = ['engineering-leads@company.com', 'us-counterparts@company.com'];
+        } else {
+          invitees = ['attendee-1@gmail.com', 'attendee-2@gmail.com'];
+        }
+      }
+      if (!isUserOrganizer && organizerEmail && !invitees.includes(organizerEmail)) {
+        invitees.unshift(organizerEmail);
       }
 
       // Smart Alternative Presets that strictly satisfy ALL 5 rules:
@@ -424,11 +444,10 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
       if (nextDate.getDay() === 6) nextDate.setDate(nextDate.getDate() + 2);
       if (nextDate.getDay() === 0) nextDate.setDate(nextDate.getDate() + 1);
 
-      const nextDateKey = `${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}-${String(nextDate.getDate()).padStart(2, '0')}`;
-      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const nextDayName = dayNames[nextDate.getDay()];
-      const nextDayDate = `${monthNamesShort[nextDate.getMonth()]} ${nextDate.getDate()}`;
+      const nextDateInfo = getISTDateInfo(nextDate.getTime());
+      const nextDateKey = nextDateInfo.dateKey;
+      const nextDayName = nextDateInfo.dayName;
+      const nextDayDate = nextDateInfo.dateFormatted;
       const opt3StartHour = 11.5; // 11:30 AM
       const opt3EndHour = opt3StartHour + dur;
 
@@ -497,11 +516,14 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
         selectedOptionId: options[0].id,
         customSlot: defaultCustom,
         sendEmail: true,
+        isUserOrganizer,
+        organizerEmail: organizerEmail || undefined,
+        organizerName: organizerName || undefined,
       });
     });
 
     return proposalsList;
-  }, [events]);
+  }, [events, userEmail]);
 
   const [proposals, setProposals] = useState<RescheduleProposal[]>(initialViolations);
 
@@ -631,51 +653,64 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
       const cleanTitle = p.event.title
         .replace(/\s*\(Curfew Protected\)/gi, '')
         .replace(/\s*\(Defense Rescheduled\)/gi, '')
+        .replace(/\s*\(Defense Protected\)/gi, '')
         .trim();
 
-      const emailSubject = `Rescheduled: ${cleanTitle} (Moved to ${chosenSlotData.day} at ${chosenSlotData.startTime})`;
-      const emailBody = `Hi everyone,
+      let emailSubject = '';
+      let emailBody = '';
 
-To respect biological recovery boundaries and adhere to calendar defense rules, I have rescheduled our meeting:
-
-• Meeting: ${cleanTitle}
-• Previous Time: ${p.currentDayFormatted} at ${p.currentTimeRange}
-• New Time: ${chosenSlotData.day}, ${chosenSlotData.dayDate} from ${chosenSlotData.startTime} to ${chosenSlotData.endTime}
-
-Your Google Calendar invite has been updated with the new daytime slot.
-
-Best regards,
-${userName || userEmail}`;
+      if (p.isUserOrganizer) {
+        // User hosts this meeting -> can reschedule and notify attendees
+        emailSubject = `Rescheduled: ${cleanTitle} (Moved to ${chosenSlotData.day} at ${chosenSlotData.startTime} IST)`;
+        emailBody = `Hi everyone,\n\nTo respect biological recovery boundaries and adhere to calendar defense rules, I have rescheduled our meeting:\n\n• Meeting: ${cleanTitle}\n• Previous Time: ${p.currentDayFormatted} at ${p.currentTimeRange} IST\n• New Daytime Slot: ${chosenSlotData.day}, ${chosenSlotData.dayDate} from ${chosenSlotData.startTime} to ${chosenSlotData.endTime} IST\n\nYour Google Calendar invite has been updated with the new slot.\n\nBest regards,\n${userName || userEmail}`;
+      } else {
+        // User is an invitee / participant -> propose new conflict-free time to host
+        const hostName = p.organizerName || p.organizerEmail || 'Organizer';
+        emailSubject = `Time Conflict / Reschedule Request: ${cleanTitle}`;
+        emailBody = `Hi ${hostName},\n\nI received the invite for "${cleanTitle}" currently scheduled for ${p.currentDayFormatted} at ${p.currentTimeRange} IST.\n\nI have a hard calendar defense boundary during this time (protecting biological circadian recovery hours).\n\nCould we please reschedule to this conflict-free daytime slot?\n• Proposed Slot: ${chosenSlotData.day}, ${chosenSlotData.dayDate} from ${chosenSlotData.startTime} to ${chosenSlotData.endTime} IST\n\nPlease let me know if this slot works for you so the Google Calendar invite can be updated.\n\nBest regards,\n${userName || userEmail}`;
+      }
 
       const gcalUrl = buildGoogleCalendarUrl(
-        `${cleanTitle} (Defense Protected)`,
+        p.isUserOrganizer ? `${cleanTitle} (Defense Protected)` : `[Hold Slot] ${cleanTitle}`,
         chosenSlotData.dateKey,
         chosenSlotData.startHour,
         p.event.durationHours || 1.0,
-        `Rescheduled by BAALANCE Calendar Defense to protect recovery hours.\nPrevious Time: ${p.currentDayFormatted} at ${p.currentTimeRange}`,
+        p.isUserOrganizer
+          ? `Rescheduled by BAALANCE Calendar Defense to protect recovery hours.\nPrevious Time: ${p.currentDayFormatted} at ${p.currentTimeRange} IST`
+          : `Proposed conflict-free slot by ${userName || userEmail} to protect biological recovery hours.\nOriginal Meeting: ${cleanTitle} hosted by ${p.organizerName || p.organizerEmail || 'Organizer'} at ${p.currentDayFormatted} at ${p.currentTimeRange} IST`,
         p.invitees
       );
 
-      const gmailUrl = buildGmailComposeUrl(p.invitees, emailSubject, emailBody);
+      const gcalSearchUrl = buildGoogleCalendarSearchUrl(cleanTitle);
+      const gmailUrl = buildGmailComposeUrl(
+        p.isUserOrganizer ? p.invitees : (p.organizerEmail ? [p.organizerEmail] : p.invitees),
+        emailSubject,
+        emailBody
+      );
 
       emailPayloadItems.push({
         eventTitle: cleanTitle,
-        oldTime: `${p.currentDayFormatted} at ${p.currentTimeRange}`,
-        newTime: `${chosenSlotData.day}, ${chosenSlotData.dayDate} at ${chosenSlotData.startTime} – ${chosenSlotData.endTime}`,
+        oldTime: `${p.currentDayFormatted} at ${p.currentTimeRange} IST`,
+        newTime: `${chosenSlotData.day}, ${chosenSlotData.dayDate} at ${chosenSlotData.startTime} – ${chosenSlotData.endTime} IST`,
         dayFormatted: `${chosenSlotData.day} ${chosenSlotData.dayDate}`,
-        invitees: p.invitees,
+        invitees: p.isUserOrganizer ? p.invitees : (p.organizerEmail ? [p.organizerEmail] : p.invitees),
         subject: emailSubject,
         body: emailBody,
-        organizer: userEmail,
+        organizer: p.organizerEmail || userEmail,
       });
 
       confirmedSummaries.push({
         title: cleanTitle,
-        newTime: `${chosenSlotData.day}, ${chosenSlotData.dayDate} • ${chosenSlotData.startTime} – ${chosenSlotData.endTime}`,
+        newTime: `${chosenSlotData.day}, ${chosenSlotData.dayDate} • ${chosenSlotData.startTime} – ${chosenSlotData.endTime} IST`,
         dayFormatted: `${chosenSlotData.day} ${chosenSlotData.dayDate}`,
         gcalUrl,
+        gcalSearchUrl,
         gmailUrl,
         invitees: p.invitees,
+        isUserOrganizer: p.isUserOrganizer,
+        organizerEmail: p.organizerEmail,
+        organizerName: p.organizerName,
+        actionType: p.isUserOrganizer ? 'rescheduled_host' : 'proposed_invitee',
       });
 
       return {
@@ -720,9 +755,14 @@ ${userName || userEmail}`;
                 <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
                   Calendar Defense • All-Rules AI Rescheduler
                 </h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
-                  {proposals.length} Breaches Across 5 Rules
-                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
+                    {proposals.length} Breaches Across 5 Rules
+                  </span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono">
+                    🇮🇳 All Times in IST (UTC+5:30)
+                  </span>
+                </div>
               </div>
               <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
                 Evaluates upcoming 4 weeks across all 5 calendar rules: 7 PM Curfew, Tue/Thu Focus Blocks, Weekend Rest, Buffers, & Daily Load. Choose recommended slots or pick custom timing.
@@ -825,33 +865,78 @@ ${userName || userEmail}`;
                 {confirmedItems.map((item, idx) => (
                   <div
                     key={idx}
-                    className="p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 space-y-3"
+                    className={`p-4 rounded-2xl border space-y-3 ${
+                      item.isUserOrganizer
+                        ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200'
+                        : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'
+                    }`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-900 font-mono">
-                          Actual Google Calendar Sync
-                        </span>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span
+                            className={`text-[10px] font-bold uppercase tracking-wider font-mono px-2 py-0.5 rounded-md ${
+                              item.isUserOrganizer
+                                ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                : 'bg-indigo-100 text-indigo-900 border border-indigo-300'
+                            }`}
+                          >
+                            {item.isUserOrganizer
+                              ? '👑 Host / Organizer Event'
+                              : `👥 Invitee (Host: ${item.organizerName || item.organizerEmail || 'Organizer'})`}
+                          </span>
+                          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md font-mono">
+                            IST (UTC+5:30)
+                          </span>
+                        </div>
                         <h4 className="text-xs font-bold text-slate-900 mt-0.5">
                           {item.title} → {item.newTime}
                         </h4>
-                        <p className="text-[11px] text-slate-600 mt-0.5">
-                          Push this new time directly to your real Google Calendar account so Google officially sends invitee update emails to: {item.invitees.join(', ')}.
+                        <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                          {item.isUserOrganizer
+                            ? `Click below to open Google Calendar with this daytime slot (anchored in IST). When you click save in Google Calendar, Google officially updates all guests: ${item.invitees.join(', ')}.`
+                            : `A reschedule proposal notice has been prepared for the organizer (${item.organizerEmail || 'host'}). You can also open the meeting directly in Google Calendar to propose this new time, or hold this preferred slot on your personal calendar.`}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap pt-1">
-                      <a
-                        href={item.gcalUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3.5 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-blue-500/20 transition-all cursor-pointer"
-                      >
-                        <Calendar className="w-3.5 h-3.5" />
-                        <span>Save in Google Calendar & Google-Notify Guests</span>
-                        <ExternalLink className="w-3 h-3 ml-0.5 opacity-80" />
-                      </a>
+                      {item.isUserOrganizer ? (
+                        <a
+                          href={item.gcalUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3.5 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-blue-500/20 transition-all cursor-pointer"
+                        >
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>Save in Google Calendar & Google-Notify Guests</span>
+                          <ExternalLink className="w-3 h-3 ml-0.5 opacity-80" />
+                        </a>
+                      ) : (
+                        <>
+                          <a
+                            href={item.gcalSearchUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3.5 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-blue-500/20 transition-all cursor-pointer"
+                          >
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>Propose New Time in Google Calendar</span>
+                            <ExternalLink className="w-3 h-3 ml-0.5 opacity-80" />
+                          </a>
+
+                          <a
+                            href={item.gcalUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5 text-blue-600" />
+                            <span>Hold Preferred Slot in My Google Calendar</span>
+                            <ExternalLink className="w-3 h-3 ml-0.5 opacity-60" />
+                          </a>
+                        </>
+                      )}
 
                       <a
                         href={item.gmailUrl}
@@ -860,7 +945,7 @@ ${userName || userEmail}`;
                         className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                       >
                         <Mail className="w-3.5 h-3.5 text-rose-500" />
-                        <span>Open in Gmail</span>
+                        <span>{item.isUserOrganizer ? 'Open in Gmail' : 'Open Proposal in Gmail'}</span>
                         <ExternalLink className="w-3 h-3 ml-0.5 opacity-60" />
                       </a>
                     </div>
@@ -905,6 +990,16 @@ ${userName || userEmail}`;
                         <h4 className="text-sm font-bold text-slate-900">
                           {prop.event.title}
                         </h4>
+                        {prop.isUserOrganizer ? (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1 font-mono">
+                            👑 Host / Organizer
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-900 border border-indigo-300 flex items-center gap-1 font-mono">
+                            <Users className="w-3 h-3 text-indigo-700" />
+                            <span>👥 Invitee (Host: {prop.organizerName || prop.organizerEmail || 'Organizer'})</span>
+                          </span>
+                        )}
                         {prop.event.category === 'personal' && (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#6772E5] text-white">
                             Personal
@@ -912,7 +1007,7 @@ ${userName || userEmail}`;
                         )}
                       </div>
                       <div className="flex items-center gap-2 text-slate-500 text-[11px] font-mono">
-                        <span>Current: {prop.currentDayFormatted} at {prop.currentTimeRange}</span>
+                        <span>Current: {prop.currentDayFormatted} at {prop.currentTimeRange} IST</span>
                       </div>
                     </div>
 
@@ -929,6 +1024,16 @@ ${userName || userEmail}`;
                       ))}
                     </div>
                   </div>
+
+                  {/* Invitee Time Conflict Banner */}
+                  {!prop.isUserOrganizer && (
+                    <div className="p-3 rounded-xl bg-indigo-50/70 border border-indigo-200 text-[11px] text-indigo-950 flex items-start gap-2.5 leading-relaxed">
+                      <Brain className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                      <div>
+                        <strong>Invitee Conflict Defense:</strong> Someone else organized this meeting. In Google Calendar, guests cannot unilaterally change another host&apos;s event. Selecting a preferred slot below will prepare a polite reschedule proposal email to the host (<strong>{prop.organizerName || prop.organizerEmail || 'Organizer'}</strong>) and provide a 1-click Google Calendar reschedule proposal link.
+                      </div>
+                    </div>
+                  )}
 
                   {/* SELECTABLE ALTERNATIVE SLOT OPTIONS OR CUSTOM CHOOSING */}
                   <div className="space-y-2.5">
@@ -1025,7 +1130,7 @@ ${userName || userEmail}`;
                               <select
                                 value={prop.customSlot.dateKey}
                                 onChange={e => {
-                                  const selectedDay = UPCOMING_CUSTOM_DAYS.find(d => d.dateKey === e.target.value);
+                                  const selectedDay = upcomingCustomDays.find(d => d.dateKey === e.target.value);
                                   if (selectedDay) {
                                     handleUpdateCustomSlot(prop.id, {
                                       dateKey: selectedDay.dateKey,
@@ -1036,7 +1141,7 @@ ${userName || userEmail}`;
                                 }}
                                 className="w-full text-xs font-medium p-2 rounded-lg border border-slate-300 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500"
                               >
-                                {UPCOMING_CUSTOM_DAYS.map(d => (
+                                {upcomingCustomDays.map(d => (
                                   <option key={d.dateKey} value={d.dateKey}>
                                     {d.day}, {d.dayDate}
                                   </option>
@@ -1106,7 +1211,11 @@ ${userName || userEmail}`;
                         />
                         <span className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
                           <Mail className="w-3.5 h-3.5 text-[#3186FF]" />
-                          <span>Send update email to attendees ({prop.invitees.length} guests)</span>
+                          <span>
+                            {prop.isUserOrganizer
+                              ? `Send update email to attendees (${prop.invitees.length} guests)`
+                              : `Send reschedule request to organizer (${prop.organizerName || prop.organizerEmail || 'Organizer'})`}
+                          </span>
                         </span>
                       </label>
 
@@ -1126,8 +1235,18 @@ ${userName || userEmail}`;
 
                     {/* Invitee Badges with Remove and Add Input */}
                     <div className="space-y-2 pt-1 border-t border-slate-100">
+                      {!prop.isUserOrganizer && prop.organizerEmail && (
+                        <div className="flex items-center gap-1.5 flex-wrap pb-1">
+                          <span className="text-[10px] text-amber-700 font-mono font-semibold">ORGANIZER:</span>
+                          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200">
+                            👑 {prop.organizerName ? `${prop.organizerName} (${prop.organizerEmail})` : prop.organizerEmail}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[10px] text-slate-400 font-mono">INVITEES:</span>
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {prop.isUserOrganizer ? 'INVITEES:' : 'OTHER ATTENDEES:'}
+                        </span>
                         {prop.invitees.map((inv, i) => (
                           <span
                             key={i}
@@ -1150,7 +1269,7 @@ ${userName || userEmail}`;
                       <div className="flex items-center gap-1.5 max-w-md">
                         <input
                           type="email"
-                          placeholder="Add attendee email (e.g. colleague@gmail.com)"
+                          placeholder={prop.isUserOrganizer ? "Add attendee email (e.g. colleague@gmail.com)" : "Add CC email (e.g. manager@gmail.com)"}
                           value={newInviteeInputs[prop.id] || ''}
                           onChange={e =>
                             setNewInviteeInputs({ ...newInviteeInputs, [prop.id]: e.target.value })
@@ -1177,14 +1296,27 @@ ${userName || userEmail}`;
                     {/* Expandable Email Preview */}
                     {previewEmailId === prop.id && (
                       <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 font-mono text-[11px] text-slate-700 space-y-1.5 animate-fade-in">
-                        <div className="text-slate-400 font-semibold text-[10px]">
-                          SUBJECT: Rescheduled: {cleanTitle} (Moved to{' '}
-                          {isCustom ? prop.customSlot.dayName : (prop.options.find(o => o.id === prop.selectedOptionId)?.dayName || 'Day')} at{' '}
-                          {isCustom ? prop.customSlot.startTime : (prop.options.find(o => o.id === prop.selectedOptionId)?.startTime || 'Time')})
-                        </div>
-                        <div className="whitespace-pre-wrap leading-relaxed border-t border-slate-200 pt-1.5">
-                          {`Hi everyone,\n\nTo respect biological recovery boundaries and adhere to calendar defense rules, I have rescheduled our meeting:\n\n• Event: ${cleanTitle}\n• Previous Time: ${prop.currentDayFormatted} at ${prop.currentTimeRange}\n• New Time: ${isCustom ? `${prop.customSlot.dayName}, ${prop.customSlot.dayDate} from ${prop.customSlot.startTime} to ${prop.customSlot.endTime}` : (prop.options.find(o => o.id === prop.selectedOptionId)?.label || '')}\n\nYour Google Calendar invite has been updated with the new slot.\n\nBest regards,\n${userName || userEmail}`}
-                        </div>
+                        {prop.isUserOrganizer ? (
+                          <>
+                            <div className="text-slate-500 font-semibold text-[10px]">
+                              SUBJECT: Rescheduled: {cleanTitle} (Moved to{' '}
+                              {isCustom ? prop.customSlot.dayName : (prop.options.find(o => o.id === prop.selectedOptionId)?.dayName || 'Day')} at{' '}
+                              {isCustom ? prop.customSlot.startTime : (prop.options.find(o => o.id === prop.selectedOptionId)?.startTime || 'Time')} IST)
+                            </div>
+                            <div className="whitespace-pre-wrap leading-relaxed border-t border-slate-200 pt-1.5">
+                              {`Hi everyone,\n\nTo respect biological recovery boundaries and adhere to calendar defense rules, I have rescheduled our meeting:\n\n• Event: ${cleanTitle}\n• Previous Time: ${prop.currentDayFormatted} at ${prop.currentTimeRange} IST\n• New Time: ${isCustom ? `${prop.customSlot.dayName}, ${prop.customSlot.dayDate} from ${prop.customSlot.startTime} to ${prop.customSlot.endTime}` : (prop.options.find(o => o.id === prop.selectedOptionId)?.label || '')} IST\n\nYour Google Calendar invite has been updated with the new slot.\n\nBest regards,\n${userName || userEmail}`}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="text-slate-500 font-semibold text-[10px]">
+                              TO: {prop.organizerEmail || 'Organizer'} | SUBJECT: Reschedule Request: {cleanTitle} (Curfew Conflict)
+                            </div>
+                            <div className="whitespace-pre-wrap leading-relaxed border-t border-slate-200 pt-1.5">
+                              {`Hi ${prop.organizerName || 'there'},\n\nI noticed our meeting "${cleanTitle}" scheduled for ${prop.currentDayFormatted} at ${prop.currentTimeRange} IST conflicts with my biological recovery / evening curfew window.\n\nCould we please reschedule this session to:\n• Proposed Slot: ${isCustom ? `${prop.customSlot.dayName}, ${prop.customSlot.dayDate} from ${prop.customSlot.startTime} to ${prop.customSlot.endTime}` : (prop.options.find(o => o.id === prop.selectedOptionId)?.label || '')} IST\n\nI've proposed this updated time in Google Calendar as well. Please let me know if this works for you!\n\nBest regards,\n${userName || userEmail}`}
+                            </div>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>

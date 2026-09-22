@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseIcsContent } from '@/lib/icalParser';
+import { getISTDateInfo } from '@/lib/istTime';
 
 export async function POST(req: NextRequest) {
   try {
@@ -103,7 +104,7 @@ export async function POST(req: NextRequest) {
             events: parsed.events.slice(0, 250),
             weeklyTelemetry: parsed.weeklyTelemetry,
             icalUrl: cleanUrl,
-            syncedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            syncedAt: new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) + ' IST',
           });
         } catch (fetchErr: any) {
           return NextResponse.json(
@@ -134,7 +135,7 @@ export async function POST(req: NextRequest) {
         peakWeek: 'Parsed from exported calendar file',
         events: parsed.events.slice(0, 250),
         weeklyTelemetry: parsed.weeklyTelemetry,
-        syncedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        syncedAt: new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) + ' IST',
       });
     }
 
@@ -189,8 +190,10 @@ export async function POST(req: NextRequest) {
             const end = item.end?.dateTime ? new Date(item.end.dateTime) : (item.end?.date ? new Date(item.end.date) : new Date(start.getTime() + 3600000));
             const durationHours = Math.max(0.25, (end.getTime() - start.getTime()) / (1000 * 60 * 60));
             totalMeetingHours += durationHours;
-            const hour = start.getHours();
-            const isCurfew = hour >= 19 || hour < 5;
+
+            const startIst = getISTDateInfo(start);
+            const endIst = getISTDateInfo(end);
+            const isCurfew = startIst.isCurfew;
             if (isCurfew) eveningCalls++;
             const isFlight = (item.summary || '').toLowerCase().includes('flight') || (item.summary || '').toLowerCase().includes('travel');
             if (isFlight) flightCount++;
@@ -206,21 +209,29 @@ export async function POST(req: NextRequest) {
               if (isFlight) weeklyTelemetry[targetIndex].flightShifts += 1;
             }
 
-            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const organizerEmail = item.organizer?.email || '';
+            const organizerName = item.organizer?.displayName || '';
+            const isUserOrganizer = item.organizer?.self ?? (organizerEmail.toLowerCase() === targetEmail.toLowerCase());
+            const attendees = item.attendees?.map((a: any) => a.email).filter(Boolean) || [];
 
             return {
               id: item.id || `evt-${Math.random()}`,
-              day: dayNames[start.getDay()],
-              dayDate: `${monthNames[start.getMonth()]} ${start.getDate()}`,
+              day: startIst.dayName,
+              dayDate: startIst.dateFormatted,
+              dateKey: startIst.dateKey,
               title: item.summary || 'Scheduled Meeting',
-              startTime: start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              endTime: end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              startTime: startIst.time12h,
+              endTime: endIst.time12h,
+              startHour: startIst.startHour,
               durationHours: parseFloat(durationHours.toFixed(2)),
               isCurfewBreach: isCurfew,
               hasMeet: !!item.hangoutLink,
-              attendeesCount: item.attendees?.length || 1,
+              attendeesCount: attendees.length > 0 ? attendees.length : 1,
               category: isCurfew ? 'late_sync' : 'core',
+              organizerEmail: organizerEmail || undefined,
+              organizerName: organizerName || undefined,
+              isUserOrganizer,
+              attendees: attendees.length > 0 ? attendees : undefined,
             };
           });
 
@@ -234,9 +245,9 @@ export async function POST(req: NextRequest) {
             eveningCalls,
             flights: flightCount,
             weeklyTelemetry,
-            events: parsedEvents.slice(0, 30),
+            events: parsedEvents.slice(0, 100),
             scopes: ['https://www.googleapis.com/auth/calendar.events.readonly', 'email'],
-            syncedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            syncedAt: new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }) + ' IST',
           });
         }
       } catch (apiErr) {
