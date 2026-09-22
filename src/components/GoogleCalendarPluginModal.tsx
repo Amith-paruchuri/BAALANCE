@@ -230,10 +230,13 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
               </div>
 
               <div className="p-4 rounded-2xl border border-[#E2E8F0] space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs flex-wrap">
                     <Lock className="w-3.5 h-3.5 text-[#3186FF]" />
-                    <span>Secret address in iCal format</span>
+                    <span>Secret address in iCal format:</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-bold">
+                      💻 Desktop / Laptop Only
+                    </span>
                   </div>
 
                   <button
@@ -248,12 +251,35 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
 
                 {showSecretHelp && (
                   <div className="p-4 rounded-2xl bg-white border-2 border-blue-200 text-xs text-slate-700 space-y-3.5 animate-fade-in shadow-md">
+                    {/* Prominent Desktop Browser Notice */}
+                    <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50/60 border-2 border-amber-300 flex items-start gap-2.5 text-left">
+                      <div className="w-7 h-7 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-900 shrink-0 font-bold text-xs mt-0.5">
+                        💻
+                      </div>
+                      <div className="space-y-1 text-left">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-black text-amber-950 uppercase tracking-wide">
+                            Desktop / Laptop Browser Required
+                          </span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900">
+                            Not Visible on Mobile App
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-amber-900 leading-relaxed">
+                          Google Calendar <strong>only reveals</strong> the <em>&ldquo;Integrate calendar&rdquo;</em> and <em>&ldquo;Secret address in iCal format&rdquo;</em> section when viewed on a <strong>Desktop / Laptop computer browser</strong>. The Google Calendar mobile phone app and mobile web browsers hide this link.
+                        </p>
+                        <p className="text-[10px] text-amber-800 font-medium">
+                          📱 <strong>On a phone right now?</strong> Open <em>calendar.google.com</em> on a computer (or switch your mobile browser to &ldquo;Desktop site&rdquo;), or use the <strong>Upload .ics Calendar File</strong> button above!
+                        </p>
+                      </div>
+                    </div>
+
                     {/* Direct Link Banner */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-gradient-to-r from-blue-50 via-indigo-50/70 to-blue-50 border border-blue-200">
                       <div className="space-y-0.5">
                         <div className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
                           <Sparkles className="w-4 h-4 text-[#3186FF]" />
-                          <span>Direct Google Calendar Shortcut</span>
+                          <span>Direct Google Calendar Shortcut (Opens Desktop Settings)</span>
                         </div>
                         <p className="text-[11px] text-slate-600">
                           Click to open your Google Calendar Settings directly in a new tab:
@@ -278,9 +304,9 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
                           <div className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[10px]">1</div>
-                          <p className="text-[11px] font-bold text-slate-900">Select Calendar</p>
+                          <p className="text-[11px] font-bold text-slate-900">Open on Desktop</p>
                           <p className="text-[10px] text-slate-600 leading-snug">
-                            On left sidebar under <strong>&ldquo;Settings for my calendars&rdquo;</strong>, click your main calendar.
+                            Open on your <strong>desktop browser</strong>. On left sidebar under <strong>&ldquo;Settings for my calendars&rdquo;</strong>, click your main calendar.
                           </p>
                         </div>
 
