@@ -21,6 +21,8 @@ import { ImportLabReportModal } from '@/components/ImportLabReportModal';
 import { AppGuideModal } from '@/components/AppGuideModal';
 import { PhoneSimulatorFrame } from '@/components/PhoneSimulatorFrame';
 import { PitchModeView } from '@/components/PitchModeView';
+import { EnterpriseDashboard } from '@/components/enterprise/EnterpriseDashboard';
+import { EnterpriseAuthModal } from '@/components/enterprise/EnterpriseAuthModal';
 import {
   INITIAL_USER_PROFILE,
   INITIAL_CHAIN_OF_CUSTODY,
@@ -79,9 +81,13 @@ export default function BaalanceApp() {
   // 'auth' = Initial landing with demo callout & login/signup (Default: login page opens first)
   // 'wizard' = 4-step real functional user onboarding (First Login only)
   // 'dashboard' = full retrospective diagnostic platform (Shown once authenticated or demo clicked)
-  const [appStage, setAppStage] = useState<'auth' | 'wizard' | 'dashboard'>(() => {
+  // 'enterprise' = Slack-style institutional workspaces (Schools, Hospitals, Corporates)
+  const [appStage, setAppStage] = useState<'auth' | 'wizard' | 'dashboard' | 'enterprise'>(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
+      if (params.get('mode') === 'enterprise' || params.get('enterprise') === 'true') {
+        return 'enterprise';
+      }
       if (params.get('demo') === 'true' || params.get('mode') === 'demo') {
         return 'dashboard';
       }
@@ -93,6 +99,10 @@ export default function BaalanceApp() {
     }
     return 'auth';
   });
+
+  // Enterprise Workspace State
+  const [enterpriseOrgId, setEnterpriseOrgId] = useState<string>('apollo-health');
+  const [isEnterpriseModalOpen, setIsEnterpriseModalOpen] = useState(false);
 
   // Bottom Navigation Active Tab
   const [dashboardTab, setDashboardTab] = useState<DashboardTab>('stress');
@@ -1129,6 +1139,32 @@ export default function BaalanceApp() {
     return <PitchModeView onClose={() => setIsPitchMode(false)} />;
   }
 
+  // STAGE 0: ENTERPRISE & INSTITUTIONAL WORKSPACE MODE
+  if (appStage === 'enterprise') {
+    return (
+      <PhoneSimulatorFrame
+        isPhoneMode={isPhoneMode}
+        onTogglePhoneMode={() => setIsPhoneMode(!isPhoneMode)}
+      >
+        <EnterpriseDashboard
+          initialOrgId={enterpriseOrgId}
+          onBackToIndividual={() => {
+            setAppStage(userProfile.email && !userProfile.isDemo ? 'dashboard' : 'auth');
+          }}
+          onOpenJoinModal={() => setIsEnterpriseModalOpen(true)}
+        />
+        <EnterpriseAuthModal
+          isOpen={isEnterpriseModalOpen}
+          onClose={() => setIsEnterpriseModalOpen(false)}
+          onJoinOrg={(orgId) => {
+            setEnterpriseOrgId(orgId);
+            setAppStage('enterprise');
+          }}
+        />
+      </PhoneSimulatorFrame>
+    );
+  }
+
   // STAGE 1: AUTHENTICATION LANDING VIEW
   if (appStage === 'auth') {
     return (
@@ -1139,6 +1175,10 @@ export default function BaalanceApp() {
         <AuthLandingPage
           onStartDemo={handleStartDemo}
           onAuthenticate={handleAuthenticate}
+          onOpenEnterprise={(orgId) => {
+            if (orgId) setEnterpriseOrgId(orgId);
+            setAppStage('enterprise');
+          }}
         />
       </PhoneSimulatorFrame>
     );
@@ -1190,6 +1230,7 @@ export default function BaalanceApp() {
           activeTab={dashboardTab}
           onSelectTab={setDashboardTab}
           onOpenAppGuide={() => setIsAppGuideOpen(true)}
+          onOpenEnterprise={() => setAppStage('enterprise')}
           onSignOut={handleSignOut}
         />
 
