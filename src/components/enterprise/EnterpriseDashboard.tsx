@@ -4,10 +4,11 @@ import React, { useState } from 'react';
 import { MOCK_ORGANIZATIONS } from '@/lib/enterpriseMockData';
 import { Organization, SubUnit, CohortGroup } from '@/lib/enterpriseTypes';
 import { EnterpriseWorkspaceSwitcher } from './EnterpriseWorkspaceSwitcher';
+import { BurnoutGradientBar } from './BurnoutGradientBar';
+import { DepartmentBurnoutGraph } from './DepartmentBurnoutGraph';
 import { EnterpriseHeatmap } from './EnterpriseHeatmap';
-import { ConfounderNormalizationCard } from './ConfounderNormalizationCard';
 import { EnterpriseInterventionsPanel } from './EnterpriseInterventionsPanel';
-import { Building2, GraduationCap, Stethoscope, AlertTriangle, Users, Activity, Sparkles } from 'lucide-react';
+import { Building2, GraduationCap, Stethoscope, Flame, ShieldCheck, Activity } from 'lucide-react';
 
 interface EnterpriseDashboardProps {
   initialOrgId?: string;
@@ -25,6 +26,7 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
 
   const [selectedUnit, setSelectedUnit] = useState<SubUnit | null>(null);
   const [selectedCohort, setSelectedCohort] = useState<CohortGroup | null>(null);
+  const [focusedCohortId, setFocusedCohortId] = useState<string | null>(null);
   const [showRawAssay, setShowRawAssay] = useState<boolean>(false);
 
   // Dynamic simulation of intervention biological recovery
@@ -34,6 +36,24 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
   const handleSelectUnit = (unit: SubUnit, cohort: CohortGroup) => {
     setSelectedUnit(unit);
     setSelectedCohort(cohort);
+    setFocusedCohortId(cohort.id);
+  };
+
+  const handleSelectCohortFromGraph = (cohortId: string) => {
+    setFocusedCohortId(cohortId);
+    const cohort = currentOrg.cohorts.find(c => c.id === cohortId);
+    if (cohort) {
+      setSelectedCohort(cohort);
+      if (cohort.subUnits.length > 0) {
+        setSelectedUnit(cohort.subUnits[0]);
+      }
+    }
+
+    // Smooth scroll to the corresponding heatmap row
+    const el = document.getElementById(`dept-${cohortId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   };
 
   const handleSimulateIntervention = (interventionId: string, unitId: string, percentReduction: number) => {
@@ -54,8 +74,8 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
     (acc, c) => acc + c.subUnits.filter(u => u.riskLevel === 'critical').length,
     0
   );
-  const averageBsi = Math.round(
-    currentOrg.cohorts.reduce((acc, c) => acc + c.averageBsi, 0) / currentOrg.cohorts.length
+  const meanBurnoutScore = Math.round(
+    currentOrg.cohorts.reduce((acc, c) => acc + (c.averageBurnoutScore || c.averageBsi || 0), 0) / currentOrg.cohorts.length
   );
 
   return (
@@ -67,6 +87,7 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
           setSelectedOrgId(orgId);
           setSelectedUnit(null);
           setSelectedCohort(null);
+          setFocusedCohortId(null);
           setSimulatedReductions({});
           setActiveSimulations({});
         }}
@@ -75,7 +96,7 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
       />
 
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-8 py-6 space-y-6">
-        {/* Sector Quick Switcher Tabs (Ultra-convenient for evaluating the 3 sectors) */}
+        {/* Sector Quick Switcher Tabs */}
         <div className="flex items-center justify-between flex-wrap gap-3 bg-white p-2.5 rounded-2xl border border-slate-200 shadow-2xs">
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2">
@@ -89,6 +110,7 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
                 setSelectedOrgId('apollo-health');
                 setSelectedUnit(null);
                 setSelectedCohort(null);
+                setFocusedCohortId(null);
               }}
               className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all cursor-pointer ${
                 selectedOrgId === 'apollo-health'
@@ -97,7 +119,7 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
               }`}
             >
               <Stethoscope className="w-3.5 h-3.5" />
-              <span>Hospitals & Healthcare (Apollo / AIIMS)</span>
+              <span>Hospitals & Healthcare (Apollo / AIIMS — 9 Departments)</span>
             </button>
 
             <button
@@ -105,6 +127,7 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
                 setSelectedOrgId('st-jude-academy');
                 setSelectedUnit(null);
                 setSelectedCohort(null);
+                setFocusedCohortId(null);
               }}
               className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all cursor-pointer ${
                 selectedOrgId === 'st-jude-academy'
@@ -113,7 +136,7 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
               }`}
             >
               <GraduationCap className="w-3.5 h-3.5" />
-              <span>Schools & Universities (St. Jude Academy)</span>
+              <span>Schools & Universities (St. Jude Academy — 8 Grades & Labs)</span>
             </button>
 
             <button
@@ -121,6 +144,7 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
                 setSelectedOrgId('nexus-tech');
                 setSelectedUnit(null);
                 setSelectedCohort(null);
+                setFocusedCohortId(null);
               }}
               className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all cursor-pointer ${
                 selectedOrgId === 'nexus-tech'
@@ -129,63 +153,25 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
-              <span>Corporate & Tech (Nexus / Stripe)</span>
+              <span>Corporate & Tech (Nexus / Stripe — 8 Divisions)</span>
             </button>
           </div>
         </div>
 
-        {/* 4 High-Impact Summary KPI Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Monitored Units
-            </span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl sm:text-3xl font-black text-slate-900">{totalSubUnits}</span>
-              <span className="text-xs text-slate-500 font-bold">across {currentOrg.cohorts.length} cohorts</span>
-            </div>
-          </div>
+        {/* 1. TOP GRADIENT BAR WITH 4-COLOR GRADATION & CLINICAL INFERENCES */}
+        <BurnoutGradientBar
+          meanScore={meanBurnoutScore}
+          organizationName={currentOrg.name}
+        />
 
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Mean Biological Stress
-            </span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl sm:text-3xl font-black text-slate-900">BSI {averageBsi}</span>
-              <span className="text-xs text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                Compensated
-              </span>
-            </div>
-          </div>
+        {/* 2. INTERACTIVE DEPARTMENT COMPARISON BAR GRAPH */}
+        <DepartmentBurnoutGraph
+          cohorts={currentOrg.cohorts}
+          selectedCohortId={focusedCohortId}
+          onSelectCohort={handleSelectCohortFromGraph}
+        />
 
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Burnout Hotspots
-            </span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl sm:text-3xl font-black text-rose-600">{criticalUnitsCount}</span>
-              <span className="text-xs text-rose-700 font-bold bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
-                Action Mandated
-              </span>
-            </div>
-          </div>
-
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Cohort Compliance
-            </span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl sm:text-3xl font-black text-emerald-600">
-                {currentOrg.currentCycle.complianceRatePercent}%
-              </span>
-              <span className="text-xs text-slate-500 font-bold">
-                {currentOrg.totalSampled} sequenced
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* The Core Heatmap Matrix */}
+        {/* 3. THE CORE SURVEILLANCE HEATMAP MATRIX */}
         <EnterpriseHeatmap
           cohorts={currentOrg.cohorts}
           selectedUnitId={selectedUnit?.id || null}
@@ -193,24 +179,17 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
           showRawAssay={showRawAssay}
           onToggleRawAssay={setShowRawAssay}
           simulatedReductions={simulatedReductions}
+          focusedCohortId={focusedCohortId}
         />
 
-        {/* 2-Column Responsive Layout: Confounder Normalizer + Tailored Interventions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ConfounderNormalizationCard
-            confounders={currentOrg.confounderProfiles}
-            activeUnitName={selectedUnit?.name}
-            detectedConfounders={selectedUnit?.confoundersDetected || []}
-          />
-
-          <EnterpriseInterventionsPanel
-            interventions={currentOrg.interventions}
-            selectedUnit={selectedUnit}
-            selectedCohort={selectedCohort}
-            onSimulateIntervention={handleSimulateIntervention}
-            activeSimulations={activeSimulations}
-          />
-        </div>
+        {/* 4. TAILORED SYSTEMIC INTERVENTIONS PANEL */}
+        <EnterpriseInterventionsPanel
+          interventions={currentOrg.interventions}
+          selectedUnit={selectedUnit}
+          selectedCohort={selectedCohort}
+          onSimulateIntervention={handleSimulateIntervention}
+          activeSimulations={activeSimulations}
+        />
       </div>
     </div>
   );

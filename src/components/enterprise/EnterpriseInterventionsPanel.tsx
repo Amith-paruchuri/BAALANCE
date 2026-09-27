@@ -126,7 +126,7 @@ export const EnterpriseInterventionsPanel: React.FC<EnterpriseInterventionsPanel
                 {/* Impact Metric & Timeframe */}
                 <div className="flex items-center gap-2 shrink-0 self-start lg:self-auto">
                   <span className="px-2.5 py-1 rounded-xl bg-emerald-600 text-white text-xs font-black shadow-2xs">
-                    -{item.projectedBsiReductionPercent}% Projected BSI
+                    -{item.projectedReductionPercent || item.projectedBsiReductionPercent}% Burnout Score
                   </span>
                   <span className="text-[11px] font-semibold text-slate-500">
                     in ~{item.timeToImpactDays} days
@@ -148,7 +148,7 @@ export const EnterpriseInterventionsPanel: React.FC<EnterpriseInterventionsPanel
               <div className="mt-3 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
-                  onClick={() => onSimulateIntervention(item.id, item.targetUnitId || '', item.projectedBsiReductionPercent)}
+                  onClick={() => onSimulateIntervention(item.id, item.targetUnitId || '', item.projectedReductionPercent || item.projectedBsiReductionPercent || 20)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 ${
                     isSimulated
                       ? 'bg-blue-600 text-white shadow-2xs'
