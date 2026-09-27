@@ -130,22 +130,22 @@ export const EnterpriseHeatmap: React.FC<EnterpriseHeatmapProps> = ({
 
       {/* Heatmap Legend */}
       <div className="flex items-center gap-2 sm:gap-4 flex-wrap text-[11px] font-bold border-y border-slate-100 py-2.5">
-        <span className="text-slate-400 font-medium">Burnout Score Tiers:</span>
+        <span className="text-slate-400 font-medium">Stress Zones:</span>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500" />
-          <span className="text-slate-700">Nominal (0–35)</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+          <span className="text-slate-700">Healthy (0–35)</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-blue-500" />
-          <span className="text-slate-700">Compensated (36–60)</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+          <span className="text-slate-700">Manageable (36–60)</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-amber-500" />
-          <span className="text-slate-700">Elevated (61–80)</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-orange-500" />
+          <span className="text-slate-700">High Stress (61–80)</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-rose-500" />
-          <span className="text-slate-700">Critical Hotspot (81–100)</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+          <span className="text-slate-700">Critical Burnout (81–100)</span>
         </div>
       </div>
 
