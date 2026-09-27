@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { LogOut, Sparkles, User, Play, Compass, HelpCircle } from 'lucide-react';
+import { LogOut, Sparkles, User, Play, Compass, HelpCircle, Building2 } from 'lucide-react';
 import { UserProfile } from '@/lib/types';
 import { BaalanceLogo } from './BaalanceLogo';
 import { DashboardTab } from './BottomNavigationBar';
@@ -11,6 +11,7 @@ interface NavbarProps {
   activeTab: DashboardTab;
   onSelectTab: (tab: DashboardTab) => void;
   onOpenAppGuide?: () => void;
+  onOpenEnterprise?: () => void;
   onSignOut?: () => void;
 }
 
@@ -19,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   onSelectTab,
   onOpenAppGuide,
+  onOpenEnterprise,
   onSignOut,
 }) => {
   const initial = (userProfile.name || 'U').charAt(0).toUpperCase();
@@ -39,6 +41,19 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right: Controls (How It Works Guide for Judges/Users + Profile) */}
         <div className="flex items-center gap-2 shrink-0">
+          {/* Switch to Enterprise Workspaces */}
+          {onOpenEnterprise && (
+            <button
+              type="button"
+              onClick={onOpenEnterprise}
+              className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 transition-all cursor-pointer shadow-2xs"
+              title="Switch to Enterprise & Institutional Workspaces (Hospitals, Schools, Corporates)"
+            >
+              <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="hidden sm:inline">Enterprise</span>
+            </button>
+          )}
+
           {/* How It Works Feature Guide Button */}
           {onOpenAppGuide && (
             <button
