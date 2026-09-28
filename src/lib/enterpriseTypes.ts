@@ -62,7 +62,7 @@ export interface SamplingCycle {
   status: 'active' | 'completed' | 'scheduled';
   samplesCollected: number;
   complianceRatePercent: number;
-  cliaLabCertified: boolean;
+  partnerLabCertified: boolean;
 }
 
 export interface Organization {

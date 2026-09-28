@@ -180,13 +180,10 @@ export const EnterpriseHeatmap: React.FC<EnterpriseHeatmapProps> = ({
                   <AnimatedDepartmentIcon iconKey={cohort.iconKey || cohort.code} size="md" />
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 text-[10px] font-mono font-black">
-                        {cohort.code}
-                      </span>
                       <h3 className="text-sm font-extrabold text-slate-900">{cohort.name}</h3>
                     </div>
                     <span className="text-[11px] text-slate-500 font-medium block mt-0.5">
-                      {cohort.headOfficial}
+                      {cohort.subUnits.length} monitored teams · 90-day biological cycle
                     </span>
                   </div>
                 </div>
@@ -235,9 +232,6 @@ export const EnterpriseHeatmap: React.FC<EnterpriseHeatmapProps> = ({
                           <AnimatedSubgroupIcon iconKey={unit.iconKey || unit.code} size="sm" />
                           <div>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-xs font-bold font-mono opacity-60">
-                                [{unit.code}]
-                              </span>
                               <span className="text-xs sm:text-sm font-extrabold tracking-tight">
                                 {unit.name}
                               </span>

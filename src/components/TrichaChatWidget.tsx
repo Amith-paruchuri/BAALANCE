@@ -32,11 +32,9 @@ interface TrichaChatWidgetProps {
 }
 
 const TRICHA_PROMPT_CHIPS = [
-  'What do I do to reduce my stress levels?',
-  'Why did my stress stay high when meetings dropped?',
-  'What was the main culprit for my Month 2 spike?',
-  'How do calls after 7 PM delay my recovery?',
-  'When should I drink coffee to protect recovery?',
+  'Why did my stress spike in August?',
+  'How do calls after 7 PM delay recovery?',
+  'What should I change before my 8-week re-test?',
 ];
 
 export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
@@ -69,12 +67,30 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
   const userEmailClean = userProfile?.email ? userProfile.email.toLowerCase().trim() : 'guest_demo';
   const storageKey = `baalance_tricha_messages_${userEmailClean}`;
 
-  const defaultGreetingText = `Hello ${firstName}! I'm Tricha, your personal health and recovery guide powered by Gemini 3.6 Flash.\n\nI have analyzed your 90-day hair cortisol timeline (${segments[0]?.cortisolPgPerMg || 11.2} → ${segments[1]?.cortisolPgPerMg || 28.4} → ${segments[2]?.cortisolPgPerMg || 15.6} pg/mg)${calendarEvents && calendarEvents.length > 0 ? ` alongside your ${calendarEvents.length} calendar meetings` : (isMedical ? ' alongside your medical training context' : '')}.\n\nHow can I help you understand your cortisol trends or explore tailored recovery steps?`;
+  const getDefaultMessages = (): ChatMessage[] => [
+    {
+      id: 'demo-msg-1',
+      role: 'model',
+      text: `Hi ${firstName}! I'm Tricha, your personal stress & recovery guide powered by Google Gemini.\n\nI've analyzed your 90-day hair cortisol timeline alongside your calendar workload. Your 3-month stress score is **78 / 100** (High Stress), with a major biological surge in August at **28.4 pg/mg** (+154% above baseline).\n\nAsk me anything about what triggered your stress or what changes will speed up recovery!`,
+      timestamp: '2 mins ago',
+    },
+    {
+      id: 'demo-msg-2',
+      role: 'user',
+      text: 'Why did my stress spike so high in August?',
+      timestamp: '1 min ago',
+    },
+    {
+      id: 'demo-msg-3',
+      role: 'model',
+      text: `Here is the biological breakdown of your August spike:\n\n• **57 calls after 7 PM**: Late meetings repeatedly breached your evening recovery window, preventing your nervous system from down-regulating at night.\n• **33 meeting hours / week**: Workload surged to 42 hours/week in August, doubling your baseline meeting load.\n• **11 cross-timezone flights**: Frequent jet lag disrupted your circadian rhythm right during peak deadlines.\n\n**Recovery Outlook**: Hair from September shows cortisol dropping down to **15.6 pg/mg**. Protecting your evenings past 7 PM is projected to bring your score below 35 at your 8-week re-test.`,
+      timestamp: 'Just now',
+    },
+  ];
 
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     if (typeof window !== 'undefined') {
       try {
-        // Clean up legacy shared global key so other accounts are never infected
         localStorage.removeItem('baalance_tricha_messages');
         const raw = localStorage.getItem(storageKey);
         if (raw) {
@@ -85,14 +101,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
         }
       } catch (_) {}
     }
-    return [
-      {
-        id: `init-tricha-${Date.now()}`,
-        role: 'model',
-        text: defaultGreetingText,
-        timestamp: 'Just now',
-      },
-    ];
+    return getDefaultMessages();
   });
 
   // Re-synchronize chat transcript strictly when userProfile or active account email changes
@@ -109,16 +118,8 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
         }
       }
     } catch (_) {}
-    // If no history exists for this specific user, start with fresh personalized greeting
-    setMessages([
-      {
-        id: `init-tricha-${Date.now()}`,
-        role: 'model',
-        text: defaultGreetingText,
-        timestamp: 'Just now',
-      },
-    ]);
-  }, [storageKey, defaultGreetingText]);
+    setMessages(getDefaultMessages());
+  }, [storageKey]);
 
   // Automatically preserve messages to user-scoped localStorage
   useEffect(() => {
@@ -130,14 +131,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
   }, [messages, storageKey]);
 
   const handleClearChat = () => {
-    const fresh: ChatMessage[] = [
-      {
-        id: `init-tricha-${Date.now()}`,
-        role: 'model',
-        text: defaultGreetingText,
-        timestamp: 'Just now',
-      },
-    ];
+    const fresh = getDefaultMessages();
     setMessages(fresh);
     if (typeof window !== 'undefined') {
       try {
@@ -200,7 +194,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
         }
         setKeyFeedback({
           type: 'success',
-          text: 'Gemini 3.6 Flash verified and connected successfully!',
+          text: 'Google Gemini API verified and connected successfully!',
         });
         setTimeout(() => {
           setShowKeyModal(false);
@@ -294,7 +288,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
   // If embedded in a dedicated page/tab
   if (embedded) {
     return (
-      <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card flex flex-col h-[75vh] min-h-[540px] max-w-4xl mx-auto overflow-hidden animate-fade-in font-sans">
+      <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card flex flex-col h-[80vh] min-h-[600px] max-w-4xl mx-auto overflow-hidden animate-fade-in font-sans">
         {/* Header */}
         <div className="p-3.5 sm:p-4 bg-gradient-to-r from-blue-50/80 via-slate-50 to-purple-50/80 border-b border-slate-200 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -306,7 +300,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                 <h3 className="text-sm font-bold text-black">Tricha AI</h3>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Gemini 3.6 Flash</span>
+                  <span>Powered by Google Gemini</span>
                 </span>
                 {isKeyConfigured && (
                   <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#3186FF] border border-blue-200">
@@ -363,7 +357,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
             </div>
 
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              To enable live reasoning powered by <strong>Gemini 3.6 Flash</strong>, paste your free Google AI Studio API key below:
+              To enable live reasoning powered by <strong>Google Gemini</strong>, paste your free Google AI Studio API key below:
             </p>
 
             <form onSubmit={handleSaveApiKey} className="flex items-center gap-2">
@@ -460,7 +454,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
           {isLoading && (
             <div className="flex items-center gap-2.5 text-xs text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-200 max-w-[70%]">
               <RefreshCw className="w-4 h-4 animate-spin text-[#3186FF]" />
-              <span>Tricha is analyzing biomarker correlations with Gemini 3.6 Flash...</span>
+              <span>Tricha is finding the cause with Google Gemini...</span>
             </div>
           )}
           <div ref={messagesEndRef} />

@@ -22,13 +22,13 @@ export const ChainOfCustodyCard: React.FC<ChainOfCustodyCardProps> = ({
     {
       step: 2,
       label: 'Lab Courier',
-      sublabel: 'Blue Dart Express',
+      sublabel: 'Room-temp Courier',
       icon: Truck,
     },
     {
       step: 3,
       label: 'Hair Cortisol Test (ELISA)',
-      sublabel: 'Spectrometry OK',
+      sublabel: 'Partner Lab',
       icon: FlaskConical,
     },
     {
@@ -58,7 +58,7 @@ export const ChainOfCustodyCard: React.FC<ChainOfCustodyCardProps> = ({
 
         <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 self-start sm:self-center">
           <CheckCircle2 className="w-3.5 h-3.5" />
-          CLIA Validated
+          Partner Lab Tested
         </span>
       </div>
 

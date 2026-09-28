@@ -186,12 +186,12 @@ export const EnterpriseAuthModal: React.FC<EnterpriseAuthModalProps> = ({
         </div>
 
         {/* Security & De-identification Footer */}
-        <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-          <div className="flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-            <span>FERPA & HIPAA Compliant k-Anonymity Guard</span>
+        <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+          <div className="flex items-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Privacy-first: results shown only for groups of 5+</span>
           </div>
-          <span>CLIA Certified</span>
+          <span>Partner laboratory tested</span>
         </div>
       </div>
     </div>

@@ -1199,17 +1199,38 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
 
   return (
     <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card overflow-hidden font-sans">
-      {/* 1. TOP GOOGLE CALENDAR HEADER & NAVIGATION BAR */}
+      {/* TOP INSIGHT BANNER */}
+      <div className="p-3 sm:px-5 bg-rose-50/90 border-b border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+        <div className="flex items-center gap-2">
+          <Flame className="w-4 h-4 text-rose-600 shrink-0" />
+          <span className="font-bold text-rose-950">
+            57 calls after 7 PM in 90 days. Your biggest stress trigger.
+          </span>
+        </div>
+        <div className="flex items-center gap-3 text-[11px] font-semibold text-rose-800">
+          <span className="flex items-center gap-1">
+            <Plane className="w-3.5 h-3.5 text-rose-600" />
+            <span>11 flights · jet lag adds stress</span>
+          </span>
+          <span>•</span>
+          <span className="flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded-sm bg-rose-600 ring-1 ring-rose-400" />
+            <span>Red = after 7 PM</span>
+          </span>
+        </div>
+      </div>
+
+      {/* 1. TOP CALENDAR HEADER & NAVIGATION BAR */}
       <div className="p-3 sm:p-4 bg-white border-b border-[#E2E8F0] flex flex-col md:flex-row md:items-center justify-between gap-3">
-        {/* Left: Google Calendar Brand & Week Navigation Controls */}
+        {/* Left: Brand & Week Navigation Controls */}
         <div className="flex items-center gap-3 flex-wrap">
-          {/* Calendar App Icon with Day Number */}
+          {/* Calendar App Icon */}
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 flex flex-col items-center justify-center shadow-xs shrink-0">
               <span className="text-[8px] font-bold text-blue-600 uppercase leading-none">CAL</span>
               <span className="text-xs font-black text-blue-700 leading-none mt-0.5">20</span>
             </div>
-            <span className="text-base font-bold text-slate-900 hidden sm:inline">Google Calendar</span>
+            <span className="text-base font-bold text-slate-900 hidden sm:inline">Your calendar</span>
           </div>
 
           <div className="h-6 w-px bg-slate-200 hidden sm:block" />
@@ -1325,22 +1346,12 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
             </button>
           </div>
 
-          {/* Add Custom Meeting */}
-          <button
-            type="button"
-            onClick={() => setShowAddModal(!showAddModal)}
-            className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-[#E2E8F0] text-slate-700 text-xs font-semibold flex items-center gap-1 shadow-2xs transition-colors cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5 text-[#3186FF]" />
-            <span className="hidden sm:inline">Add</span>
-          </button>
-
           {/* Apply Calendar Defense Rules */}
           {onApplyRules && (
             <button
               type="button"
               onClick={onApplyRules}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer ${
                 rulesApplied
                   ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100'
                   : 'bg-emerald-600 hover:bg-emerald-700 text-white'
@@ -1360,13 +1371,6 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
               )}
             </button>
           )}
-
-          {/* Import .ics */}
-          <label className="cursor-pointer px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-[#E2E8F0] text-xs font-semibold text-slate-700 flex items-center gap-1 shadow-2xs transition-colors">
-            <Upload className="w-3.5 h-3.5 text-[#3186FF]" />
-            <span className="hidden sm:inline">.ics</span>
-            <input type="file" accept=".ics" onChange={handleIcsUpload} className="hidden" />
-          </label>
         </div>
       </div>
 
@@ -1449,151 +1453,62 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
           )}
         </div>
       ) : (
-        /* Connect Live Google Calendar Input Bar (shown when no link uploaded) */
-        <div className="p-3.5 bg-blue-50/40 border-b border-[#E2E8F0] space-y-2">
-          <div className="flex items-center justify-between text-xs flex-wrap gap-2">
-            <div className="flex items-center gap-1.5 font-bold text-slate-900 flex-wrap">
-              <Lock className="w-3.5 h-3.5 text-[#3186FF]" />
-              <span>Connect Live Google Calendar (Private iCal Link):</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-bold">
-                💻 Desktop / Laptop Only
-              </span>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowIcalHelp(!showIcalHelp)}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#3186FF] to-[#1D4ED8] hover:from-[#2563EB] hover:to-[#1E40AF] text-white text-[11px] font-bold shadow-xs hover:shadow transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer ring-2 ring-blue-400/30"
-            >
-              <Search className="w-3.5 h-3.5 text-white" />
-              <span>{showIcalHelp ? '✕ HIDE GUIDE' : 'FIND MY SECRET LINK'}</span>
-            </button>
-          </div>
-
-          {showIcalHelp && (
-            <div className="p-4 rounded-2xl bg-white border-2 border-blue-200 text-xs text-slate-700 space-y-3.5 animate-fade-in shadow-md">
-              {/* Prominent Desktop Browser Notice */}
-              <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50/60 border-2 border-amber-300 flex items-start gap-2.5 text-left">
-                <div className="w-7 h-7 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-900 shrink-0 font-bold text-xs mt-0.5">
-                  💻
-                </div>
-                <div className="space-y-1 text-left">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-black text-amber-950 uppercase tracking-wide">
-                      Desktop / Laptop Browser Required
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900">
-                      Not Visible on Mobile App
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-amber-900 leading-relaxed">
-                    Google Calendar <strong>only reveals</strong> the <em>&ldquo;Integrate calendar&rdquo;</em> and <em>&ldquo;Secret address in iCal format&rdquo;</em> section when viewed on a <strong>Desktop / Laptop computer browser</strong>. The Google Calendar mobile phone app and mobile web browsers hide this link.
-                  </p>
-                  <p className="text-[10px] text-amber-800 font-medium">
-                    📱 <strong>On a phone right now?</strong> Open <em>calendar.google.com</em> on a computer (or switch your mobile browser to &ldquo;Desktop site&rdquo;), or use the <strong>Upload .ics Calendar File</strong> option above!
-                  </p>
-                </div>
+        /* Pre-Connected Demo Calendar Status Bar (Clean, no secret iCal paste box or desktop warnings) */
+        <div className="p-3 sm:px-4 bg-gradient-to-r from-emerald-50/90 via-blue-50/50 to-emerald-50/90 border-b border-[#E2E8F0]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-xs shrink-0">
+                <CheckCircle2 className="w-4 h-4" />
               </div>
-
-              {/* Direct Link Banner */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-gradient-to-r from-blue-50 via-indigo-50/70 to-blue-50 border border-blue-200">
-                <div className="space-y-0.5">
-                  <div className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-[#3186FF]" />
-                    <span>Direct Google Calendar Shortcut (Opens Desktop Settings)</span>
-                  </div>
-                  <p className="text-[11px] text-slate-600">
-                    Click the button to open your calendar settings directly in a new tab:
-                  </p>
-                </div>
-
-                <a
-                  href="https://calendar.google.com/calendar/u/0/r/settings"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold text-xs shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 shrink-0 group active:scale-95 cursor-pointer ring-2 ring-blue-300/40"
-                >
-                  <span>Open Calendar Settings</span>
-                  <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                </a>
-              </div>
-
-              {/* 3 Step Visual Cards */}
-              <div className="space-y-2">
-                <p className="font-bold text-black text-xs">Follow these 3 quick steps to copy your private link:</p>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                    <div className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[10px]">1</div>
-                    <p className="text-[11px] font-bold text-slate-900">Open on Desktop</p>
-                    <p className="text-[10px] text-slate-600 leading-snug">
-                      Open on your <strong>desktop browser</strong>. On the left sidebar under <strong>&ldquo;Settings for my calendars&rdquo;</strong>, click your primary calendar.
-                    </p>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                    <div className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[10px]">2</div>
-                    <p className="text-[11px] font-bold text-slate-900">Integrate Calendar</p>
-                    <p className="text-[10px] text-slate-600 leading-snug">
-                      Click <strong>&ldquo;Integrate calendar&rdquo;</strong> in the left sub-menu.
-                    </p>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200 space-y-1">
-                    <div className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-600 text-white font-bold text-[10px]">3</div>
-                    <p className="text-[11px] font-bold text-slate-900">Copy Secret Address</p>
-                    <p className="text-[10px] text-slate-600 leading-snug">
-                      Scroll to <strong>&ldquo;Secret address in iCal format&rdquo;</strong>, click the <strong>Copy icon</strong>, and paste it below.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Format hint & Privacy notice */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-100/80 border border-slate-200 text-[11px]">
-                <div className="flex items-center gap-1.5 text-slate-600 overflow-hidden">
-                  <span className="font-mono text-[10px] text-slate-400 shrink-0">Format:</span>
-                  <span className="font-mono text-[10px] text-slate-700 truncate">https://calendar.google.com/calendar/ical/.../basic.ics</span>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-[10px] font-bold text-amber-700">⚠️ Do not copy Public URL</span>
-                  <span className="text-slate-300">•</span>
-                  <span className="text-[10px] text-emerald-700 font-semibold flex items-center gap-0.5">
-                    <Lock className="w-3 h-3 inline" /> 256-bit Encrypted
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-900">
+                    Google Calendar Pre-Connected
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                    Demo Telemetry Synced
                   </span>
                 </div>
+                <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500">
+                  <span className="text-slate-600 font-medium">90-day workload history: 391 hours · 57 late calls past 7 PM</span>
+                </div>
               </div>
             </div>
+
+            <div className="flex items-center gap-2 self-start sm:self-center">
+              <button
+                type="button"
+                onClick={() => setShowChangeInput(!showChangeInput)}
+                className="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-white text-slate-700 hover:text-black text-xs font-semibold transition-all cursor-pointer shadow-2xs"
+              >
+                {showChangeInput ? 'Hide Sync Settings' : 'Sync Custom Calendar'}
+              </button>
+            </div>
+          </div>
+
+          {showChangeInput && (
+            <div className="mt-3 pt-3 border-t border-emerald-200/60 animate-fade-in space-y-2">
+              <form onSubmit={handleSyncIcalUrl} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <input
+                  type="url"
+                  value={icalUrlInput}
+                  onChange={e => setIcalUrlInput(e.target.value)}
+                  placeholder="Paste calendar URL or iCal feed link..."
+                  className="flex-1 p-2 text-xs rounded-xl border border-[#E2E8F0] bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
+                />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="submit"
+                    disabled={isSyncingIcal || !icalUrlInput.trim()}
+                    className="px-3.5 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold cursor-pointer disabled:opacity-50"
+                  >
+                    Sync Calendar
+                  </button>
+                </div>
+              </form>
+            </div>
           )}
-
-          <form onSubmit={handleSyncIcalUrl} className="flex items-center gap-2">
-            <input
-              type="url"
-              value={icalUrlInput}
-              onChange={e => setIcalUrlInput(e.target.value)}
-              placeholder="Paste your Secret address in iCal format (https://calendar.google.com/calendar/ical/.../basic.ics)"
-              className="flex-1 p-2 text-xs rounded-xl border border-[#E2E8F0] bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
-            />
-            <button
-              type="submit"
-              disabled={isSyncingIcal || !icalUrlInput.trim()}
-              className="px-4 py-2 rounded-xl bg-[#1F2937] hover:bg-black disabled:opacity-50 text-white text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
-            >
-              {isSyncingIcal ? (
-                <>
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>Syncing...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Connect & Save</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          {icalError && <p className="text-[11px] text-rose-600 font-semibold">{icalError}</p>}
         </div>
       )}
 
@@ -1723,7 +1638,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                 </div>
                 <div className="flex items-center gap-1 text-rose-700 font-semibold">
                   <span className="w-2.5 h-2.5 rounded-sm bg-rose-600 ring-1 ring-rose-400" />
-                  <span>Curfew Breach (&gt;7 PM)</span>
+                  <span>After 7 PM (Red)</span>
                 </div>
                 <div className="flex items-center gap-1 text-emerald-700 font-semibold">
                   <span className="w-2.5 h-2.5 rounded-sm bg-emerald-600" />
@@ -1947,7 +1862,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
 
                 {evt.isCurfewBreach ? (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-200 shrink-0">
-                    Curfew Breach (&gt;7 PM)
+                    Call after 7 PM
                   </span>
                 ) : evt.category === 'birthday' ? (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0 flex items-center gap-1">
@@ -1990,14 +1905,14 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
           </div>
 
           <p className="text-xs text-amber-950 leading-relaxed">
-            Your hair test recorded significant physiological cortisol elevation, but your Google Calendar contains <strong>{cumulativeCurfewBreaches === 0 ? '0 evening curfew breaches' : `only ${cumulativeCurfewBreaches} evening calls`}</strong> and minimal late meetings across the 90-day retrospective window. Standard corporate meeting conclusions are withheld. Chat with <strong>Tricha AI</strong> to log your real-world clinical rotations, hospital ward rounds, study sprints, and shift patterns.
+            Your hair test recorded significant physiological cortisol elevation, but your Google Calendar contains <strong>{cumulativeCurfewBreaches === 0 ? '0 late calls after 7 PM' : `only ${cumulativeCurfewBreaches} evening calls`}</strong> and minimal late meetings across the 90-day retrospective window. Standard corporate meeting conclusions are withheld. Chat with <strong>Tricha AI</strong> to log your real-world clinical rotations, hospital ward rounds, study sprints, and shift patterns.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-sans text-xs">
             <div className="p-2.5 rounded-xl bg-white border border-amber-200 flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <div>
-                <div className="text-[10px] text-slate-500">Night Curfew Breaches</div>
+                <div className="text-[10px] text-slate-500">Calls after 7 PM</div>
                 <div className="font-bold text-black font-mono">{cumulativeCurfewBreaches} Late Calls ({cumulativeCurfewBreaches === 0 ? 'No desk breaches' : 'Well within normal limits'})</div>
               </div>
             </div>
@@ -2036,7 +1951,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                 {weekCurfewBreaches} Late Calls This Week
               </span>
               <span className="text-xs font-bold text-slate-700 font-mono bg-white px-2 py-0.5 rounded-lg border border-slate-200">
-                {cumulativeCurfewBreaches} Total 90-Day Breaches
+                {cumulativeCurfewBreaches} Calls after 7 PM
               </span>
             </div>
           </div>
@@ -2049,8 +1964,8 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
             <div className="p-2.5 rounded-xl bg-white border border-rose-200 flex items-center gap-2">
               <Moon className="w-4 h-4 text-rose-600 shrink-0" />
               <div>
-                <div className="text-[10px] text-slate-500">Night Curfew Breaches</div>
-                <div className="font-bold text-black font-mono">{cumulativeCurfewBreaches} Late Calls (&gt;7 PM)</div>
+                <div className="text-[10px] text-slate-500">Calls after 7 PM</div>
+                <div className="font-bold text-black font-mono">{cumulativeCurfewBreaches} Late Calls</div>
               </div>
             </div>
 
@@ -2059,8 +1974,8 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                 <>
                   <Plane className="w-4 h-4 text-amber-600 shrink-0" />
                   <div>
-                    <div className="text-[10px] text-slate-500">Circadian Travel Shifts</div>
-                    <div className="font-bold text-black font-mono">{travelShiftsCount} Timezone Shifts</div>
+                    <div className="text-[10px] text-slate-500">Flights</div>
+                    <div className="font-bold text-black font-mono">{travelShiftsCount} Flights (Jet Lag)</div>
                   </div>
                 </>
               ) : (

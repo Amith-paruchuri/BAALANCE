@@ -144,17 +144,21 @@ export const EnterpriseWorkspaceSwitcher: React.FC<EnterpriseWorkspaceSwitcherPr
 
         {/* Right: Active Sampling Round & Privacy Shield Badge */}
         <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            Demo data
+          </span>
+
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-bold shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>{currentOrg.currentCycle.name.split(' ')[0]} Active Cycle ({currentOrg.currentCycle.complianceRatePercent}% collected)</span>
+            <span>{currentOrg.currentCycle.name.split(' ')[0]} Cycle ({currentOrg.currentCycle.complianceRatePercent}% collected)</span>
           </div>
 
           <div
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-2xs"
-            title="HIPAA / FERPA k-Anonymity Guard: All cells require ≥ 5 members to protect individual psychological safety"
+            title="Privacy Guard: All cells require ≥ 5 members. Individual test scores are never shared with leadership."
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-            <span>k ≥ 5 De-identified</span>
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span>Anonymous: groups of 5+ only</span>
           </div>
         </div>
       </div>

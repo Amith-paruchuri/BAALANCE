@@ -119,11 +119,10 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
               <button
                 type="button"
                 onClick={() => setPortalMode('enterprise')}
-                className="px-3.5 py-1.5 rounded-full bg-slate-900 hover:bg-black text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 active:scale-95 cursor-pointer"
               >
-                <Building2 className="w-3 h-3 text-emerald-400" />
-                <span className="hidden sm:inline">Enterprise Workspaces</span>
-                <span className="sm:hidden">Enterprise</span>
+                <Building2 className="w-3 h-3 text-slate-500" />
+                <span>For teams</span>
               </button>
               <button
                 type="button"
@@ -131,7 +130,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                 className="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
               >
                 <Play className="w-3 h-3 fill-white" />
-                <span>Launch Demo</span>
+                <span>Try the demo</span>
               </button>
             </>
           ) : (
@@ -142,12 +141,12 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                 className="px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 active:scale-95 cursor-pointer"
               >
                 <User className="w-3 h-3 text-[#3186FF]" />
-                <span>Individual Portal</span>
+                <span>For you</span>
               </button>
               <button
                 type="button"
                 onClick={() => onOpenEnterprise?.('apollo-health')}
-                className="px-4 py-1.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                className="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
               >
                 <Play className="w-3 h-3 fill-white" />
                 <span>Launch Hospital Demo</span>
@@ -161,12 +160,27 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
       <div className="max-w-4xl mx-auto w-full py-6 sm:py-10 space-y-6 text-center">
         {/* Animated Brand Hero */}
         <div className="flex flex-col items-center space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-[#E2E8F0] text-xs font-semibold text-slate-700 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#3186FF]" />
-            <span>Biomarker & Circadian Intelligence Engine</span>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#E2E8F0] text-xs font-bold text-slate-800 shadow-xs">
+            <Sparkles className="w-3.5 h-3.5 text-[#BF6F4E]" />
+            <span>One snip of hair. Three months of stress, measured.</span>
           </div>
 
           <BaalanceLogo size="xl" showTagline={true} animated={true} />
+
+          {/* 3-Step Visual Strip */}
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs font-semibold text-slate-700 bg-white/80 backdrop-blur-xs py-2 px-4 rounded-full border border-slate-200/90 shadow-2xs max-w-xl mx-auto mt-1">
+            <span className="flex items-center gap-1.5">
+              <span>✂️</span> <span>Snip at a salon or at home</span>
+            </span>
+            <span className="text-slate-300 font-normal">→</span>
+            <span className="flex items-center gap-1.5">
+              <span>🧪</span> <span>Lab reads your cortisol</span>
+            </span>
+            <span className="text-slate-300 font-normal">→</span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-[#3186FF] font-bold">✨</span> <span>Gemini finds what caused it</span>
+            </span>
+          </div>
         </div>
 
         {/* PRIMARY PORTAL SELECTOR: INDIVIDUAL VS ENTERPRISE */}
@@ -174,30 +188,27 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
           <button
             type="button"
             onClick={() => setPortalMode('individual')}
-            className={`px-4 sm:px-6 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-5 sm:px-7 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer ${
               portalMode === 'individual'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <User className={`w-3.5 h-3.5 ${portalMode === 'individual' ? 'text-[#3186FF]' : 'text-slate-400'}`} />
-            <span>Individual Portal</span>
+            <span>For you</span>
           </button>
 
           <button
             type="button"
             onClick={() => setPortalMode('enterprise')}
-            className={`px-4 sm:px-6 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-5 sm:px-7 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer ${
               portalMode === 'enterprise'
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Building2 className={`w-3.5 h-3.5 ${portalMode === 'enterprise' ? 'text-emerald-400' : 'text-slate-400'}`} />
-            <span>Enterprise & Institutions</span>
-            <span className="px-1.5 py-0.2 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase">
-              New
-            </span>
+            <span>For teams</span>
           </button>
         </div>
 
@@ -207,25 +218,64 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
         {portalMode === 'individual' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-2xl mx-auto text-left animate-in fade-in duration-150">
             {/* Option 1: Instant Demo */}
-            <div className="bg-white rounded-2xl border-2 border-emerald-400/80 p-6 shadow-card hover:shadow-cardHover transition-all flex flex-col justify-between relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-100/50 rounded-full blur-2xl pointer-events-none" />
+            <div className="bg-white rounded-2xl border-2 border-emerald-500/80 p-6 shadow-md hover:shadow-lg transition-all flex flex-col justify-between relative overflow-hidden ring-4 ring-emerald-500/10">
+              <div className="absolute top-0 right-0 w-28 h-28 bg-emerald-100/60 rounded-full blur-2xl pointer-events-none" />
               <div>
-                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider mb-3">
-                  Pre-Loaded Case
+                <div className="flex items-center justify-between mb-2">
+                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase tracking-wider">
+                    Interactive 90-Day Demo
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-500">No login required</span>
                 </div>
-                <h3 className="text-base font-bold text-[#000000]">
-                  Explore Clinical Demo
+                <h3 className="text-lg font-black text-slate-900">
+                  See what your hair reveals
                 </h3>
-                <p className="text-xs text-[#5F6368] mt-1">
-                  90-day surge scenario with 3cm strand scrubber, Google Calendar load, and Tricha AI Co-Pilot.
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                  Real 3-month hair cortisol case matched against 57 late calls past 7 PM on Google Calendar.
                 </p>
+
+                {/* Hair Timeline & Score Preview Mini-Widget */}
+                <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-bold text-slate-700">3-Month Cortisol (pg/mg)</span>
+                    <span className="font-extrabold text-[#E05252] bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
+                      Score: 78 · High stress
+                    </span>
+                  </div>
+
+                  {/* 3 Monthly segments */}
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="bg-white p-1.5 rounded-lg border border-emerald-200 shadow-2xs">
+                      <div className="text-[10px] text-slate-500 font-medium">July (Tip)</div>
+                      <div className="text-xs font-black text-emerald-700">11.2</div>
+                      <div className="text-[9px] text-emerald-600 font-semibold">Healthy</div>
+                    </div>
+                    <div className="bg-white p-1.5 rounded-lg border border-rose-300 shadow-2xs ring-2 ring-rose-400/20">
+                      <div className="text-[10px] text-slate-500 font-medium">August</div>
+                      <div className="text-xs font-black text-[#E05252]">28.4 ⚠️</div>
+                      <div className="text-[9px] text-rose-600 font-semibold">Peak stress</div>
+                    </div>
+                    <div className="bg-white p-1.5 rounded-lg border border-amber-200 shadow-2xs">
+                      <div className="text-[10px] text-slate-500 font-medium">Sept (Root)</div>
+                      <div className="text-xs font-black text-amber-700">15.6</div>
+                      <div className="text-[9px] text-amber-600 font-semibold">Recovering</div>
+                    </div>
+                  </div>
+
+                  <div className="text-[10px] text-slate-500 flex items-center justify-between pt-1">
+                    <span>📅 57 calls past 7 PM</span>
+                    <span>✈️ 11 flights</span>
+                    <span>✨ Gemini action plan</span>
+                  </div>
+                </div>
               </div>
 
               <button
                 onClick={onStartDemo}
-                className="mt-6 w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
+                className="mt-5 w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
               >
-                <span>Explore Interactive Demo</span>
+                <Play className="w-3.5 h-3.5 fill-white" />
+                <span>See a 90-day demo (no login)</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -396,15 +446,15 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                  Slack-Style Institutional Workspaces
+                  Workplace Stress Intelligence
                 </span>
               </div>
 
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                Cohort Biomarker Surveillance for Hospitals, Schools & Tech
+                See which teams are burning out, before people quit
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-xl">
-                Periodic hair cortisol sampling normalized against race, wash frequency, and medications. Leadership receives k-anonymized stress heatmaps and tailored systemic interventions.
+                Periodic hair tests measure long-term team stress without intrusive surveys. Objective biological data, calibrated for individual hair wash frequency and medications.
               </p>
 
               {/* Instant Domain Join Input */}
@@ -435,13 +485,15 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                 <p className="text-xs text-rose-400 mt-1 font-medium">{enterpriseError}</p>
               )}
 
-              <div className="mt-4 flex items-center gap-4 text-[11px] text-slate-400 font-medium">
+              <div className="mt-4 flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] text-slate-400 font-medium">
                 <div className="flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>FERPA & HIPAA Compliant (k ≥ 5)</span>
+                  <span>Privacy-first: groups of 5+ only</span>
                 </div>
                 <span>•</span>
-                <span>Automated CLIA Lab Normalization</span>
+                <span>Tested at partner laboratories</span>
+                <span>•</span>
+                <span>Zero individual scores visible to leadership</span>
               </div>
             </div>
 
@@ -466,15 +518,15 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                       </span>
                     </div>
                     <h3 className="text-sm font-extrabold text-slate-900 group-hover:text-rose-600 transition-colors">
-                      Apollo & AIIMS Hospitals
+                      Sunrise Multispeciality Hospital
                     </h3>
                     <p className="text-[11px] text-slate-500 mt-1">
-                      ICU, Emergency Medicine, Resident duty caps & post-call digital pager curfew.
+                      ICU, Emergency Medicine, Surgery & resident 36h shift pacing.
                     </p>
                   </div>
 
                   <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-rose-600">
-                    <span>Enter Hospital Matrix</span>
+                    <span>Enter Hospital Demo</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </button>
@@ -493,15 +545,15 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                       </span>
                     </div>
                     <h3 className="text-sm font-extrabold text-slate-900 group-hover:text-amber-600 transition-colors">
-                      St. Jude Academy
+                      Greenfield Public School
                     </h3>
                     <p className="text-[11px] text-slate-500 mt-1">
-                      Grades 9–12, Section B exam pressure waves & 10 PM homework portal lockout.
+                      Grades 9–12, Section B exam pressure & 10 PM homework curfew. (Parent consent required)
                     </p>
                   </div>
 
                   <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-amber-600">
-                    <span>Enter School Matrix</span>
+                    <span>Enter School Demo</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </button>
@@ -520,15 +572,15 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                       </span>
                     </div>
                     <h3 className="text-sm font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors">
-                      Nexus Tech & Stripe
+                      Nimbus Tech
                     </h3>
                     <p className="text-[11px] text-slate-500 mt-1">
-                      Engineering on-call pager burnout, sales quarter-end recovery & 7 PM curfew.
+                      Bengaluru, Gurugram & Pune Hubs · Engineering on-call pager stress & evening curfews.
                     </p>
                   </div>
 
                   <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-600">
-                    <span>Enter Corporate Matrix</span>
+                    <span>Enter Company Demo</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </button>
@@ -537,6 +589,13 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
           </div>
         )}
       </div>
+
+      {/* Social Proof & Origin Footer */}
+      <footer className="w-full text-center py-4 border-t border-slate-200/80">
+        <p className="text-xs font-medium text-slate-500">
+          Built by a final-year medical student at <span className="font-semibold text-slate-700">AIIMS New Delhi</span> · <span className="text-[#3186FF] font-semibold">Google Fund My Crazy 2026 Top 10</span>
+        </p>
+      </footer>
     </div>
   );
 };

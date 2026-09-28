@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Scissors, SlidersHorizontal, BookOpen, ArrowRight, X, ShieldCheck, CheckCircle2, Droplets, Lock, Activity, Dna, Info, Calendar } from 'lucide-react';
+import { Sparkles, Scissors, SlidersHorizontal, BookOpen, ArrowRight, X, ShieldCheck, CheckCircle2, Droplets, Lock, Activity, Dna, Info, Calendar, Flame } from 'lucide-react';
 import { HairCortisolSegment } from '@/lib/types';
 
 interface InteractiveHairStrandViewerProps {
@@ -167,25 +167,42 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-card p-4 sm:p-6 transition-all font-sans">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[#E2E8F0]">
-        <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#3186FF] animate-pulse" />
-            <h3 className="text-sm sm:text-base font-bold text-black tracking-tight">
-              Interactive 3cm Hair Strand Timeline
-            </h3>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold">
-              1 cm = 30 Days
-            </span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
-              Baseline: 11.0 pg/mg
-            </span>
+    <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-4 sm:p-6 transition-all font-sans space-y-4">
+      {/* Top Hero Headline Banner */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-50/90 via-amber-50/50 to-emerald-50/40 border border-rose-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-rose-600 text-white flex items-center justify-center font-black shadow-xs shrink-0">
+            <Flame className="w-5 h-5 text-white" />
           </div>
-          <p className="text-[11px] text-slate-500 mt-0.5">
-            Biological hair follicle timeline • Tap any node or card to inspect, and click Edit to test values
-          </p>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-700 bg-rose-100/90 px-2 py-0.5 rounded-full border border-rose-200">
+                Primary Finding
+              </span>
+              <span className="text-[11px] font-bold text-slate-500">90-Day Hair Timeline</span>
+            </div>
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-0.5">
+              Your stress spiked in August.
+            </h2>
+            <p className="text-xs text-slate-600 mt-0.5 font-medium">
+              Hair cortisol surged to 28.4 pg/mg (+154% above baseline) during peak late calls and travel crunch.
+            </p>
+          </div>
+        </div>
+
+        {/* Clear Orientation Badge */}
+        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 shadow-2xs text-xs font-bold text-slate-800 self-start sm:self-auto shrink-0">
+          <Scissors className="w-3.5 h-3.5 text-[#BF6F4E]" />
+          <span>Root = this month · Tip = 3 months ago</span>
+        </div>
+      </div>
+
+      {/* Secondary Controls Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
+        <div className="flex items-center gap-2 flex-wrap text-xs font-bold text-slate-700">
+          <span className="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200">1 cm = 30 Days</span>
+          <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">Healthy: below 14.0 pg/mg</span>
+          <span className="text-slate-400 font-normal">Click any month to inspect</span>
         </div>
 
         {/* Header Actions */}
@@ -194,10 +211,10 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
             type="button"
             onClick={() => setIsTrappingModalOpen(true)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 border border-slate-200 transition-colors cursor-pointer shadow-2xs shrink-0"
-            title="Read more on Cortisol trapping"
+            title="Read more on Cortisol trapping in hair"
           >
             <BookOpen className="w-3.5 h-3.5 text-[#3186FF]" />
-            <span>Cortisol Trapping</span>
+            <span>How Hair Traps Cortisol</span>
           </button>
           <button
             onClick={onLoadSurgeScenario}

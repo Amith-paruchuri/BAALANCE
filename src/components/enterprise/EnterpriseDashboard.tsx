@@ -119,7 +119,7 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
               }`}
             >
               <Stethoscope className="w-3.5 h-3.5" />
-              <span>Hospitals & Healthcare (Apollo / AIIMS — 9 Departments)</span>
+              <span>Sunrise Hospital (9 Depts)</span>
             </button>
 
             <button
@@ -136,7 +136,7 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
               }`}
             >
               <GraduationCap className="w-3.5 h-3.5" />
-              <span>Schools & Universities (St. Jude Academy — 8 Grades & Labs)</span>
+              <span>Greenfield School (8 Grades)</span>
             </button>
 
             <button
@@ -153,8 +153,79 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
-              <span>Corporate & Tech (Nexus / Stripe — 8 Divisions)</span>
+              <span>Nimbus Tech (8 Divisions)</span>
             </button>
+          </div>
+        </div>
+
+        {/* 3 BIG KPI TILES IN ONE ROW */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Tile 1: Organisation Stress Score */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                Organisation stress score
+              </span>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-3xl font-black text-slate-900">{meanBurnoutScore}</span>
+                <span className="text-sm font-bold text-slate-400">/ 100</span>
+              </div>
+              <p className="text-xs text-slate-500 mt-1">90-day biological cortisol baseline</p>
+            </div>
+            <div className={`px-3 py-1.5 rounded-xl text-xs font-black border ${
+              meanBurnoutScore > 80 ? 'bg-rose-50 text-rose-700 border-rose-200' :
+              meanBurnoutScore > 60 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+              meanBurnoutScore > 35 ? 'bg-blue-50 text-blue-700 border-blue-200' :
+              'bg-emerald-50 text-emerald-700 border-emerald-200'
+            }`}>
+              {meanBurnoutScore > 80 ? '🔴 Burnout risk' :
+               meanBurnoutScore > 60 ? '🟠 High stress' :
+               meanBurnoutScore > 35 ? '🔵 Manageable' : '🟢 Healthy'}
+            </div>
+          </div>
+
+          {/* Tile 2: Teams in Burnout Zone */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                Teams in burnout zone
+              </span>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-3xl font-black text-rose-600">{criticalUnitsCount}</span>
+                <span className="text-sm font-bold text-slate-400">of {totalSubUnits} teams</span>
+              </div>
+              <p className="text-xs text-slate-500 mt-1">Requiring immediate schedule relief</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center text-rose-600 shrink-0">
+              <Flame className="w-5 h-5" />
+            </div>
+          </div>
+
+          {/* Tile 3: Top Recommended Action */}
+          <div 
+            onClick={() => {
+              const el = document.getElementById('interventions-panel');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="bg-white rounded-2xl border border-emerald-200 p-5 shadow-xs flex items-center justify-between cursor-pointer hover:border-emerald-400 hover:shadow-sm transition-all group"
+          >
+            <div className="pr-2">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider block">
+                  1 Action could lower it most
+                </span>
+                <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-emerald-100 text-emerald-800">
+                  -{currentOrg.interventions[0]?.projectedReductionPercent || 24}%
+                </span>
+              </div>
+              <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-1 mt-1">
+                {currentOrg.interventions[0]?.title || 'Evening Digital Curfew'}
+              </h4>
+              <p className="text-xs text-slate-500 mt-0.5">Click to view 8-week impact plan ↓</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 group-hover:scale-105 transition-transform">
+              <Activity className="w-5 h-5" />
+            </div>
           </div>
         </div>
 

@@ -97,12 +97,9 @@ export const DepartmentBurnoutGraph: React.FC<DepartmentBurnoutGraphProps> = ({
                 <span className="text-sm font-extrabold text-slate-900">
                   {activeHover.name}
                 </span>
-                <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-mono font-bold text-slate-600">
-                  {activeHover.code}
-                </span>
               </div>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                Led by {activeHover.headOfficial} • {activeHover.subUnits.length} monitored subgroups
+                {activeHover.subUnits.length} monitored teams · Continuous 90-day tracking
               </p>
             </div>
           </div>
@@ -196,13 +193,10 @@ export const DepartmentBurnoutGraph: React.FC<DepartmentBurnoutGraphProps> = ({
                   {/* X-Axis Department Label & Emoji below the bar */}
                   <div className="mt-3 flex flex-col items-center text-center">
                     <AnimatedDepartmentIcon iconKey={cohort.iconKey || cohort.code} size="sm" />
-                    <span className={`text-[10px] font-extrabold truncate max-w-[70px] mt-1.5 ${
+                    <span className={`text-[10px] font-extrabold max-w-[85px] leading-tight line-clamp-2 mt-1.5 ${
                       isSelected ? 'text-blue-600 font-black' : 'text-slate-700'
                     }`}>
-                      {cohort.name.split(' ')[0]}
-                    </span>
-                    <span className="text-[9px] font-mono text-slate-400">
-                      {cohort.code}
+                      {cohort.name}
                     </span>
                   </div>
                 </div>
