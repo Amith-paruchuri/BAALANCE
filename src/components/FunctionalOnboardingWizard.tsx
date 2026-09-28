@@ -836,7 +836,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                         </h3>
                         <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                           <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                          CLIA Norms
+                          Lab Calibrated
                         </span>
                       </div>
                     </div>
@@ -1656,7 +1656,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
 
                 <div className="flex items-center gap-2 shrink-0">
                   <span className="text-[10px] font-mono text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200">
-                    CLIA Baseline: ~11.0 pg/mg
+                    Partner Lab Baseline: ~11.0 pg/mg
                   </span>
                 </div>
               </div>

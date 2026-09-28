@@ -62,7 +62,7 @@ const PITCH_SCENES: PitchScene[] = [
     badge: 'Scene 3 • 0:42 - 0:58',
     scriptSnippet:
       'Yet every two months, we pay a stylist at the salon to sweep this valuable data into the trash. That’s why I created BAALANCE. During your regular haircut, your stylist seals 10 to 15 optimal hair strands into our collection pouch and sends it to our accredited lab.',
-    keyCallout: 'Turn a regular haircut into a CLIA-validated diagnostic collection.',
+    keyCallout: 'Turn a regular haircut into a partner laboratory diagnostic collection.',
   },
   {
     id: 4,
@@ -353,7 +353,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                   <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 flex items-center gap-2.5 text-xs">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                     <div>
-                      <span className="font-bold text-emerald-900">CLIA Accredited Spectrometry</span>
+                      <span className="font-bold text-emerald-900">Partner Laboratory Spectrometry</span>
                       <p className="text-[10px] text-emerald-700 mt-0.5">
                         ELISA lab assay quantitative precision: ±0.4 pg/mg.
                       </p>

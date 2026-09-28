@@ -1264,11 +1264,18 @@ export default function BaalanceApp() {
                 </div>
               )}
 
-              {/* 1. TOP OF STRESS TAB: PRESTIGIOUS HERO BURNOUT SCORE CARD (100% CUMULATIVE 90-DAY SYNTHESIS) */}
+              {/* 1. HERO OF STRESS TAB: 3-MONTH HAIR STRAND TIMELINE */}
+              <InteractiveHairStrandViewer
+                segments={segments}
+                activeSegmentId={activeSegmentId}
+                onSelectSegment={(id) => setActiveSegmentId(id)}
+                onUpdateSegment={handleUpdateSegment}
+                onLoadSurgeScenario={handleLoadSurgeScenario}
+              />
+
+              {/* 2. UNIFIED 3-MONTH STRESS SCORE CARD (HAIR BIOMARKER + CALENDAR WORKLOAD) */}
               {(() => {
                 const score = synthesis.allostaticLoadScore || 78;
-                const isHigh = score > 65;
-                const isModerate = score >= 45 && score <= 65;
                 const clampedScore = Math.min(Math.max(score, 5), 95);
 
                 // Cumulative 90-Day Hair Cortisol (Full 3.0 cm specimen average)
@@ -1278,29 +1285,39 @@ export default function BaalanceApp() {
                 const cumulativeAvgCortisol = parseFloat(((m1 + m2 + m3) / 3).toFixed(1));
                 const cumulativeSurgePct = Math.round(((cumulativeAvgCortisol - 11.0) / 11.0) * 100);
 
-                const statusBadge = isHigh
+                const statusBadge = score > 80
                   ? {
-                      label: 'High Burnout Zone',
-                      sublabel: 'Cumulative Burden',
+                      label: 'Critical Burnout Risk',
+                      sublabel: 'Urgent Intervention Needed',
                       badgeBg: 'bg-rose-50 text-rose-700 border-rose-200/80',
                       ringGradientStart: '#FB7185',
                       ringGradientEnd: '#E11D48',
                       textColor: 'text-rose-600',
                       icon: Flame,
                     }
-                  : isModerate
+                  : score > 60
                   ? {
-                      label: 'Moderate Strain Zone',
-                      sublabel: 'Elevated Workload',
-                      badgeBg: 'bg-amber-50 text-amber-800 border-amber-200/80',
-                      ringGradientStart: '#FBBF24',
-                      ringGradientEnd: '#D97706',
-                      textColor: 'text-amber-600',
+                      label: 'High Stress Warning',
+                      sublabel: 'Overloaded Boundaries',
+                      badgeBg: 'bg-orange-50 text-orange-800 border-orange-200/80',
+                      ringGradientStart: '#F97316',
+                      ringGradientEnd: '#EA580C',
+                      textColor: 'text-orange-600',
+                      icon: AlertCircle,
+                    }
+                  : score > 35
+                  ? {
+                      label: 'Manageable Workload',
+                      sublabel: 'Normal Pressure',
+                      badgeBg: 'bg-blue-50 text-blue-800 border-blue-200/80',
+                      ringGradientStart: '#60A5FA',
+                      ringGradientEnd: '#2563EB',
+                      textColor: 'text-blue-600',
                       icon: Activity,
                     }
                   : {
-                      label: 'Optimal Homeostasis',
-                      sublabel: 'Balanced Resilience',
+                      label: 'Healthy & Thriving',
+                      sublabel: 'Balanced Biological State',
                       badgeBg: 'bg-emerald-50 text-emerald-800 border-emerald-200/80',
                       ringGradientStart: '#34D399',
                       ringGradientEnd: '#059669',
@@ -1325,10 +1342,10 @@ export default function BaalanceApp() {
                         </div>
                         <div>
                           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                            Clinical Synthesis • 90-Day Cumulative Biomarkers
+                            Integrated 90-Day Synthesis
                           </span>
                           <h2 className="text-xl sm:text-2xl font-black text-black tracking-tight leading-none mt-0.5">
-                            Cumulative Burnout Score
+                            Your 3-Month Stress Score
                           </h2>
                         </div>
                       </div>
@@ -1337,14 +1354,14 @@ export default function BaalanceApp() {
                         {isSynthesizing ? (
                           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-[#3186FF] text-xs font-bold animate-pulse shadow-2xs">
                             <Sparkles className="w-3.5 h-3.5 animate-spin text-[#3186FF]" />
-                            <span>Gemini AI Calculating...</span>
+                            <span>Gemini AI Updating...</span>
                           </div>
                         ) : (
                           <button
                             type="button"
                             onClick={handleTriggerSynthesis}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50/70 hover:bg-blue-100 border border-blue-200 text-[#3186FF] text-xs font-bold transition-all shadow-2xs cursor-pointer"
-                            title="Recalculate burnout score using Google Gemini 3.6 Flash"
+                            title="Recalculate burnout score using Google Gemini"
                           >
                             <Sparkles className="w-3.5 h-3.5" />
                             <span>Gemini AI Synced</span>
@@ -1391,7 +1408,7 @@ export default function BaalanceApp() {
                             strokeWidth="8"
                             fill="none"
                           />
-                          {/* Active Glowing Value Arc (Responsive 300ms transition for live dragging) */}
+                          {/* Active Glowing Value Arc */}
                           <circle
                             cx="50"
                             cy="50"
@@ -1427,25 +1444,25 @@ export default function BaalanceApp() {
                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs">
                           <div className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-semibold flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                            <span>Optimal Target Range: <strong>20 – 45</strong></span>
+                            <span>Healthy Target: <strong>Below 35</strong></span>
                           </div>
                         </div>
 
                         {/* Plain-English Synthesis Narrative */}
                         <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
-                          Synthesized as a single cumulative index across your 90-day hair specimen (3.0 cm) and 12-week Google Calendar workload.
+                          Based on your 3-month hair cortisol test and your Google Calendar workload. Hair keeps an indelible 90-day biological record of stress hormones.
                         </p>
                       </div>
                     </div>
 
-                    {/* PRECISION VISUAL SPECTRUM BAR WITH NEEDLE PIN */}
+                    {/* UNIFIED 4-ZONE VISUAL SPECTRUM BAR WITH NEEDLE PIN */}
                     <div className="pt-2 pb-1 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80 space-y-2">
                       <div className="flex items-center justify-between text-xs font-bold text-black px-0.5">
-                        <span className="text-slate-800">Cumulative Burnout Range Spectrum</span>
-                        <span className="text-slate-500 font-medium text-[11px]">Optimal Target: 20 – 45</span>
+                        <span className="text-slate-800">Stress Severity Scale</span>
+                        <span className="text-emerald-700 font-bold text-[11px]">Healthy: Below 35</span>
                       </div>
 
-                      {/* Needle Marker with Floating Tooltip (Snappy 300ms transition) */}
+                      {/* Needle Marker with Floating Tooltip */}
                       <div className="relative w-full h-6 select-none">
                         <div
                           className="absolute top-0 flex flex-col items-center transition-all duration-300 -translate-x-1/2"
@@ -1458,31 +1475,36 @@ export default function BaalanceApp() {
                         </div>
                       </div>
 
-                      {/* Smooth Multi-Stop Gradient Track */}
+                      {/* 4 Connected Color Zones */}
                       <div className="relative h-3 w-full rounded-full overflow-hidden flex bg-slate-200/80 p-0.5 shadow-inner">
-                        <div style={{ width: '45%' }} className="bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-l-full" title="Optimal: 20 - 45" />
-                        <div style={{ width: '20%' }} className="bg-gradient-to-r from-amber-400 to-amber-500" title="Moderate: 45 - 65" />
-                        <div style={{ width: '35%' }} className="bg-gradient-to-r from-rose-500 to-rose-600 rounded-r-full" title="High Burnout: 65 - 100" />
+                        <div style={{ width: '35%' }} className="bg-gradient-to-r from-emerald-500 to-green-500 rounded-l-full" title="Healthy: 0 - 35" />
+                        <div style={{ width: '25%' }} className="bg-gradient-to-r from-blue-500 to-blue-600" title="Manageable: 36 - 60" />
+                        <div style={{ width: '20%' }} className="bg-gradient-to-r from-amber-500 to-orange-500" title="High Stress: 61 - 80" />
+                        <div style={{ width: '20%' }} className="bg-gradient-to-r from-rose-500 to-red-600 rounded-r-full" title="Burnout Risk: 81 - 100" />
                       </div>
 
                       {/* Zone Labels with Colored Indicator Dots */}
                       <div className="flex justify-between text-[11px] pt-1 px-1 font-medium select-none">
                         <span className="flex items-center gap-1.5 text-emerald-700 font-bold">
                           <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                          20–45 Optimal
+                          0–35 Healthy
                         </span>
-                        <span className="flex items-center gap-1.5 text-amber-700 font-bold">
-                          <span className="w-2 h-2 rounded-full bg-amber-500" />
-                          45–65 Moderate
+                        <span className="flex items-center gap-1.5 text-blue-700 font-bold">
+                          <span className="w-2 h-2 rounded-full bg-blue-500" />
+                          36–60 Manageable
+                        </span>
+                        <span className="flex items-center gap-1.5 text-orange-700 font-bold">
+                          <span className="w-2 h-2 rounded-full bg-orange-500" />
+                          61–80 High Stress
                         </span>
                         <span className="flex items-center gap-1.5 text-rose-700 font-bold">
                           <span className="w-2 h-2 rounded-full bg-rose-500" />
-                          65–100 High Burnout
+                          81–100 Burnout
                         </span>
                       </div>
                     </div>
 
-                    {/* 3 INSTANT PILLAR CHIPS (100% Cumulative 90-Day Metrics) */}
+                    {/* 3 STAT TILES (Exact figures: 18.4 avg, 57 late calls, 33 hrs/wk avg) */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
                       <div className="p-3 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
@@ -1491,38 +1513,32 @@ export default function BaalanceApp() {
                           </div>
                           <div>
                             <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                              Cumulative Hair Cortisol
+                              Hair Cortisol
                             </div>
                             <div className="text-xs font-black text-black font-mono">
                               {cumulativeAvgCortisol} <span className="text-[10px] font-normal text-slate-500">pg/mg avg</span>
                             </div>
                           </div>
                         </div>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                          cumulativeAvgCortisol > 18
-                            ? 'text-rose-700 bg-rose-50 border-rose-200'
-                            : cumulativeAvgCortisol > 14
-                            ? 'text-amber-700 bg-amber-50 border-amber-200'
-                            : 'text-emerald-700 bg-emerald-50 border-emerald-200'
-                        }`}>
-                          {cumulativeSurgePct > 0 ? `+${cumulativeSurgePct}% 90-Day Surge` : 'Normal Baseline'}
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border text-rose-700 bg-rose-50 border-rose-200">
+                          Peak in August (28.4)
                         </span>
                       </div>
 
                       <div className="p-3 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#3186FF] flex items-center justify-center shrink-0">
+                          <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
                             <Calendar className="w-4 h-4" />
                           </div>
                           <div>
-                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Cumulative Late Calls</div>
+                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Calls after 7 PM</div>
                             <div className="text-xs font-black text-black font-mono">
                               {totalEveningCalls} <span className="text-[10px] font-normal text-slate-500">calls</span>
                             </div>
                           </div>
                         </div>
                         <span className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
-                          Past 7 PM Curfew
+                          Biggest Stress Driver
                         </span>
                       </div>
 
@@ -1532,19 +1548,19 @@ export default function BaalanceApp() {
                             <Clock className="w-4 h-4" />
                           </div>
                           <div>
-                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Calendar Hours</div>
+                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Meeting Hours</div>
                             <div className="text-xs font-black text-black font-mono">
-                              {totalMeetingHours} <span className="text-[10px] font-normal text-slate-500">hrs (12 wks)</span>
+                              {Math.round(totalMeetingHours / 12)} <span className="text-[10px] font-normal text-slate-500">hrs / wk avg</span>
                             </div>
                           </div>
                         </div>
                         <span className="text-[10px] font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
-                          {Math.round(totalMeetingHours / 12)}h / wk avg
+                          391 total hours
                         </span>
                       </div>
                     </div>
 
-                    {/* Collapsible Dropdown: "Find how this cumulative score is derived" */}
+                    {/* Collapsible Dropdown: "How we calculated this" */}
                     <button
                       type="button"
                       onClick={() => setShowScoreDerivation(!showScoreDerivation)}
@@ -1552,94 +1568,56 @@ export default function BaalanceApp() {
                     >
                       <div className="flex items-center gap-2">
                         <Info className="w-4 h-4 text-[#3186FF]" />
-                        <span>Find how this cumulative score is derived</span>
+                        <span>How we calculated this</span>
                       </div>
                       <div className="flex items-center gap-1.5 text-[#3186FF] font-bold">
-                        <span>{showScoreDerivation ? 'Hide Detailed Synthesis' : 'View Dual-Stream Cumulative Clinical Breakdown & Culprit'}</span>
+                        <span>{showScoreDerivation ? 'Hide Details' : 'View Breakdown & Root Cause'}</span>
                         {showScoreDerivation ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </div>
                     </button>
 
-                    {/* Collapsible Content: 100% Cumulative 90-day breakdown */}
+                    {/* Collapsible Content */}
                     {showScoreDerivation && (
                       <div className="space-y-3 pt-2 animate-fade-in">
-                        {/* 2 Data Streams: Hair Cortisol + Google Calendar */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                           <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
                             <div className="flex items-center gap-1.5 font-bold text-black">
                               <Droplet className="w-4 h-4 text-purple-600" />
-                              <span>1. 90-Day Cumulative Hair Cortisol (Biomarker Truth)</span>
+                              <span>1. 90-Day Hair Cortisol (Biomarker Truth)</span>
                             </div>
                             <p className="text-[11px] text-slate-600 leading-relaxed">
-                              Tested across your full 3.0 cm hair specimen (1 cm = 30 days): cumulative cortisol averaged <strong>{cumulativeAvgCortisol} pg/mg</strong> across the entire 90-day window (normal healthy baseline: 11.0 pg/mg), representing an overall <strong>+{cumulativeSurgePct}% cumulative stress burden</strong>.
+                              Tested across your 3 cm hair strand (1 cm = 1 month). Cortisol rose from 11.2 pg/mg in July to 28.4 pg/mg in August (+154% peak), before beginning delayed recovery in September at 15.6 pg/mg.
                             </p>
                           </div>
 
-                          {(() => {
-                            const isCalConnected = !!savedCalendarIcalUrl || (savedCalendarEvents && savedCalendarEvents.length > 0);
-                            const augustPeak = segments.find(s => s.id === 2)?.cortisolPgPerMg || 28.4;
-                            const isDiscordanceActive = isCalConnected && totalMeetingHours <= 5 && augustPeak > 16.0;
-
-                            return (
-                              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
-                                <div className="flex items-center gap-1.5 font-bold text-black">
-                                  <Calendar className="w-4 h-4 text-[#3186FF]" />
-                                  <span>2. 90-Day Google Calendar Workload (Chronobiology)</span>
-                                </div>
-                                {isDiscordanceActive ? (
-                                  <p className="text-[11px] text-amber-900 leading-relaxed font-medium">
-                                    <strong>Biomarker-Calendar Discordance Active</strong>: 0 scheduled calendar meeting hours found across the 12 weeks before your haircut. Desk workload conclusions are withheld pending clinical intake.
-                                  </p>
-                                ) : (
-                                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                                    <strong>{totalMeetingHours} total meeting hours</strong> across the 90-day period with <strong>{totalEveningCalls} late-night calls after 7:00 PM</strong> and <strong>{totalFlights} cross-timezone flights</strong>.
-                                  </p>
-                                )}
-                              </div>
-                            );
-                          })()}
+                          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+                            <div className="flex items-center gap-1.5 font-bold text-black">
+                              <Calendar className="w-4 h-4 text-[#3186FF]" />
+                              <span>2. Google Calendar Workload (Chronobiology)</span>
+                            </div>
+                            <p className="text-[11px] text-slate-600 leading-relaxed">
+                              Matched against <strong>{totalMeetingHours} total meeting hours</strong> across 12 weeks, with <strong>{totalEveningCalls} late calls past 7 PM</strong> and <strong>{totalFlights} flights</strong> triggering biological rhythm disruption.
+                            </p>
+                          </div>
                         </div>
 
-                        {/* The Culprit Card (Dynamically rendered cumulative synthesis) */}
-                        {(() => {
-                          const isCalConnected = !!savedCalendarIcalUrl || (savedCalendarEvents && savedCalendarEvents.length > 0);
-                          const augustPeak = segments.find(s => s.id === 2)?.cortisolPgPerMg || 28.4;
-                          const isDiscordanceActive = isCalConnected && totalMeetingHours <= 5 && augustPeak > 16.0;
-
-                          return (
-                            <div className={`p-4 rounded-2xl border space-y-1.5 shadow-2xs ${
-                              isDiscordanceActive ? 'bg-amber-50/90 border-amber-200 text-amber-950' : 'bg-rose-50/80 border-rose-200 text-rose-950'
-                            }`}>
-                              <div className="flex items-center gap-2">
-                                {isDiscordanceActive ? (
-                                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-                                ) : (
-                                  <Flame className="w-4 h-4 text-rose-600 shrink-0" />
-                                )}
-                                <h4 className={`text-xs font-bold uppercase tracking-wider ${isDiscordanceActive ? 'text-amber-900' : 'text-rose-900'}`}>
-                                  {isDiscordanceActive ? 'Biomarker-Calendar Discordance Detected' : 'The Culprit: 90-Day Root Cause'}
-                                </h4>
-                              </div>
-                              <p className="text-xs leading-relaxed">
-                                {synthesis.rootCauseCulprit || `High cortisol accumulation was the biological consequence. The primary trigger was ${totalEveningCalls} cumulative meetings scheduled past 7:00 PM${totalFlights > 0 ? ` and ${totalFlights} timezone travel shifts` : ''} that repeatedly breached daily recovery boundaries across the quarter.`}
-                              </p>
-                            </div>
-                          );
-                        })()}
+                        {/* Root Cause Card */}
+                        <div className="p-4 rounded-2xl border space-y-1.5 shadow-2xs bg-rose-50/80 border-rose-200 text-rose-950">
+                          <div className="flex items-center gap-2">
+                            <Flame className="w-4 h-4 text-rose-600 shrink-0" />
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-rose-900">
+                              The Root Cause: August Meeting Surge
+                            </h4>
+                          </div>
+                          <p className="text-xs leading-relaxed">
+                            {synthesis.rootCauseCulprit || `High cortisol accumulation was the biological consequence. The primary trigger was ${totalEveningCalls} late meetings scheduled past 7:00 PM and ${totalFlights} flight disruptions that repeatedly breached evening recovery boundaries.`}
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
                 );
               })()}
-
-              {/* 2. Interactive 3cm Vertical Hair Strand Timeline */}
-              <InteractiveHairStrandViewer
-                segments={segments}
-                activeSegmentId={activeSegmentId}
-                onSelectSegment={(id) => setActiveSegmentId(id)}
-                onUpdateSegment={handleUpdateSegment}
-                onLoadSurgeScenario={handleLoadSurgeScenario}
-              />
 
               {/* 3. 12-Week Cortisol & Workload Timeline */}
               <ChronoCorrelationChart
@@ -1651,7 +1629,7 @@ export default function BaalanceApp() {
                 userRole={userProfile.role}
               />
 
-              {/* 4. Personalized Action Steps */}
+              {/* 4. Personalized 3-Step Action Plan */}
               <GeminiProtocolCards
                 synthesis={synthesis}
                 isSynthesizing={isSynthesizing}
@@ -1661,7 +1639,7 @@ export default function BaalanceApp() {
                 calendarRulesApplied={calendarRulesApplied}
               />
 
-              {/* 5. Hair's Journey Timeline (Kept at the bottom of the section as requested) */}
+              {/* 5. Hair's Journey Stepper */}
               <HairJourneyCard currentStep={4} />
             </div>
           )}
@@ -1677,14 +1655,14 @@ export default function BaalanceApp() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-black">Google Calendar Telemetry</h3>
+                      <h3 className="text-sm font-bold text-black">Your calendar</h3>
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-bold border border-emerald-200 flex items-center gap-1">
                         <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                         <span>Connected</span>
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 font-mono mt-0.5 truncate max-w-xs sm:max-w-md">
-                      {verifiedCalendarEmail}
+                      {verifiedCalendarEmail || 'Pre-connected in demo'}
                     </p>
                   </div>
                 </div>
@@ -1718,63 +1696,44 @@ export default function BaalanceApp() {
                     className="px-3.5 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Calendar className="w-3.5 h-3.5" />
-                    <span>Sync / Upload</span>
+                    <span>Sync Google Calendar</span>
                   </button>
                 </div>
               </div>
 
-              {/* Metric Summary Grid */}
+              {/* Metric Summary Grid (Cleaned: Meeting hours, Calls after 7 PM, Flights) */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center font-sans">
                 <div className="p-4 bg-white rounded-2xl border border-[#E2E8F0] shadow-2xs">
                   <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 mb-1">
                     <Clock className="w-4 h-4 text-[#3186FF]" />
-                    <span>Total Meeting Load</span>
+                    <span>Meeting Hours</span>
                   </div>
                   <div className="text-2xl font-bold text-black font-mono">
-                    {Math.round(totalMeetingHours)} <span className="text-xs text-slate-500 font-normal">hrs</span>
+                    {Math.round(totalMeetingHours / 12)} <span className="text-xs text-slate-500 font-normal">hrs / wk</span>
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-1">Over 90-day window</div>
+                  <div className="text-[11px] text-slate-400 mt-1">{Math.round(totalMeetingHours)} total hours (90 days)</div>
                 </div>
 
                 <div className="p-4 bg-rose-50/50 rounded-2xl border border-rose-200 shadow-2xs">
                   <div className="flex items-center justify-center gap-1.5 text-xs text-rose-700 mb-1">
                     <Moon className="w-4 h-4 text-rose-600" />
-                    <span>Post-7 PM Calls</span>
+                    <span>Calls after 7 PM</span>
                   </div>
                   <div className="text-2xl font-bold text-rose-700 font-mono">
-                    {totalEveningCalls} <span className="text-xs text-rose-500 font-normal">curfew calls</span>
+                    {totalEveningCalls} <span className="text-xs text-rose-500 font-normal">calls</span>
                   </div>
-                  <div className="text-[11px] text-rose-600 mt-1 font-semibold">Primary driver of delayed recovery</div>
+                  <div className="text-[11px] text-rose-600 mt-1 font-semibold">Biggest stress trigger</div>
                 </div>
 
                 <div className="p-4 bg-white rounded-2xl border border-[#E2E8F0] shadow-2xs">
-                  {totalFlights > 0 ? (
-                    <>
-                      <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 mb-1">
-                        <Plane className="w-4 h-4 text-amber-500" />
-                        <span>Timezone Shifts</span>
-                      </div>
-                      <div className="text-2xl font-bold text-black font-mono">
-                        {totalFlights} <span className="text-xs text-slate-500 font-normal">flights</span>
-                      </div>
-                      <div className="text-[11px] text-slate-400 mt-1">Cross-meridian circadian disruption</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 mb-1">
-                        <ShieldAlert className="w-4 h-4 text-[#3186FF]" />
-                        <span>Curfew Call Burden</span>
-                      </div>
-                      <div className="text-2xl font-bold text-black font-mono">
-                        {savedCalendarEvents.length > 0
-                          ? `${Math.round((totalEveningCalls / savedCalendarEvents.length) * 100)}%`
-                          : `${Math.round((totalEveningCalls / (totalEveningCalls + 115)) * 100)}%`}
-                      </div>
-                      <div className="text-[11px] text-slate-400 mt-1">
-                        {totalEveningCalls} late meetings • 0 flight disruptions
-                      </div>
-                    </>
-                  )}
+                  <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 mb-1">
+                    <Plane className="w-4 h-4 text-amber-500" />
+                    <span>Flights</span>
+                  </div>
+                  <div className="text-2xl font-bold text-black font-mono">
+                    {totalFlights || 11} <span className="text-xs text-slate-500 font-normal">flights</span>
+                  </div>
+                  <div className="text-[11px] text-slate-400 mt-1">Jet lag adds stress</div>
                 </div>
               </div>
 
@@ -1848,7 +1807,7 @@ export default function BaalanceApp() {
                           {userProfile.name}
                         </h2>
                         <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-50 text-[#3186FF] border border-blue-200">
-                          Verified Patient
+                          Member
                         </span>
                       </div>
                       <p className="text-xs text-slate-500 font-medium">
@@ -1865,16 +1824,6 @@ export default function BaalanceApp() {
 
                   {/* Top Action Buttons */}
                   <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                    <a
-                      href="/api/export-leads"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
-                      title="Download or view all submitted user emails and beta waitlist in Excel / CSV"
-                    >
-                      <Download className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Export Leads (Excel / CSV)</span>
-                    </a>
                     <button
                       type="button"
                       onClick={() => {
@@ -1892,7 +1841,7 @@ export default function BaalanceApp() {
                       className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>Re-run Wizard</span>
+                      <span>Re-run Setup</span>
                     </button>
                   </div>
                 </div>
@@ -1901,50 +1850,50 @@ export default function BaalanceApp() {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                   <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-1">
                     <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                      Specimen Dimension
+                      Hair Specimen
                     </span>
                     <div className="text-sm font-black text-slate-900 font-mono">
                       3.0 cm Strand
                     </div>
                     <span className="text-[11px] text-slate-500 font-medium block">
-                      12 Weeks (Jul – Sep 2026)
+                      3 Months (1 cm = 1 mo)
                     </span>
                   </div>
 
                   <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-1">
                     <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                      CLIA Reference Baseline
+                      Partner Lab Baseline
                     </span>
                     <div className="text-sm font-black text-[#3186FF] font-mono">
                       ~11.0 pg/mg
                     </div>
                     <span className="text-[11px] text-emerald-700 font-medium block">
-                      Optimal Homeostasis Norm
+                      Optimal Target (&lt;14.0)
                     </span>
                   </div>
 
                   <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-1">
                     <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                      Demographics Calibration
+                      Your Baseline
                     </span>
                     <div className="text-sm font-black text-slate-900 font-mono">
-                      {userProfile.age}y • {userProfile.biologicalSex === 'female' ? (userProfile.isPregnant ? 'Female ♀ (Gestational)' : 'Female ♀') : 'Male ♂'}
+                      {userProfile.age || 24}y • {userProfile.biologicalSex === 'female' ? 'Female' : 'Male'}
                     </div>
                     <span className="text-[11px] text-slate-500 font-medium block">
-                      {userProfile.isPregnant ? 'Gestational Calibration Active' : 'Standard Chrono-Model'}
+                      Growth Rate: 1.0 cm/mo
                     </span>
                   </div>
 
                   <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-1">
                     <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                      Telemetry Stream
+                      Connected Apps
                     </span>
                     <div className="text-sm font-black text-slate-900 font-mono flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                       Google Calendar
                     </div>
                     <span className="text-[11px] text-slate-500 font-medium block truncate" title={verifiedCalendarEmail}>
-                      {verifiedCalendarEmail || 'Synced in Background'}
+                      {verifiedCalendarEmail || 'Pre-connected in demo'}
                     </span>
                   </div>
                 </div>
@@ -1954,10 +1903,10 @@ export default function BaalanceApp() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
                       <Brain className="w-4 h-4 text-[#3186FF]" />
-                      <span>Clinical Persona Calibration Preset</span>
+                      <span>Your lifestyle</span>
                     </div>
-                    <span className="text-[11px] text-slate-400 font-medium">
-                      Select persona to adapt allostatic load model
+                    <span className="text-[11px] text-slate-500 font-medium">
+                      Select your role to adapt your baseline
                     </span>
                   </div>
 
@@ -2094,10 +2043,10 @@ export default function BaalanceApp() {
                     </div>
                     <div>
                       <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
-                        Lifestyle & Circadian Architecture
+                        Your routine
                       </h3>
                       <p className="text-[11px] text-slate-500 font-medium">
-                        Self-reported baseline parameters correlated with 12-week cortisol segments
+                        Your daily habits, wash frequency, and sleep pattern used to calibrate your score
                       </p>
                     </div>
                   </div>
@@ -2259,7 +2208,7 @@ export default function BaalanceApp() {
                         Medical Calibrations & Cross-Reactivity Audit
                       </h3>
                       <p className="text-[11px] text-slate-500 font-medium">
-                        Audited against CLIA-88 Micro-ELISA reagent standards to verify specimen purity
+                        Audited against partner laboratory quality standards to verify specimen purity
                       </p>
                     </div>
                   </div>

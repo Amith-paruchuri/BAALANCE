@@ -54,7 +54,7 @@ export const CALENDAR_DEFENSE_RULES: CalendarDefenseRule[] = [
   {
     id: 'curfew',
     name: 'Evening Curfew Shield (Post-7:00 PM)',
-    badgeLabel: '7:00 PM Curfew Breach',
+    badgeLabel: 'Call After 7:00 PM',
     description: 'Decline or shift calls scheduled after 7:00 PM to protect evening boundaries and biological recovery.',
     colorClass: 'rose',
     badgeBg: 'bg-rose-50',

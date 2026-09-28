@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { LogOut, Sparkles, User, Play, Compass, HelpCircle, Building2, BookOpen } from 'lucide-react';
+import { LogOut, Sparkles, User, Play, Compass, HelpCircle, Building2 } from 'lucide-react';
 import { UserProfile } from '@/lib/types';
 import { BaalanceLogo } from './BaalanceLogo';
 import { DashboardTab } from './BottomNavigationBar';
@@ -55,16 +54,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          {/* Hair Collection Guide (Gemini Edition) */}
-          <Link
-            href="/collection-guide"
-            target="_blank"
-            className="hidden md:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 transition-all cursor-pointer shadow-2xs"
-            title="Read 18-page Hair Collection Guide Booklet (Gemini Edition)"
-          >
-            <BookOpen className="w-3.5 h-3.5 text-blue-600" />
-            <span>Kit Booklet ✦</span>
-          </Link>
 
           {/* How It Works Feature Guide Button */}
           {onOpenAppGuide && (
@@ -72,10 +61,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               type="button"
               onClick={onOpenAppGuide}
               className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-black text-white shadow-2xs transition-all cursor-pointer"
-              title="How It Works & Feature Guide for Judges"
+              title="60-Second Product Walkthrough for Judges"
             >
               <Compass className="w-3.5 h-3.5 text-blue-400" />
-              <span>How It Works</span>
+              <span>60s Tour</span>
             </button>
           )}
 

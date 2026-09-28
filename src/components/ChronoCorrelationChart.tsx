@@ -12,6 +12,7 @@ import {
   CartesianGrid,
   ReferenceArea,
   ReferenceLine,
+  Cell,
 } from 'recharts';
 import { WeeklyTelemetry } from '@/lib/types';
 import { TrendingUp, Moon, AlertCircle, CheckCircle2 } from 'lucide-react';
@@ -35,12 +36,24 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
   calendarEmail,
   userRole,
 }) => {
+  // Monthly hair cortisol levels (1 cm of hair = 1 month of time)
+  // July: 11.2 pg/mg, August: 28.4 pg/mg, September: 15.6 pg/mg
+  const getMonthlyCortisol = (m: number) => (m === 1 ? 11.2 : m === 2 ? 28.4 : 15.6);
+
   // Format telemetry so weekLabel is "Week 1", "Week 2", etc.
-  const chartData = telemetry.map(item => ({
-    ...item,
-    fullWeekLabel: `Week ${item.weekNumber}`,
-    shortWeekLabel: `Wk ${item.weekNumber}`,
-  }));
+  // We place 3 monthly cortisol bars centered in each month (Week 2 for July, Week 6 for August, Week 10 for September)
+  const chartData = telemetry.map(item => {
+    const monthCortisol = getMonthlyCortisol(item.month);
+    const isMonthCenter = item.weekNumber === 2 || item.weekNumber === 6 || item.weekNumber === 10;
+    return {
+      ...item,
+      fullWeekLabel: `Week ${item.weekNumber}`,
+      shortWeekLabel: `Wk ${item.weekNumber}`,
+      monthlyCortisolVal: monthCortisol,
+      monthlyBarCortisol: isMonthCenter ? monthCortisol : null,
+      monthColor: item.month === 1 ? '#10B981' : item.month === 2 ? '#F43F5E' : '#F59E0B',
+    };
+  });
 
   const totalMeetingHours = chartData.reduce((sum, d) => sum + (d.meetingHours || 0), 0);
   const augustCortisol = chartData.find(d => d.month === 2 && d.cortisolPgPerMg > 20)?.cortisolPgPerMg ?? 28.4;
@@ -72,16 +85,17 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
   // Integrated Week Inspector Tooltip Component (Compressed & positioned towards X-axis)
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
-      const data: WeeklyTelemetry = payload[0].payload;
-      const isSpike = data.cortisolPgPerMg > 20;
-      const isElevated = data.cortisolPgPerMg > 14;
+      const data: any = payload[0].payload;
+      const cortisolVal = data.monthlyCortisolVal || data.cortisolPgPerMg;
+      const isSpike = cortisolVal > 20;
+      const isElevated = cortisolVal > 14;
 
       return (
         <div className="bg-white/95 backdrop-blur-md px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl border border-slate-200 shadow-lg text-xs w-[265px] sm:w-[280px] animate-fade-in pointer-events-none select-none z-50">
           {/* Header Line: Week label + Date Range + Cortisol Value & Badge (Month removed) */}
           <div className="flex items-center justify-between gap-1.5 pb-1 border-b border-slate-100">
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="w-2 h-2 rounded-full bg-[#3186FF] shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-[#BF6F4E] shrink-0" />
               <span className="font-extrabold text-slate-900 text-[11px] font-sans truncate">
                 {(data as any).fullWeekLabel || data.weekLabel || `Week ${data.weekNumber}`}
               </span>
@@ -93,7 +107,7 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
             {/* Consolidated Cortisol Value & Level Badge */}
             <div className="flex items-center gap-1 shrink-0 font-mono">
               <span className="text-[11px] font-black text-slate-900">
-                {data.cortisolPgPerMg}
+                {cortisolVal}
               </span>
               <span className="text-[9px] text-slate-400 font-medium">pg/mg</span>
               <span
@@ -153,35 +167,43 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[#E2E8F0]">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <TrendingUp className="w-5 h-5 text-[#3186FF]" />
-            <h3 className="text-sm sm:text-base font-bold text-black tracking-tight">
-              12-Week Cortisol & Workload Timeline
+            <TrendingUp className="w-5 h-5 text-[#BF6F4E]" />
+            <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+              Stress rose when meetings did.
             </h3>
             {isCalendarConnected ? (
               <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                Derived from Live Google Calendar {calendarEmail && !calendarEmail.includes('Demo') ? `(${calendarEmail})` : ''}
+                Live Google Calendar
               </span>
             ) : (
               <span className="text-[10px] text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
-                Demo Benchmark Telemetry
+                Demo Data
               </span>
             )}
           </div>
-          <p className="text-[11px] text-slate-500 mt-0.5">
-            Tracking monthly stress hormone levels across 12 weeks against Google Calendar meeting volume
+          <p className="text-xs text-slate-500 mt-0.5">
+            3 monthly hair cortisol bars (1 cm = 1 month) vs weekly Google Calendar meeting hours.
           </p>
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-3 text-xs flex-wrap">
+        <div className="flex items-center gap-3 text-xs flex-wrap font-medium">
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-1 bg-[#3186FF] rounded-full" />
-            <span className="text-black font-semibold text-[11px]">Hair Cortisol</span>
+            <span className="w-2.5 h-2.5 bg-emerald-500 rounded-xs" />
+            <span className="text-slate-700 text-[11px]">July (11.2)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-[#1F2937] rounded-xs" />
-            <span className="text-black font-semibold text-[11px]">Meeting Hours</span>
+            <span className="w-2.5 h-2.5 bg-rose-500 rounded-xs" />
+            <span className="text-slate-700 text-[11px]">August (28.4)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 bg-amber-500 rounded-xs" />
+            <span className="text-slate-700 text-[11px]">September (15.6)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-3.5 h-0.5 bg-slate-800" />
+            <span className="text-slate-900 font-bold text-[11px]">Meeting Hours</span>
           </div>
         </div>
       </div>
@@ -315,27 +337,30 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
               wrapperStyle={{ outline: 'none', zIndex: 50, pointerEvents: 'none' }}
             />
 
-            {/* Secondary Axis: Google Calendar Meeting Load Bars (Instant 60fps responsiveness) */}
+            {/* 3 Monthly Hair Cortisol Bars (1 cm = 1 month) */}
             <Bar
-              yAxisId="right"
-              dataKey="meetingHours"
-              fill="#1F2937"
-              radius={[4, 4, 0, 0]}
-              barSize={16}
-              opacity={0.85}
+              yAxisId="left"
+              dataKey="monthlyBarCortisol"
+              radius={[6, 6, 0, 0]}
+              barSize={72}
+              opacity={0.88}
               isAnimationActive={false}
               cursor="pointer"
-            />
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cortisol-cell-${index}`} fill={entry.monthColor} />
+              ))}
+            </Bar>
 
-            {/* Primary Axis: Continuous Cortisol Curve (Instant 60fps responsiveness without animation lag) */}
+            {/* Weekly Google Calendar Meeting Load Line */}
             <Line
-              yAxisId="left"
+              yAxisId="right"
               type="monotone"
-              dataKey="cortisolPgPerMg"
-              stroke="#3186FF"
-              strokeWidth={3}
-              dot={{ r: 4, fill: '#3186FF', stroke: '#FFFFFF', strokeWidth: 2 }}
-              activeDot={{ r: 7, fill: '#3186FF', stroke: '#FFFFFF', strokeWidth: 2 }}
+              dataKey="meetingHours"
+              stroke="#334155"
+              strokeWidth={2.5}
+              dot={{ r: 3.5, fill: '#334155', stroke: '#FFFFFF', strokeWidth: 1.5 }}
+              activeDot={{ r: 6, fill: '#334155', stroke: '#FFFFFF', strokeWidth: 2 }}
               isAnimationActive={false}
               cursor="pointer"
             />

@@ -60,20 +60,20 @@ export const EnterpriseInterventionsPanel: React.FC<EnterpriseInterventionsPanel
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-xs space-y-5">
+    <div id="interventions-panel" className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-xs space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
             <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
-              Clinical & Institutional Interventions
+              Recommended Interventions
             </span>
           </div>
           <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-            Tailored Cohort Action Plans
+            Tailored Team Action Plans
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Targeted systemic policies engineered to lower chronic follicular cortisol in high-strain units.
+            Practical changes to work patterns engineered to lower chronic stress at the next 8-week re-test.
           </p>
         </div>
 
@@ -137,10 +137,10 @@ export const EnterpriseInterventionsPanel: React.FC<EnterpriseInterventionsPanel
               {/* Rationale & Action Protocol */}
               <div className="space-y-1.5 text-xs text-slate-600 bg-white/80 p-3 rounded-xl border border-slate-100">
                 <p>
-                  <strong className="text-slate-900">Clinical Rationale:</strong> {item.rationale}
+                  <strong className="text-slate-900">Why this works:</strong> {item.rationale}
                 </p>
                 <p>
-                  <strong className="text-slate-900">Protocol:</strong> {item.actionProtocol}
+                  <strong className="text-slate-900">What changes:</strong> {item.actionProtocol}
                 </p>
               </div>
 
@@ -156,7 +156,7 @@ export const EnterpriseInterventionsPanel: React.FC<EnterpriseInterventionsPanel
                   }`}
                 >
                   <Play className={`w-3 h-3 ${isSimulated ? 'fill-white' : ''}`} />
-                  <span>{isSimulated ? 'Simulating Dynamic Nadir...' : 'Simulate Biological Impact'}</span>
+                  <span>{isSimulated ? 'Simulating 8-week recovery...' : 'Simulate 8-Week Impact'}</span>
                 </button>
 
                 <button
@@ -172,11 +172,11 @@ export const EnterpriseInterventionsPanel: React.FC<EnterpriseInterventionsPanel
                   {isDeployed ? (
                     <>
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Policy Active & Enforced</span>
+                      <span>Added to Plan</span>
                     </>
                   ) : (
                     <>
-                      <span>Deploy Institutional Policy</span>
+                      <span>Add to Plan</span>
                       <ArrowRight className="w-3 h-3" />
                     </>
                   )}
