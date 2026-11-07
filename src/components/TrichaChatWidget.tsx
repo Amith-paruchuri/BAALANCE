@@ -68,26 +68,25 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
   const userEmailClean = userProfile?.email ? userProfile.email.toLowerCase().trim() : 'guest_demo';
   const storageKey = `baalance_tricha_messages_${userEmailClean}`;
 
-  const getDefaultMessages = (): ChatMessage[] => [
-    {
-      id: 'demo-msg-1',
-      role: 'model',
-      text: `Hi ${firstName}! I'm Tricha, your personal stress & recovery guide powered by Google Gemini.\n\nI've analyzed your 90-day hair cortisol timeline alongside your calendar workload. Your 3-month stress score is **78 / 100** (High Stress), with a major biological surge in August at **28.4 pg/mg** (+154% above baseline).\n\nAsk me anything about what triggered your stress or what changes will speed up recovery!`,
-      timestamp: '2 mins ago',
-    },
-    {
-      id: 'demo-msg-2',
-      role: 'user',
-      text: 'Why did my stress spike so high in August?',
-      timestamp: '1 min ago',
-    },
-    {
-      id: 'demo-msg-3',
-      role: 'model',
-      text: `Here is the biological breakdown of your August spike:\n\n• **57 calls after 7 PM**: Late meetings repeatedly breached your evening recovery window, preventing your nervous system from down-regulating at night.\n• **33 meeting hours / week**: Workload surged to 42 hours/week in August, doubling your baseline meeting load.\n• **11 cross-timezone flights**: Frequent jet lag disrupted your circadian rhythm right during peak deadlines.\n\n**Recovery Outlook**: Hair from September shows cortisol dropping down to **15.6 pg/mg**. Protecting your evenings past 7 PM is projected to bring your score below 35 at your 8-week re-test.`,
-      timestamp: 'Just now',
-    },
-  ];
+  const getDefaultMessages = (): ChatMessage[] => {
+    const peak = (segments || []).reduce<HairCortisolSegment | null>(
+      (top, seg) => (!top || seg.cortisolPgPerMg > top.cortisolPgPerMg ? seg : top),
+      null
+    );
+    const month = peak ? ['July', 'August', 'September'][peak.id - 1] : '';
+    const hello = userProfile?.isDemo ? 'Hi!' : `Hi ${firstName}!`;
+    const finding = peak
+      ? `Your hair cortisol peaked at **${peak.cortisolPgPerMg.toFixed(1)} pg/mg** in ${month}.`
+      : 'Add your hair test to see your 3-month stress.';
+    return [
+      {
+        id: 'welcome',
+        role: 'model',
+        text: `${hello} I'm Tricha, your stress coach. ${finding}\n\nAsk me what caused it, or how to recover.`,
+        timestamp: 'Just now',
+      },
+    ];
+  };
 
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     if (typeof window !== 'undefined') {
@@ -288,7 +287,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                 )}
               </div>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                AI health guide for your hair cortisol, calendar workload, and circadian recovery
+                Your stress and recovery coach
               </p>
             </div>
           </div>

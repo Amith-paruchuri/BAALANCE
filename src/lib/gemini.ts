@@ -70,8 +70,8 @@ SCORING & SYNTHESIS TASK:
    - Your score MUST dynamically adapt to the cumulative biological and workload telemetry.
 2. "allostaticCategory": "High Burnout Zone" | "Moderate Strain Zone" | "Optimal Homeostasis"
 3. "strainLevel": "Mild" | "Moderate" | "High" | "Severe"
-4. "rootCauseCulprit": A plain-English cumulative diagnosis for the entire 90-day window (2-3 concise sentences). Express all findings cumulatively across the entire 90-day period rather than month-by-month. NEVER use markdown asterisks (* or **). NO biology buzzwords like "HPA-axis", "sympathoadrenal", "hysteresis", "hypercortisolemia", or "homeostasis". Focus on the cumulative culprits: total late meetings past 7 PM, cross-timezone flights, and sustained deep sleep debt.
-5. "protocols": 3 tailored recovery action items (Circadian, Calendar Defense, Hair Specimen Audit).
+4. "rootCauseCulprit": A plain-English cumulative diagnosis for the entire 90-day window (at most 2 short sentences, under 35 words total). Express all findings cumulatively across the entire 90-day period rather than month-by-month. NEVER use markdown asterisks (* or **). NO biology buzzwords like "HPA-axis", "sympathoadrenal", "hysteresis", "hypercortisolemia", or "homeostasis". Focus on the cumulative culprits: total late meetings past 7 PM, cross-timezone flights, and sustained deep sleep debt.
+5. "protocols": 3 tailored recovery action items (Circadian, Calendar Defense, Hair Specimen Audit). Keep "title" under 4 words, "description" under 8 words, each action item under 10 words in plain language, and "impactMetric" under 8 words.
 
 Return ONLY a valid JSON object matching this schema without markdown code fences or conversational preamble:
 {

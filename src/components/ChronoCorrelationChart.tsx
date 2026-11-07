@@ -178,12 +178,12 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
               </span>
             ) : (
               <span className="text-[10px] text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
-                Demo Data
+                Sample data
               </span>
             )}
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            3 monthly hair cortisol bars (1 cm = 1 month) vs weekly meeting hours from your calendar.
+            Bars: monthly hair cortisol. Line: weekly meeting hours.
           </p>
         </div>
 

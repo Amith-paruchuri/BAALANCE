@@ -1336,7 +1336,7 @@ export default function BaalanceApp() {
                 activeSegmentId={activeSegmentId}
                 onSelectSegment={(id) => setActiveSegmentId(id)}
                 onUpdateSegment={handleUpdateSegment}
-                onLoadSurgeScenario={handleLoadSurgeScenario}
+                onLoadSurgeScenario={userProfile.isDemo ? handleLoadSurgeScenario : undefined}
               />
 
               {/* 2. UNIFIED 3-MONTH STRESS SCORE CARD (HAIR BIOMARKER + CALENDAR WORKLOAD) */}
@@ -1407,11 +1407,8 @@ export default function BaalanceApp() {
                           </div>
                         </div>
                         <div>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                            Integrated 90-Day Synthesis
-                          </span>
-                          <h2 className="text-xl sm:text-2xl font-black text-black tracking-tight leading-none mt-0.5">
-                            Your 3-Month Stress Score
+                          <h2 className="text-xl sm:text-2xl font-black text-black tracking-tight leading-none">
+                            Your stress score
                           </h2>
                         </div>
                       </div>
@@ -1506,17 +1503,8 @@ export default function BaalanceApp() {
                           </span>
                         </div>
 
-                        {/* Optimal Range Target Pill */}
-                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs">
-                          <div className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-semibold flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                            <span>Healthy Target: <strong>Below 35</strong></span>
-                          </div>
-                        </div>
-
-                        {/* Plain-English Synthesis Narrative */}
-                        <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
-                          Based on your 3-month hair cortisol test and your calendar workload. Hair keeps a 90-day record of stress hormones.
+                        <p className="text-xs text-slate-500">
+                          Hair cortisol + calendar, last 90 days. Healthy is below 35.
                         </p>
                       </div>
                     </div>
@@ -1524,8 +1512,7 @@ export default function BaalanceApp() {
                     {/* UNIFIED 4-ZONE VISUAL SPECTRUM BAR WITH NEEDLE PIN */}
                     <div className="pt-2 pb-1 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80 space-y-2">
                       <div className="flex items-center justify-between text-xs font-bold text-black px-0.5">
-                        <span className="text-slate-800">Stress Severity Scale</span>
-                        <span className="text-emerald-700 font-bold text-[11px]">Healthy: Below 35</span>
+                        <span className="text-slate-800">Where you stand</span>
                       </div>
 
                       {/* Needle Marker with Floating Tooltip */}
@@ -1553,19 +1540,19 @@ export default function BaalanceApp() {
                       <div className="flex justify-between text-[11px] pt-1 px-1 font-medium select-none">
                         <span className="flex items-center gap-1.5 text-emerald-700 font-bold">
                           <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                          0–35 Healthy
+                          Healthy
                         </span>
                         <span className="flex items-center gap-1.5 text-blue-700 font-bold">
                           <span className="w-2 h-2 rounded-full bg-blue-500" />
-                          36–60 Manageable
+                          OK
                         </span>
                         <span className="flex items-center gap-1.5 text-orange-700 font-bold">
                           <span className="w-2 h-2 rounded-full bg-orange-500" />
-                          61–80 High Stress
+                          High
                         </span>
                         <span className="flex items-center gap-1.5 text-rose-700 font-bold">
                           <span className="w-2 h-2 rounded-full bg-rose-500" />
-                          81–100 Burnout
+                          Burnout
                         </span>
                       </div>
                     </div>
@@ -1587,7 +1574,10 @@ export default function BaalanceApp() {
                           </div>
                         </div>
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border text-rose-700 bg-rose-50 border-rose-200">
-                          Peak in August (28.4)
+                          {(() => {
+                            const top = segments.reduce((a, b) => (b.cortisolPgPerMg > a.cortisolPgPerMg ? b : a), segments[0]);
+                            return top ? `Peak ${['Jul', 'Aug', 'Sep'][top.id - 1]}: ${top.cortisolPgPerMg.toFixed(1)}` : '';
+                          })()}
                         </span>
                       </div>
 
@@ -1604,7 +1594,7 @@ export default function BaalanceApp() {
                           </div>
                         </div>
                         <span className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
-                          Biggest Stress Driver
+                          Top driver
                         </span>
                       </div>
 
@@ -1621,7 +1611,7 @@ export default function BaalanceApp() {
                           </div>
                         </div>
                         <span className="text-[10px] font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
-                          391 total hours
+                          {Math.round(totalMeetingHours)} h total
                         </span>
                       </div>
                     </div>
@@ -1634,10 +1624,10 @@ export default function BaalanceApp() {
                     >
                       <div className="flex items-center gap-2">
                         <Info className="w-4 h-4 text-[#3186FF]" />
-                        <span>How we calculated this</span>
+                        <span>How is this calculated?</span>
                       </div>
                       <div className="flex items-center gap-1.5 text-[#3186FF] font-bold">
-                        <span>{showScoreDerivation ? 'Hide Details' : 'View Breakdown & Root Cause'}</span>
+                        <span>{showScoreDerivation ? 'Hide' : 'Show'}</span>
                         {showScoreDerivation ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </div>
                     </button>
@@ -1676,7 +1666,7 @@ export default function BaalanceApp() {
                             </h4>
                           </div>
                           <p className="text-xs leading-relaxed">
-                            {synthesis.rootCauseCulprit || `High cortisol accumulation was the biological consequence. The primary trigger was ${totalEveningCalls} late meetings scheduled past 7:00 PM and ${totalFlights} flight disruptions that repeatedly breached evening recovery boundaries.`}
+                            {synthesis.rootCauseCulprit || `Main cause: ${totalEveningCalls} meetings after 7 PM and ${totalFlights} flights cut into your evening recovery.`}
                           </p>
                         </div>
                       </div>
@@ -1972,7 +1962,7 @@ export default function BaalanceApp() {
                       <span>Your lifestyle</span>
                     </div>
                     <span className="text-[11px] text-slate-500 font-medium">
-                      Select your role to adapt your baseline
+                      Pick your role
                     </span>
                   </div>
 
@@ -2112,7 +2102,7 @@ export default function BaalanceApp() {
                         Your routine
                       </h3>
                       <p className="text-[11px] text-slate-500 font-medium">
-                        Your daily habits, wash frequency, and sleep pattern used to calibrate your score
+                        Habits that affect your score
                       </p>
                     </div>
                   </div>
@@ -2271,47 +2261,38 @@ export default function BaalanceApp() {
                     </div>
                     <div>
                       <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
-                        Medical Calibrations & Cross-Reactivity Audit
+                        Health and medicines
                       </h3>
                       <p className="text-[11px] text-slate-500 font-medium">
-                        Audited against partner laboratory quality standards to verify specimen purity
+                        Some conditions and steroid medicines change cortisol results.
                       </p>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                    ✓ Reagent Purity Verified
-                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
                     <div className="flex items-center gap-2 text-xs font-extrabold text-slate-900">
                       <HeartPulse className="w-4 h-4 text-emerald-600" />
-                      <span>Pre-Existing Health Conditions</span>
+                      <span>Conditions</span>
                     </div>
                     <div className="text-xs font-semibold text-slate-800 bg-white p-3 rounded-xl border border-slate-200/70">
                       {(userProfile.healthConditions && userProfile.healthConditions.length > 0 && userProfile.healthConditions[0] !== 'none')
                         ? userProfile.healthConditions.map(c => c.replace(/_/g, ' ')).join(', ')
-                        : 'None (No diagnosed chronic metabolic or endocrine conditions)'}
+                        : 'None'}
                     </div>
-                    <p className="text-[11px] text-slate-500 font-medium">
-                      Baseline hair cortisol algorithm normalizes against endocrine variants (Cushing's, Addison's, Gestation).
-                    </p>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
                     <div className="flex items-center gap-2 text-xs font-extrabold text-slate-900">
                       <Pill className="w-4 h-4 text-[#3186FF]" />
-                      <span>Daily Prescriptions & Medications</span>
+                      <span>Medicines</span>
                     </div>
                     <div className="text-xs font-semibold text-slate-800 bg-white p-3 rounded-xl border border-slate-200/70">
                       {(userProfile.medications && userProfile.medications.length > 0 && userProfile.medications[0] !== 'none')
                         ? userProfile.medications.map(m => m.replace(/_/g, ' ')).join(', ')
-                        : 'None (No synthetic steroid or corticosteroid medications)'}
+                        : 'None'}
                     </div>
-                    <p className="text-[11px] text-slate-500 font-medium">
-                      Specimen confirmed free of hydrocortisone, prednisone, or dexamethasone cross-reactivity.
-                    </p>
                   </div>
                 </div>
               </div>
@@ -2325,10 +2306,10 @@ export default function BaalanceApp() {
                     </div>
                     <div>
                       <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
-                        Cloud Storage & Patient Data Custody
+                        Your data
                       </h3>
                       <p className="text-[11px] text-slate-500 font-medium">
-                        Encrypted clinical biomarker data synchronized across cloud and local storage
+                        Saved to your account. Only you can see it.
                       </p>
                     </div>
                   </div>

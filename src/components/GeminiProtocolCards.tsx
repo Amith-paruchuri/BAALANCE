@@ -83,17 +83,11 @@ export const GeminiProtocolCards = React.memo<GeminiProtocolCardsProps>(({
       {/* Header: Executive Recovery Architecture */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#3186FF]" />
-              <span>Your 3-Step Recovery Plan</span>
-            </span>
-          </div>
           <h3 className="text-base sm:text-lg font-black text-black tracking-tight mt-0.5">
             Your 3-Step Plan
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Clear, practical steps to protect your evenings and lower cortisol before your 8-week re-test.
+            Three steps before your re-test in 8 weeks.
           </p>
         </div>
 
@@ -104,7 +98,7 @@ export const GeminiProtocolCards = React.memo<GeminiProtocolCardsProps>(({
           className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-xs font-bold text-[#3186FF] border border-[#E2E8F0] shadow-2xs hover:shadow-xs transition-all active:scale-95 cursor-pointer self-start sm:self-auto shrink-0"
         >
           <Sparkles className={`w-3.5 h-3.5 ${isSynthesizing ? 'animate-spin' : ''}`} />
-          <span>{isSynthesizing ? 'Gemini AI Updating...' : 'Refresh Plan'}</span>
+          <span>{isSynthesizing ? 'Updating…' : 'Refresh plan'}</span>
         </button>
       </div>
 
@@ -144,16 +138,12 @@ export const GeminiProtocolCards = React.memo<GeminiProtocolCardsProps>(({
                   </span>
                 </div>
 
-                {/* Subtitle / Objective Description */}
-                <p className="text-xs text-slate-600 mb-3.5 leading-relaxed">
-                  {protocol.description}
-                </p>
 
                 {/* Action Items List with Interactive Micro-Checklist (max 2 visible) */}
                 <div className="space-y-2 mb-4 flex-1">
                   <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500 px-0.5">
-                    <span>Key Actions</span>
-                    <span className="text-slate-400 font-medium">Click to check off</span>
+                    <span>To do</span>
+                    <span className="text-slate-400 font-medium normal-case">Tap when done</span>
                   </div>
 
                   <div className="space-y-1.5">
@@ -162,10 +152,12 @@ export const GeminiProtocolCards = React.memo<GeminiProtocolCardsProps>(({
                       const isDone = !!completedSteps[itemKey];
 
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={idx}
                           onClick={() => toggleStep(itemKey)}
-                          className={`p-2 rounded-xl border transition-all cursor-pointer flex items-start gap-2.5 text-xs ${
+                          aria-pressed={isDone}
+                          className={`w-full p-2 rounded-xl border transition-all cursor-pointer flex items-start gap-2.5 text-xs ${
                             isDone
                               ? 'bg-emerald-50/50 border-emerald-200 text-slate-500 line-through'
                               : 'bg-slate-50/70 hover:bg-slate-100/80 border-slate-200/70 text-slate-800'
@@ -184,8 +176,8 @@ export const GeminiProtocolCards = React.memo<GeminiProtocolCardsProps>(({
                               <span className="text-[9px] font-bold font-mono text-slate-400">{idx + 1}</span>
                             )}
                           </div>
-                          <span className="leading-snug text-[11px] select-none">{item}</span>
-                        </div>
+                          <span className="leading-snug text-xs select-none text-left line-clamp-2">{item}</span>
+                        </button>
                       );
                     })}
                   </div>
@@ -194,14 +186,6 @@ export const GeminiProtocolCards = React.memo<GeminiProtocolCardsProps>(({
 
               {/* Bottom Section: Impact Metric & Uniform Aligned Action Row */}
               <div className="p-4 sm:p-5 pt-0 space-y-2.5">
-                {/* Clinical Impact Pill */}
-                <div className="text-[11px] font-medium text-emerald-950 bg-gradient-to-r from-emerald-50 to-teal-50/60 p-2.5 rounded-xl border border-emerald-200/70 flex items-center gap-2 shadow-2xs">
-                  <div className="w-5 h-5 rounded-lg bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                    <Sparkles className="w-3 h-3" />
-                  </div>
-                  <span className="leading-tight">{protocol.impactMetric}</span>
-                </div>
-
                 {/* Pillar Specific Bottom Action (Uniform Height Across All 3 Cards) */}
                 {protocol.category === 'circadian' && (
                   <button

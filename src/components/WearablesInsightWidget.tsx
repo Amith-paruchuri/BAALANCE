@@ -91,7 +91,7 @@ export const WearablesInsightWidget: React.FC<WearablesInsightWidgetProps> = ({
             Coming soon: watch + hair
           </h2>
           <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-medium max-w-2xl">
-            Your watch shows today&apos;s stress. Your hair shows the last 3 months. Together, the full picture.
+            Watch = today. Hair = last 3 months.
           </p>
         </div>
 
@@ -103,7 +103,7 @@ export const WearablesInsightWidget: React.FC<WearablesInsightWidgetProps> = ({
             </div>
             <div className="text-xs font-black text-slate-900">Your Watch</div>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              Tracks today&apos;s heart rate, sleep quality, and daily energy spikes in real time.
+              Heart rate and sleep, live.
             </p>
           </div>
 
@@ -113,7 +113,7 @@ export const WearablesInsightWidget: React.FC<WearablesInsightWidgetProps> = ({
             </div>
             <div className="text-xs font-black text-slate-900">Your Hair</div>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              Provides the indelible 90-day biological receipt that one good night of sleep cannot fake.
+              A 90-day record one good night can&apos;t fake.
             </p>
           </div>
 
@@ -121,9 +121,9 @@ export const WearablesInsightWidget: React.FC<WearablesInsightWidgetProps> = ({
             <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
               <Sparkles className="w-4 h-4 text-emerald-600" />
             </div>
-            <div className="text-xs font-black text-slate-900">Google Gemini</div>
+            <div className="text-xs font-black text-slate-900">BAALANCE AI</div>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              Connects the dots between your calendar, your day, and your biological recovery.
+              Links your calendar to your recovery.
             </p>
           </div>
         </div>

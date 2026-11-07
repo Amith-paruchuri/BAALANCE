@@ -9,7 +9,7 @@ interface InteractiveHairStrandViewerProps {
   activeSegmentId: 1 | 2 | 3;
   onSelectSegment: (id: 1 | 2 | 3) => void;
   onUpdateSegment: (id: 1 | 2 | 3, value: number) => void;
-  onLoadSurgeScenario: () => void;
+  onLoadSurgeScenario?: () => void;
 }
 
 export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewerProps>(({
@@ -36,7 +36,7 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
     referenceBaseline: 11.0,
     status: 'baseline' as const,
     clinicalStatusLabel: 'Normal Baseline',
-    clinicalNote: 'Standard 25h weekly meetings and regular calendar schedule kept stress in a healthy, balanced range.',
+    clinicalNote: 'Normal week. Stress in the healthy range.',
   };
   // August: Mid-Shaft (1.0–2.0 cm, 30–60 Days Ago) -> Maps to Weeks 5 to 8 (id: 2)
   const segAugust = segments.find(s => s.id === 2) || {
@@ -106,21 +106,21 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
   };
 
   const getJulyDescription = (val: number) => {
-    if (val > 20) return 'Elevated historic stress baseline with heavy quarterly kickoff commitments and travel disruptions.';
-    if (val > 14) return 'Mildly elevated baseline workload with early project sprints and minor schedule friction.';
-    return 'Standard 25h weekly meetings and regular calendar schedule kept stress in a healthy, balanced range.';
+    if (val > 20) return 'Already high. Heavy workload and travel.';
+    if (val > 14) return 'Slightly raised. Busy, but manageable.';
+    return 'Normal week. Stress in the healthy range.';
   };
 
   const getAugustDescription = (val: number) => {
-    if (val > 20) return 'Peak workload crunch with high meeting density and 11 late calls after 7 PM caused severe stress spikes.';
-    if (val > 14) return 'Moderately elevated workload with sporadic evening calls caused schedule friction and intermediate cortisol climb.';
-    return 'Standard balanced schedule with protected evening hours kept cortisol comfortably in the healthy baseline zone.';
+    if (val > 20) return 'Spike. Many meetings and 11 calls after 7 PM.';
+    if (val > 14) return 'Raised. Some evening calls crept in.';
+    return 'Balanced. Evenings stayed free.';
   };
 
   const getSeptemberDescription = (val: number) => {
-    if (val > 20) return 'Active stress spike continues. Heavy meeting load and late calls past 7 PM are sustaining elevated cortisol.';
-    if (val > 14) return 'Daytime meetings dropped by 32%, but taking 4 late calls/week after 7 PM delayed full biological recovery.';
-    return 'Workload returned to healthy baseline; minimal evening calls and restored calendar boundaries brought cortisol back to baseline.';
+    if (val > 20) return 'Still high. Late calls keep it up.';
+    if (val > 14) return 'Recovering, slowed by 4 late calls a week.';
+    return 'Back to normal. Evenings protected.';
   };
 
   // Physical orientation:
@@ -166,6 +166,10 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
     },
   ];
 
+  const peak = segmentList.reduce((a, b) => (b.seg.cortisolPgPerMg > a.seg.cortisolPgPerMg ? b : a));
+  const peakValue = peak.seg.cortisolPgPerMg;
+  const peakIsHigh = peakValue >= 14;
+
   return (
     <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-4 sm:p-6 transition-all font-sans space-y-4">
       {/* Top Hero Headline Banner */}
@@ -176,16 +180,15 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-700 bg-rose-100/90 px-2 py-0.5 rounded-full border border-rose-200">
-                Primary Finding
-              </span>
-              <span className="text-[11px] font-bold text-slate-500">90-Day Hair Timeline</span>
+              <span className="text-[11px] font-bold text-slate-500">Your 90-day hair timeline</span>
             </div>
             <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-0.5">
-              Your stress spiked in August.
+              {peakIsHigh ? `Your stress peaked in ${peak.monthTitle}.` : 'Your stress stayed healthy.'}
             </h2>
             <p className="text-xs text-slate-600 mt-0.5 font-medium">
-              Hair cortisol surged to 28.4 pg/mg (+154% above baseline) during peak late calls and travel crunch.
+              {peakIsHigh
+                ? `${peakValue.toFixed(1)} pg/mg, ${peak.surgePercent}. Tap a month for details.`
+                : 'All three months were below 14 pg/mg.'}
             </p>
           </div>
         </div>
@@ -202,7 +205,6 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
         <div className="flex items-center gap-2 flex-wrap text-xs font-bold text-slate-700">
           <span className="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200">1 cm = 30 Days</span>
           <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">Healthy: below 14.0 pg/mg</span>
-          <span className="text-slate-400 font-normal">Click any month to inspect</span>
         </div>
 
         {/* Header Actions */}
@@ -214,16 +216,18 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
             title="Read more on Cortisol trapping in hair"
           >
             <BookOpen className="w-3.5 h-3.5 text-[#3186FF]" />
-            <span>How Hair Traps Cortisol</span>
+            <span>How it works</span>
           </button>
+          {onLoadSurgeScenario && (
           <button
             onClick={onLoadSurgeScenario}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-xs font-bold text-[#3186FF] border border-blue-200 transition-colors cursor-pointer shadow-2xs shrink-0"
             title="Reset to 90-day workload surge benchmark"
           >
             <Sparkles className="w-3.5 h-3.5 text-[#3186FF]" />
-            <span>Reset Demo Case</span>
+            <span>Reset sample</span>
           </button>
+          )}
         </div>
       </div>
 
@@ -852,24 +856,6 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
             );
           })}
         </div>
-      </div>
-
-      {/* SLEEK BIOLOGICAL TRAPPING ACTION BANNER */}
-      <div className="mt-3.5 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <span className="w-2 h-2 rounded-full bg-[#3186FF] animate-pulse shrink-0" />
-          <span className="font-semibold text-slate-700">Daily Trapping Science:</span>
-          <span className="text-[11px] sm:text-xs">Cortisol is continuously sealed into hair keratin 24/7 as the shaft grows ~1cm/month.</span>
-        </div>
-        <button
-          type="button"
-          onClick={() => setIsTrappingModalOpen(true)}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#3186FF] text-xs font-bold border border-blue-200 transition-all cursor-pointer shadow-2xs hover:shadow-xs shrink-0"
-        >
-          <BookOpen className="w-3.5 h-3.5" />
-          <span>Read more on Cortisol trapping</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </button>
       </div>
 
       {/* ENGAGING CORTISOL TRAPPING EXPLAINER MODAL */}
