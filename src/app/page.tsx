@@ -83,23 +83,29 @@ export default function BaalanceApp() {
   // 'wizard' = 4-step real functional user onboarding (First Login only)
   // 'dashboard' = full retrospective diagnostic platform (Shown once authenticated or demo clicked)
   // 'enterprise' = Slack-style institutional workspaces (Schools, Hospitals, Corporates)
-  const [appStage, setAppStage] = useState<'auth' | 'wizard' | 'dashboard' | 'enterprise'>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('mode') === 'enterprise' || params.get('enterprise') === 'true') {
-        return 'enterprise';
-      }
-      if (params.get('demo') === 'true' || params.get('mode') === 'demo') {
-        return 'dashboard';
-      }
-      const activeEmail = localStorage.getItem('baalance_active_user_email');
-      const cached = loadCachedUserData();
-      if (activeEmail && cached?.profile?.email && !cached?.profile?.isDemo) {
-        return 'dashboard';
-      }
+  // Always 'auth' on the server and the first client render (avoids a hydration mismatch);
+  // the real stage is resolved after mount from the URL and the Supabase session.
+  const [appStage, setAppStage] = useState<'auth' | 'wizard' | 'dashboard' | 'enterprise'>('auth');
+  const [isStageResolved, setIsStageResolved] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'enterprise' || params.get('enterprise') === 'true') {
+      setAppStage('enterprise');
+      setIsStageResolved(true);
+      return;
     }
-    return 'auth';
-  });
+    if (params.get('demo') === 'true' || params.get('mode') === 'demo') {
+      setIsStageResolved(true); // the restore effect below opens the demo
+      return;
+    }
+    // A returning user: wait briefly for the session check instead of flashing the landing page.
+    if (localStorage.getItem('baalance_active_user_email')) {
+      const timer = setTimeout(() => setIsStageResolved(true), 2500);
+      return () => clearTimeout(timer);
+    }
+    setIsStageResolved(true);
+  }, []);
 
   // Enterprise Workspace State
   const [enterpriseOrgId, setEnterpriseOrgId] = useState<string>('apollo-health');
@@ -653,7 +659,8 @@ export default function BaalanceApp() {
           // No verified session: never show a previously cached account.
           localStorage.removeItem('baalance_active_user_email');
         }
-      }).catch(() => {});
+        setIsStageResolved(true);
+      }).catch(() => setIsStageResolved(true));
 
       const { data } = supabase.auth.onAuthStateChange((event, session) => {
         if (
@@ -1173,6 +1180,15 @@ export default function BaalanceApp() {
   }
 
   // STAGE 0: ENTERPRISE & INSTITUTIONAL WORKSPACE MODE
+  if (!isStageResolved) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F0F4FA]" aria-busy="true">
+        <div className="w-8 h-8 rounded-full border-2 border-[#3186FF] border-t-transparent animate-spin" />
+        <span className="sr-only">Loading BAALANCE</span>
+      </div>
+    );
+  }
+
   if (appStage === 'enterprise') {
     return (
       <PhoneSimulatorFrame
@@ -1266,6 +1282,23 @@ export default function BaalanceApp() {
           onOpenEnterprise={() => setAppStage('enterprise')}
           onSignOut={handleSignOut}
         />
+
+        {demoMode && userProfile.isDemo && (
+          <div className="bg-amber-50 border-b border-amber-200 font-sans">
+            <div className="max-w-6xl mx-auto px-3 sm:px-6 py-2 flex items-center justify-between gap-3">
+              <p className="text-[11px] sm:text-xs text-amber-900 leading-snug">
+                <strong>Sample case.</strong> These results are illustrative, not a real patient.
+              </p>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="shrink-0 text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-900 text-white hover:bg-black cursor-pointer"
+              >
+                Create your account
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Main Tabbed Content Area with padding for the fixed bottom bar */}
         <main className="max-w-6xl mx-auto px-3 sm:px-6 pt-4 pb-28 sm:pb-32 space-y-4 sm:space-y-5 flex-1 w-full font-sans">
@@ -1387,17 +1420,17 @@ export default function BaalanceApp() {
                         {isSynthesizing ? (
                           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-[#3186FF] text-xs font-bold animate-pulse shadow-2xs">
                             <Sparkles className="w-3.5 h-3.5 animate-spin text-[#3186FF]" />
-                            <span>Gemini AI Updating...</span>
+                            <span>Updating with AI…</span>
                           </div>
                         ) : (
                           <button
                             type="button"
                             onClick={handleTriggerSynthesis}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50/70 hover:bg-blue-100 border border-blue-200 text-[#3186FF] text-xs font-bold transition-all shadow-2xs cursor-pointer"
-                            title="Recalculate burnout score using Google Gemini"
+                            title="Recalculate the stress score with AI"
                           >
                             <Sparkles className="w-3.5 h-3.5" />
-                            <span>Gemini AI Synced</span>
+                            <span>Recalculate with AI</span>
                           </button>
                         )}
 
@@ -1483,7 +1516,7 @@ export default function BaalanceApp() {
 
                         {/* Plain-English Synthesis Narrative */}
                         <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
-                          Based on your 3-month hair cortisol test and your Google Calendar workload. Hair keeps an indelible 90-day biological record of stress hormones.
+                          Based on your 3-month hair cortisol test and your calendar workload. Hair keeps a 90-day record of stress hormones.
                         </p>
                       </div>
                     </div>
@@ -1695,7 +1728,7 @@ export default function BaalanceApp() {
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 font-mono mt-0.5 truncate max-w-xs sm:max-w-md">
-                      {verifiedCalendarEmail || 'Pre-connected in demo'}
+                      {verifiedCalendarEmail || (userProfile.isDemo ? 'Sample calendar' : 'Not connected yet')}
                     </p>
                   </div>
                 </div>
@@ -1729,7 +1762,7 @@ export default function BaalanceApp() {
                     className="px-3.5 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Calendar className="w-3.5 h-3.5" />
-                    <span>Sync Google Calendar</span>
+                    <span>Connect Outlook or Google</span>
                   </button>
                 </div>
               </div>
@@ -1840,7 +1873,7 @@ export default function BaalanceApp() {
                           {userProfile.name}
                         </h2>
                         <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-50 text-[#3186FF] border border-blue-200">
-                          Member
+                          {userProfile.isDemo ? 'Sample' : 'Member'}
                         </span>
                       </div>
                       <p className="text-xs text-slate-500 font-medium">
@@ -1922,11 +1955,11 @@ export default function BaalanceApp() {
                       Connected Apps
                     </span>
                     <div className="text-sm font-black text-slate-900 font-mono flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      Google Calendar
+                      <span className={`w-2 h-2 rounded-full ${verifiedCalendarEmail || userProfile.isDemo ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                      Calendar
                     </div>
                     <span className="text-[11px] text-slate-500 font-medium block truncate" title={verifiedCalendarEmail}>
-                      {verifiedCalendarEmail || 'Pre-connected in demo'}
+                      {verifiedCalendarEmail || (userProfile.isDemo ? 'Sample calendar' : 'Not connected yet')}
                     </span>
                   </div>
                 </div>
