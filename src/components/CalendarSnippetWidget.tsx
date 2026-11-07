@@ -115,7 +115,7 @@ export const DEFAULT_EVENTS: CalendarEventItem[] = [
     organizerEmail: 'sarah.jenkins@us-counterparts.com',
     organizerName: 'Sarah Jenkins (US Lead)',
     isUserOrganizer: false,
-    attendees: ['sarah.jenkins@us-counterparts.com', 'mark.davis@us-counterparts.com', 'amithparuchuri@gmail.com'],
+    attendees: ['sarah.jenkins@us-counterparts.com', 'mark.davis@us-counterparts.com', 'demo@baalance.in'],
   },
   {
     id: 'evt-sep-3',

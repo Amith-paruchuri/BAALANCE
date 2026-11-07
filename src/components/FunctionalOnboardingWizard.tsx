@@ -479,7 +479,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
       const res = await apiFetch('/api/calendar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: calendarEmail.trim() || 'amithparuchuri@gmail.com' }),
+        body: JSON.stringify({ email: calendarEmail.trim() }),
       });
       const data = await res.json();
       if (data.success) {

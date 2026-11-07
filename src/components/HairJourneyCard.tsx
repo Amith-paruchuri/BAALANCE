@@ -123,7 +123,7 @@ export const HairJourneyCard = React.memo<HairJourneyCardProps>(({
       date: 'Sep 18, 2026',
       time: '10:00 AM IST',
       description:
-        '90-day hair cortisol timeline mapped against Google Calendar meeting hours to isolate late evening calls behind biological strain.',
+        '90-day hair cortisol timeline mapped against calendar meeting hours to isolate late evening calls behind biological strain.',
       detailNote:
         'Cross-correlation isolated 57 late calls past 7:00 PM and heavy August meetings as the primary stress drivers.',
       icon: Sparkles,
