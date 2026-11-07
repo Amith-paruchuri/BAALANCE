@@ -39,7 +39,7 @@ import {
 } from '@/lib/types';
 import { computeDynamicSynthesis } from '@/lib/gemini';
 import { saveUserDataToStorage, loadCachedUserData, loadUserDataForEmail } from '@/lib/storageService';
-import { getSupabaseClient, signOutUser } from '@/lib/supabase';
+import { getSupabaseClient, signOutUser, getProviderCalendarToken } from '@/lib/supabase';
 import {
   Sparkles,
   Calendar,
@@ -75,6 +75,7 @@ import {
   Sun,
   Download,
 } from 'lucide-react';
+import { apiFetch } from '@/lib/apiFetch';
 
 export default function BaalanceApp() {
   // Navigation & Flow Stage
@@ -239,8 +240,8 @@ export default function BaalanceApp() {
 
     // Background Gemini AI synthesis to calculate real-time insights from updated schedule
     try {
-      const localApiKey = typeof window !== 'undefined' ? localStorage.getItem('baalance_gemini_api_key') : null;
-      fetch('/api/gemini-synthesis', {
+      const localApiKey = typeof window !== 'undefined' ? sessionStorage.getItem('baalance_gemini_api_key') : null;
+      apiFetch('/api/gemini-synthesis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -498,19 +499,21 @@ export default function BaalanceApp() {
 
   // Helper: Background Auto-Sync with Google Calendar via Secret Link
   const autoSyncCalendarAtRoot = async (
-    icalUrl: string,
+    source: string | { provider: 'google' | 'microsoft'; accessToken: string },
     email: string,
     currentProfile?: UserProfile,
     currentSegments?: HairCortisolSegment[],
     currentTelemetry?: WeeklyTelemetry[],
     force: boolean = false
   ) => {
-    if (!icalUrl || typeof icalUrl !== 'string' || !icalUrl.trim()) return;
-    const cleanUrl = icalUrl.trim();
-    if (cleanUrl.includes('@') && !cleanUrl.startsWith('http')) return; // ignore plain email
-    if (!force && autoSyncedRootUrlRef.current === cleanUrl) return;
-
-    autoSyncedRootUrlRef.current = cleanUrl;
+    const live = typeof source === 'object' ? source : null;
+    const cleanUrl = typeof source === 'string' ? source.trim() : '';
+    if (!live) {
+      if (!cleanUrl) return;
+      if (cleanUrl.includes('@') && !cleanUrl.startsWith('http')) return; // ignore plain email
+      if (!force && autoSyncedRootUrlRef.current === cleanUrl) return;
+      autoSyncedRootUrlRef.current = cleanUrl;
+    }
     const targetEmail = (email || '').toLowerCase().trim();
     const profileToUse = currentProfile || userProfile;
     const segmentsToUse = currentSegments || segments;
@@ -518,14 +521,14 @@ export default function BaalanceApp() {
 
     try {
       setIsAutoSyncingCalendar(true);
-      const res = await fetch('/api/calendar', {
+      const res = await apiFetch('/api/calendar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          icalUrl: cleanUrl,
-          email: targetEmail,
-          haircutDate: profileToUse.haircutDate,
-        }),
+        body: JSON.stringify(
+          live
+            ? { provider: live.provider, accessToken: live.accessToken, email: targetEmail }
+            : { icalUrl: cleanUrl, email: targetEmail, haircutDate: profileToUse.haircutDate }
+        ),
       });
 
       const data = await res.json();
@@ -575,7 +578,7 @@ export default function BaalanceApp() {
         handleApplyCalendarTelemetry(
           data.weeklyTelemetry,
           data.email || targetEmail,
-          cleanUrl,
+          live ? undefined : cleanUrl,
           formattedEvents,
           profileToUse,
           segmentsToUse,
@@ -622,11 +625,33 @@ export default function BaalanceApp() {
           email: userEmail,
           isNewUser: false,
         });
+
+        // Returning from "Connect Outlook / Google": finish the live calendar sync.
+        let pending: string | null = null;
+        try {
+          pending = sessionStorage.getItem('baalance_pending_calendar_sync');
+        } catch (_) {}
+        if (pending) {
+          const access = await getProviderCalendarToken();
+          if (access) {
+            try {
+              sessionStorage.removeItem('baalance_pending_calendar_sync');
+            } catch (_) {}
+            autoSyncCalendarAtRoot(
+              { provider: access.provider === 'azure' ? 'microsoft' : 'google', accessToken: access.token },
+              userEmail
+            );
+          }
+        }
       };
 
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user?.email) {
+          restoreCachedUser(session.user.email);
           handleAuthUser(session.user);
+        } else if (typeof window !== 'undefined') {
+          // No verified session: never show a previously cached account.
+          localStorage.removeItem('baalance_active_user_email');
         }
       }).catch(() => {});
 
@@ -643,11 +668,18 @@ export default function BaalanceApp() {
       authSubscription = data.subscription;
     }
 
-    // 3. Restore cached authenticated user from local storage
+    // 3. Restore the cached dashboard, but only for a verified Supabase session of the same user.
+    const restoreCachedUser = (sessionEmail: string) => {
     const cached = loadCachedUserData();
     const activeEmail = typeof window !== 'undefined' ? localStorage.getItem('baalance_active_user_email') : null;
 
-    if (activeEmail && cached.profile && cached.profile.email && !cached.profile.isDemo) {
+    if (
+      activeEmail &&
+      cached.profile &&
+      cached.profile.email &&
+      !cached.profile.isDemo &&
+      cached.profile.email.toLowerCase() === sessionEmail.toLowerCase()
+    ) {
       setUserProfile(cached.profile);
       if (cached.calendarIcalUrl || cached.profile.calendarIcalUrl) {
         setSavedCalendarIcalUrl(cached.calendarIcalUrl || cached.profile.calendarIcalUrl || '');
@@ -745,6 +777,7 @@ export default function BaalanceApp() {
         setCalendarRulesApplied(false);
       }
     }
+    };
 
     return () => {
       if (authSubscription) {
@@ -806,7 +839,7 @@ export default function BaalanceApp() {
     // Always query server store if local user bundle is missing, ensuring single source of truth across devices
     let serverBundle: any = null;
     try {
-      const res = await fetch(`/api/storage/user-profile?email=${encodeURIComponent(cleanEmail)}`);
+      const res = await apiFetch(`/api/storage/user-profile?email=${encodeURIComponent(cleanEmail)}`);
       if (res.ok) {
         const data = await res.json();
         if (data.found && data.profile) {
@@ -1002,8 +1035,8 @@ export default function BaalanceApp() {
       // Persist updated hair segments & telemetry once dragging settles
       saveUserDataToStorage(userProfile, updatedSegments, updatedTelemetry).catch(console.warn);
       try {
-        const localApiKey = typeof window !== 'undefined' ? localStorage.getItem('baalance_gemini_api_key') : null;
-        const res = await fetch('/api/gemini-synthesis', {
+        const localApiKey = typeof window !== 'undefined' ? sessionStorage.getItem('baalance_gemini_api_key') : null;
+        const res = await apiFetch('/api/gemini-synthesis', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1087,8 +1120,8 @@ export default function BaalanceApp() {
   const handleTriggerSynthesis = async () => {
     setIsSynthesizing(true);
     try {
-      const localApiKey = typeof window !== 'undefined' ? localStorage.getItem('baalance_gemini_api_key') : null;
-      const res = await fetch('/api/gemini-synthesis', {
+      const localApiKey = typeof window !== 'undefined' ? sessionStorage.getItem('baalance_gemini_api_key') : null;
+      const res = await apiFetch('/api/gemini-synthesis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

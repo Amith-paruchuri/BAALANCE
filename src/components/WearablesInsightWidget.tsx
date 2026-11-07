@@ -12,6 +12,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { WeeklyTelemetry, HairCortisolSegment, UserProfile } from '@/lib/types';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface WearablesInsightWidgetProps {
   telemetry?: WeeklyTelemetry[];
@@ -40,7 +41,7 @@ export const WearablesInsightWidget: React.FC<WearablesInsightWidgetProps> = ({
 
     setIsSubmitting(true);
     try {
-      await fetch('/api/waitlist', {
+      await apiFetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

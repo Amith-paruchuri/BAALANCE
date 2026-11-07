@@ -21,6 +21,8 @@ import {
 import { WeeklyTelemetry } from '@/lib/types';
 import { WEEKLY_12_WEEK_TELEMETRY } from '@/lib/mockData';
 import { parseIcsContent } from '@/lib/icalParser';
+import { apiFetch } from '@/lib/apiFetch';
+import { getProviderCalendarToken, signInWithProvider, type OAuthProvider } from '@/lib/supabase';
 
 interface GoogleCalendarPluginModalProps {
   isOpen: boolean;
@@ -65,6 +67,42 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
     setStage('demo_success');
   };
 
+  /**
+   * Live sync with Outlook (Microsoft Graph) or Google Calendar. Uses the calendar
+   * access granted at sign-in; if there is none, starts the provider's sign-in and
+   * the dashboard finishes the sync when the user returns.
+   */
+  const handleConnectLive = async (provider: OAuthProvider) => {
+    setErrorMessage('');
+    const access = await getProviderCalendarToken();
+    if (!access || access.provider !== provider) {
+      try {
+        sessionStorage.setItem('baalance_pending_calendar_sync', provider);
+      } catch (_) {}
+      const started = await signInWithProvider(provider);
+      if (!started.success) {
+        setErrorMessage(started.error || 'Could not start sign-in.');
+        setStage('error');
+      }
+      return;
+    }
+    setStage('verifying');
+    try {
+      const res = await apiFetch('/api/calendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: provider === 'azure' ? 'microsoft' : 'google', accessToken: access.token, email: userEmail }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Could not read your calendar.');
+      setVerifiedData(data);
+      setStage('verified');
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Could not read your calendar.');
+      setStage('error');
+    }
+  };
+
   const handleSyncIcalUrl = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const cleanUrl = icalUrlInput.trim();
@@ -84,7 +122,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
       : (typeof window !== 'undefined' ? localStorage.getItem('baalance_active_user_email') || '' : '');
 
     try {
-      const res = await fetch('/api/calendar', {
+      const res = await apiFetch('/api/calendar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ icalUrl: cleanUrl, email: effectiveEmail }),
@@ -190,6 +228,40 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
           {/* STAGE: IDLE */}
           {stage === 'idle' && (
             <div className="space-y-4">
+              {/* Live connections: Microsoft 365 / Outlook / Teams and Google Calendar */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleConnectLive('azure')}
+                  className="p-3 rounded-2xl border border-[#E2E8F0] hover:border-[#0078D4] hover:bg-blue-50/40 text-left transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>
+                    Connect Outlook / Teams
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-1">Microsoft 365 work, school or personal account</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleConnectLive('google')}
+                  className="p-3 rounded-2xl border border-[#E2E8F0] hover:border-[#3186FF] hover:bg-blue-50/40 text-left transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+                    Connect Google Calendar
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-1">Reads the last 90 days; nothing changes without your approval</div>
+                </button>
+              </div>
+
+              <div className="relative flex items-center justify-center my-1">
+                <div className="border-t border-[#E2E8F0] w-full" />
+                <span className="bg-white px-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  or use a file
+                </span>
+                <div className="border-t border-[#E2E8F0] w-full" />
+              </div>
+
               {/* Option 1: Direct .ics Upload (Works 100% for personal & university/hospital accounts) */}
               <div
                 onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
@@ -460,6 +532,13 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                   </div>
                 </div>
               </div>
+
+              {typeof verifiedData.teamsMeetings === 'number' && verifiedData.teamsMeetings > 0 && (
+                <div className="p-3 rounded-2xl border border-indigo-200 bg-indigo-50/60 text-[11px] text-indigo-900">
+                  <strong>{verifiedData.teamsMeetings} Microsoft Teams meetings</strong> in the last 90 days
+                  {verifiedData.lateTeamsMeetings > 0 ? `, ${verifiedData.lateTeamsMeetings} of them after 7 PM.` : '.'}
+                </div>
+              )}
 
               <div className="flex items-center gap-2 pt-1">
                 <button

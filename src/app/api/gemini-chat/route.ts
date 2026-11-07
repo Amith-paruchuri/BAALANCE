@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
+import { generateText } from '@/lib/ai';
+import { userOrDemoQuota } from '@/lib/serverAuth';
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry } from '@/lib/types';
 
 export async function POST(req: NextRequest) {
+  const access = await userOrDemoQuota(req, 'chat', 30);
+  if (access === 'limited') {
+    return NextResponse.json({ reply: 'You have sent a lot of messages. Please try again in a little while.', source: 'rate_limited' }, { status: 429 });
+  }
   try {
     const {
       message,
@@ -185,85 +190,21 @@ COMMUNICATION RULES:
 3. Address the user's EXACT question directly first.
 4. When discussing recovery, recommend 8-week horizon for re-testing. Never claim short-term 14 or 21 day permanent changes.`;
 
-    // Check for API key (Client-provided, Header, or Environment)
-    const apiKey =
-      clientApiKey ||
-      req.headers.get('x-gemini-api-key') ||
-      process.env.GEMINI_API_KEY ||
-      process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    const chatHistory = (Array.isArray(history) ? history.slice(-6) : [])
+      .filter((h: any) => h && typeof h.text === 'string' && h.text.trim())
+      .map((h: any) => ({ role: h.role === 'user' ? ('user' as const) : ('assistant' as const), text: h.text }));
 
-    if (apiKey && apiKey.trim().length > 10) {
-      const cleanKey = apiKey.trim();
-      const ai = new GoogleGenAI({ apiKey: cleanKey });
+    const aiResult = await generateText({
+      system: systemPrompt,
+      messages: [...chatHistory, { role: 'user', text: String(message || '') }],
+      geminiApiKey: clientApiKey || req.headers.get('x-gemini-api-key') || undefined,
+    });
 
-      // Active supported models in Google Gemini API
-      const candidateModels = [
-        'gemini-3.6-flash',
-        'gemini-3.8-flash',
-        'gemini-3-flash-preview',
-        'gemini-2.0-flash',
-      ];
-
-      for (const modelName of candidateModels) {
-        try {
-          // 1. Try Interactions API first (recommended for newer models)
-          if (ai.interactions && typeof ai.interactions.create === 'function') {
-            try {
-              const convHistory = (Array.isArray(history) && history.length > 0)
-                ? history.slice(-6).map((h: any) => `${h.role === 'user' ? 'User' : 'Tricha'}: ${h.text}`).join('\n')
-                : '';
-
-              const interaction = await ai.interactions.create({
-                model: modelName,
-                input: `${systemPrompt}\n\n${convHistory ? `RECENT CONVERSATION:\n${convHistory}\n\n` : ''}User Question: ${message}`,
-              });
-              const raw = interaction.output_text || '';
-              if (raw && raw.trim()) {
-                return NextResponse.json({
-                  reply: raw.replace(/\*/g, ''),
-                  source: modelName,
-                });
-              }
-            } catch (intErr: any) {
-              console.log(`[Interactions API ${modelName}] fallback to generateContent:`, intErr?.message);
-            }
-          }
-
-          // 2. Try generateContent with multi-turn history
-          const contents: any[] = [];
-          if (Array.isArray(history) && history.length > 0) {
-            for (const h of history.slice(-6)) {
-              if (!h.text) continue;
-              contents.push({
-                role: h.role === 'user' ? 'user' : 'model',
-                parts: [{ text: h.text }],
-              });
-            }
-          }
-          contents.push({
-            role: 'user',
-            parts: [{ text: message }],
-          });
-
-          const response = await ai.models.generateContent({
-            model: modelName,
-            contents,
-            config: {
-              systemInstruction: systemPrompt,
-            },
-          });
-
-          const rawReply = response.text || '';
-          if (rawReply && rawReply.trim()) {
-            return NextResponse.json({
-              reply: rawReply.replace(/\*/g, ''),
-              source: modelName,
-            });
-          }
-        } catch (modelErr: any) {
-          console.warn(`[Tricha ${modelName}] Call error:`, modelErr?.message || modelErr);
-        }
-      }
+    if (aiResult) {
+      return NextResponse.json({
+        reply: aiResult.text.replace(/\*/g, ''),
+        source: `${aiResult.provider}:${aiResult.model}`,
+      });
     }
 
     // Dynamic Contextual Reasoning Fallback Engine (No asterisks, no buzzwords, highly tailored)
