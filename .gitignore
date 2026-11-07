@@ -39,3 +39,8 @@ yarn-error.log*
 
 # Antigravity artifacts
 .gemini/
+
+# Local data stores (never commit: contain personal and health data)
+baalance_user_store.json
+baalance_leads.json
+baalance_leads.csv
