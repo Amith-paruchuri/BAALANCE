@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
+import { generateText, getAIStatus, parseJsonObject } from '@/lib/ai';
+import { userOrDemoQuota } from '@/lib/serverAuth';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
+  const access = await userOrDemoQuota(req, 'lab-report', 10);
+  if (access === 'limited') {
+    return NextResponse.json(
+      { success: false, isHairCortisolReport: false, error: 'Too many uploads. Please try again later.', rejectionReason: 'Too many uploads in a short time. Please try again later.' },
+      { status: 429 }
+    );
+  }
   try {
     const { fileBase64, fileName, mimeType, apiKey: clientApiKey } = await req.json();
 
@@ -70,24 +78,24 @@ export async function POST(req: NextRequest) {
         success: false,
         isHairCortisolReport: false,
         error: 'Invalid document type.',
-        rejectionReason: `The uploaded file "${cleanFileName}" appears to be a ${docType}, not an authentic Scalp Hair Cortisol ELISA / Spectrometry laboratory report. Gemini cannot extract hair cortisol values from this document. Please upload a valid hair test report or select one of the real-world case scenarios.`,
+        rejectionReason: `The uploaded file "${cleanFileName}" appears to be a ${docType}, not an authentic Scalp Hair Cortisol ELISA / Spectrometry laboratory report. Our AI cannot extract hair cortisol values from this document. Please upload a valid hair test report or select one of the real-world case scenarios.`,
         suggestDemo: true,
         fileName: cleanFileName,
       });
     }
 
-    const apiKey =
-      clientApiKey ||
-      process.env.GEMINI_API_KEY ||
-      process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    const byoKey = typeof clientApiKey === 'string' && clientApiKey.trim().length > 10 ? clientApiKey.trim() : undefined;
+    // Uploads are limited to about 8 MB of file data.
+    if (fileBase64.length > 11_000_000) {
+      return NextResponse.json({ success: false, isHairCortisolReport: false, error: 'File too large.', rejectionReason: 'This file is too large. Please upload a report under 8 MB.' }, { status: 413 });
+    }
 
     // Clean base64 string (strip data URI prefix if present)
     const cleanBase64 = fileBase64.replace(/^data:[^;]+;base64,/, '').trim();
 
     // If Gemini key is available, run deep multimodal analysis
-    if (apiKey && apiKey.trim().length > 10) {
+    if (getAIStatus().configured || byoKey) {
       try {
-        const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
 
         const prompt = `You are the certified laboratory document verification engine for BAALANCE, specialized in endocrinology and hair cortisol spectrometry diagnostics.
 
@@ -148,52 +156,24 @@ Return ONLY a valid JSON object without markdown code fences:
   "summary": string
 }`;
 
-        const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
-        let rawText = '';
-        let lastError: any = null;
-
-        for (const modelName of candidateModels) {
-          try {
-            const response = await ai.models.generateContent({
-              model: modelName,
-              contents: [
-                {
-                  role: 'user',
-                  parts: [
-                    {
-                      inlineData: {
-                        data: cleanBase64,
-                        mimeType: mimeType || 'application/pdf',
-                      },
-                    },
-                    {
-                      text: prompt,
-                    },
-                  ],
-                },
-              ],
-            });
-
-            if (response && response.text) {
-              rawText = response.text;
-              break;
-            }
-          } catch (modelErr) {
-            lastError = modelErr;
-          }
-        }
+        const aiResult = await generateText({
+          messages: [{ role: 'user', text: prompt }],
+          attachments: [{ mimeType: mimeType || 'application/pdf', base64: cleanBase64 }],
+          json: true,
+          geminiApiKey: byoKey,
+        });
+        const rawText = aiResult?.text || '';
 
         if (rawText) {
-          const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-          const parsed = JSON.parse(cleanJson);
+          const parsed = parseJsonObject<any>(rawText);
 
-          if (!parsed.isHairCortisolReport) {
+          if (!parsed || !parsed.isHairCortisolReport) {
             return NextResponse.json({
               success: false,
               isHairCortisolReport: false,
               rejectionReason:
-                parsed.rejectionReason ||
-                `The uploaded document "${cleanFileName}" is not a certified Scalp Hair Cortisol lab report. Gemini detected that it lacks hair cortisol ELISA assay data. Please upload an authentic hair test report or select one of the real-world case scenarios.`,
+                parsed?.rejectionReason ||
+                `The uploaded document "${cleanFileName}" is not a certified Scalp Hair Cortisol lab report. Our AI found no hair cortisol assay data in it. Please upload an authentic hair test report or select one of the real-world case scenarios.`,
               suggestDemo: true,
               fileName: cleanFileName,
             });
@@ -212,8 +192,8 @@ Return ONLY a valid JSON object without markdown code fences:
             fileName: cleanFileName,
           });
         }
-      } catch (geminiError: any) {
-        console.warn('[Gemini Parse PDF Runtime Error]:', geminiError);
+      } catch (aiError: any) {
+        console.warn('[BAALANCE Lab Report] AI parsing error:', aiError?.message || aiError);
       }
     }
 

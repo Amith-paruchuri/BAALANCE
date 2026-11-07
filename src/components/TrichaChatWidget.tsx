@@ -20,6 +20,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry, ChatMessage } from '@/lib/types';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface TrichaChatWidgetProps {
   userProfile: UserProfile;
@@ -146,7 +147,11 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
   // Load API Key from localStorage or check server
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const storedKey = localStorage.getItem('baalance_gemini_api_key');
+      localStorage.removeItem('baalance_gemini_api_key');
+      let storedKey: string | null = null;
+      try {
+        storedKey = sessionStorage.getItem('baalance_gemini_api_key');
+      } catch (_) {}
       if (storedKey) {
         setGeminiApiKey(storedKey);
         setKeyInput(storedKey);
@@ -155,7 +160,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
     }
 
     // Check server status
-    fetch('/api/settings/gemini-key')
+    apiFetch('/api/settings/gemini-key')
       .then(res => res.json())
       .then(data => {
         if (data.configured) {
@@ -178,45 +183,19 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
     setIsVerifyingKey(true);
     setKeyFeedback(null);
 
+    // A visitor's own key stays in this browser only and is sent per request; it is never stored on the server.
+    if (!/^AIza[0-9A-Za-z_-]{20,}$/.test(clean)) {
+      setKeyFeedback({ type: 'error', text: 'That does not look like a Google AI Studio key (they start with "AIza").' });
+      setIsVerifyingKey(false);
+      return;
+    }
     try {
-      const res = await fetch('/api/settings/gemini-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey: clean }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        setGeminiApiKey(clean);
-        setIsKeyConfigured(true);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('baalance_gemini_api_key', clean);
-        }
-        setKeyFeedback({
-          type: 'success',
-          text: 'Google Gemini API verified and connected successfully!',
-        });
-        setTimeout(() => {
-          setShowKeyModal(false);
-          setKeyFeedback(null);
-        }, 1500);
-      } else {
-        setKeyFeedback({
-          type: 'error',
-          text: data.error || 'Failed to verify Gemini API Key.',
-        });
-      }
-    } catch (err: any) {
-      // If server file write fails, still save client-side in localStorage
       setGeminiApiKey(clean);
       setIsKeyConfigured(true);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('baalance_gemini_api_key', clean);
-      }
-      setKeyFeedback({
-        type: 'success',
-        text: 'API Key saved to browser session.',
-      });
+      try {
+        sessionStorage.setItem('baalance_gemini_api_key', clean);
+      } catch (_) {}
+      setKeyFeedback({ type: 'success', text: 'Key saved for this browser session only.' });
       setTimeout(() => {
         setShowKeyModal(false);
         setKeyFeedback(null);
@@ -242,7 +221,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/gemini-chat', {
+      const res = await apiFetch('/api/gemini-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

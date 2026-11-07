@@ -29,6 +29,7 @@ import {
 import { parseIcsContent } from '@/lib/icalParser';
 import { getIndianHolidaysAsEvents } from '@/lib/indianHolidays';
 import { WeeklyTelemetry } from '@/lib/types';
+import { apiFetch } from '@/lib/apiFetch';
 
 export interface CalendarEventItem {
   id: string;
@@ -764,7 +765,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
     if (!silent) setIcalError('');
 
     try {
-      const res = await fetch('/api/calendar', {
+      const res = await apiFetch('/api/calendar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ icalUrl: cleanUrl, email: effectiveEmail, haircutDate }),

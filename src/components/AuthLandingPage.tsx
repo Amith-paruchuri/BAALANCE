@@ -20,6 +20,12 @@ import {
   Layers,
 } from 'lucide-react';
 import { BaalanceLogo } from './BaalanceLogo';
+import {
+  type OAuthProvider,
+  signInWithProvider,
+  signInWithEmailPassword,
+  signUpWithEmailPassword,
+} from '@/lib/supabase';
 
 interface AuthLandingPageProps {
   onStartDemo: () => void;
@@ -50,7 +56,25 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
   // Handle Form Submission (Sign In or Sign Up)
-  const handleAuthSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [oauthPending, setOauthPending] = useState<OAuthProvider | null>(null);
+
+  const handleOAuth = async (provider: OAuthProvider) => {
+    setPasswordError(null);
+    setOauthPending(provider);
+    try {
+      // Read the calendar automatically once the user comes back signed in.
+      sessionStorage.setItem('baalance_pending_calendar_sync', provider);
+    } catch (_) {}
+    const result = await signInWithProvider(provider);
+    if (!result.success) {
+      setOauthPending(null);
+      setPasswordError(result.error || 'Could not start sign-in.');
+    }
+  };
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError(null);
 
@@ -85,7 +109,33 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
       : (name.trim() || userEmail.split('@')[0]);
 
     const isNew = activeTab === 'signup';
-    onAuthenticate({ name: userName, email: userEmail, isNewUser: isNew });
+    setIsSubmitting(true);
+    setNotice(null);
+    try {
+      if (isNew) {
+        const result = await signUpWithEmailPassword(userEmail, password, userName);
+        if (!result.ok) {
+          setPasswordError(result.error);
+          return;
+        }
+        if (result.needsConfirmation) {
+          setNotice(`We sent a confirmation link to ${userEmail}. Open it, then sign in here.`);
+          setActiveTab('signin');
+          setPassword('');
+          setConfirmPassword('');
+          return;
+        }
+      } else {
+        const result = await signInWithEmailPassword(userEmail, password);
+        if (!result.ok) {
+          setPasswordError(result.error);
+          return;
+        }
+      }
+      onAuthenticate({ name: userName, email: userEmail.toLowerCase(), isNewUser: isNew });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleEnterpriseDomainSubmit = (e: React.FormEvent) => {
@@ -178,7 +228,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
             </span>
             <span className="text-slate-300 font-normal">→</span>
             <span className="flex items-center gap-1.5">
-              <span className="text-[#3186FF] font-bold">✨</span> <span>Gemini finds what caused it</span>
+              <span className="text-[#3186FF] font-bold">✨</span> <span>AI finds what caused it</span>
             </span>
           </div>
         </div>
@@ -231,7 +281,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                   See what your hair reveals
                 </h3>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Real 3-month hair cortisol case matched against 57 late calls past 7 PM on Google Calendar.
+                  Sample 3-month hair cortisol case matched against 57 calls after 7 PM. Explore it without signing up.
                 </p>
 
                 {/* Hair Timeline & Score Preview Mini-Widget */}
@@ -265,7 +315,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                   <div className="text-[10px] text-slate-500 flex items-center justify-between pt-1">
                     <span>📅 57 calls past 7 PM</span>
                     <span>✈️ 11 flights</span>
-                    <span>✨ Gemini action plan</span>
+                    <span>✨ AI action plan</span>
                   </div>
                 </div>
               </div>
@@ -328,7 +378,36 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                 </p>
               </div>
 
-              <form onSubmit={handleAuthSubmit} className="mt-4 space-y-3">
+              <div className="mt-4 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => handleOAuth('azure')}
+                  disabled={oauthPending !== null}
+                  className="w-full py-2.5 px-4 rounded-xl border border-[#E2E8F0] bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer disabled:opacity-60"
+                >
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>
+                  <span>{oauthPending === 'azure' ? 'Opening Microsoft…' : 'Continue with Microsoft'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOAuth('google')}
+                  disabled={oauthPending !== null}
+                  className="w-full py-2.5 px-4 rounded-xl border border-[#E2E8F0] bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer disabled:opacity-60"
+                >
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+                  <span>{oauthPending === 'google' ? 'Opening Google…' : 'Continue with Google'}</span>
+                </button>
+                <p className="text-[10px] text-slate-500 text-center leading-snug">
+                  Signing in with Microsoft or Google also lets BAALANCE read your Outlook or Google calendar. You approve each change before anything moves.
+                </p>
+                <div className="flex items-center gap-2 pt-1">
+                  <div className="h-px flex-1 bg-slate-200" />
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">or use email</span>
+                  <div className="h-px flex-1 bg-slate-200" />
+                </div>
+              </div>
+
+              <form onSubmit={handleAuthSubmit} className="mt-3 space-y-3">
                 {activeTab === 'signup' && (
                   <div>
                     <label className="block text-[11px] font-bold text-slate-700 mb-1">
@@ -415,8 +494,15 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                   </div>
                 )}
 
+                {notice && (
+                  <div className="flex items-center gap-1.5 text-xs text-emerald-800 bg-emerald-50 p-2 rounded-lg border border-emerald-100" role="status">
+                    <Check className="w-3.5 h-3.5 shrink-0" />
+                    <span>{notice}</span>
+                  </div>
+                )}
+
                 {passwordError && (
-                  <div className="flex items-center gap-1.5 text-xs text-rose-600 bg-rose-50 p-2 rounded-lg border border-rose-100">
+                  <div role="alert" className="flex items-center gap-1.5 text-xs text-rose-600 bg-rose-50 p-2 rounded-lg border border-rose-100">
                     <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                     <span>{passwordError}</span>
                   </div>
@@ -424,9 +510,10 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 px-4 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer mt-2"
+                  disabled={isSubmitting}
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer mt-2 disabled:opacity-60"
                 >
-                  <span>{activeTab === 'signin' ? 'Sign In to Dashboard' : 'Create Account & Begin Intake'}</span>
+                  <span>{isSubmitting ? 'Please wait…' : activeTab === 'signin' ? 'Sign in' : 'Create account'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </form>
@@ -593,7 +680,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
       {/* Social Proof & Origin Footer */}
       <footer className="w-full text-center py-4 border-t border-slate-200/80">
         <p className="text-xs font-medium text-slate-500">
-          Built by a final-year medical student at <span className="font-semibold text-slate-700">AIIMS New Delhi</span> · <span className="text-[#3186FF] font-semibold">Google Fund My Crazy 2026 Top 10</span>
+          Built by a final-year medical student at <span className="font-semibold text-slate-700">AIIMS New Delhi</span> · <span className="text-[#3186FF] font-semibold">Winner, Google Fund My Crazy 2026</span>
         </p>
       </footer>
     </div>

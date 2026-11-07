@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Send, Sparkles, Bot, User, CornerDownLeft, RefreshCw, ChevronRight } from 'lucide-react';
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry, ChatMessage } from '@/lib/types';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface GeminiChatDrawerProps {
   isOpen: boolean;
@@ -67,7 +68,7 @@ export const GeminiChatDrawer: React.FC<GeminiChatDrawerProps> = ({
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/gemini-chat', {
+      const res = await apiFetch('/api/gemini-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -79,7 +80,7 @@ export const GeminiChatDrawer: React.FC<GeminiChatDrawerProps> = ({
           calendarEvents: calendarEvents || [],
           calendarIcalUrl,
           verifiedCalendarEmail,
-          apiKey: typeof window !== 'undefined' ? localStorage.getItem('baalance_gemini_api_key') || undefined : undefined,
+          apiKey: typeof window !== 'undefined' ? sessionStorage.getItem('baalance_gemini_api_key') || undefined : undefined,
         }),
       });
 

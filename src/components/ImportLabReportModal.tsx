@@ -18,6 +18,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { HairCortisolSegment } from '@/lib/types';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface ImportLabReportModalProps {
   isOpen: boolean;
@@ -83,11 +84,11 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
       // 2. Fetch user's local Gemini key if saved
       const localApiKey =
         typeof window !== 'undefined'
-          ? localStorage.getItem('baalance_gemini_api_key')
+          ? sessionStorage.getItem('baalance_gemini_api_key')
           : null;
 
       // 3. Send file to Gemini document parsing engine
-      const res = await fetch('/api/parse-lab-report', {
+      const res = await apiFetch('/api/parse-lab-report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -68,6 +68,7 @@ import { BaalanceLogo } from './BaalanceLogo';
 import { saveUserDataToStorage } from '@/lib/storageService';
 import { parseIcsContent } from '@/lib/icalParser';
 import { WEEKLY_12_WEEK_TELEMETRY } from '@/lib/mockData';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface FunctionalOnboardingWizardProps {
   initialProfile: UserProfile;
@@ -356,7 +357,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
     setIsConnectingCalendar(true);
     setCalendarError('');
     try {
-      const res = await fetch('/api/calendar', {
+      const res = await apiFetch('/api/calendar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ icalUrl: icalUrlInput.trim(), email: calendarEmail }),
@@ -475,7 +476,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
   const handleVerifyGoogleCalendar = async () => {
     setIsConnectingCalendar(true);
     try {
-      const res = await fetch('/api/calendar', {
+      const res = await apiFetch('/api/calendar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: calendarEmail.trim() || 'amithparuchuri@gmail.com' }),
@@ -529,7 +530,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
         reader.readAsDataURL(file);
       });
 
-      const res = await fetch('/api/parse-lab-report', {
+      const res = await apiFetch('/api/parse-lab-report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
