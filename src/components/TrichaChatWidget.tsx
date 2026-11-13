@@ -72,7 +72,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
     {
       id: 'demo-msg-1',
       role: 'model',
-      text: `Hi ${firstName}! I'm Tricha, your personal stress & recovery guide powered by Google Gemini.\n\nI've analyzed your 90-day hair cortisol timeline alongside your calendar workload. Your 3-month stress score is **78 / 100** (High Stress), with a major biological surge in August at **28.4 pg/mg** (+154% above baseline).\n\nAsk me anything about what triggered your stress or what changes will speed up recovery!`,
+      text: `Hi ${firstName}! I'm Tricha, your personal stress & recovery guide.\n\nI've analyzed your 90-day hair cortisol timeline alongside your calendar workload. Your 3-month stress score is **78 / 100** (High Stress), with a major biological surge in August at **28.4 pg/mg** (+154% above baseline).\n\nAsk me anything about what triggered your stress or what changes will speed up recovery!`,
       timestamp: '2 mins ago',
     },
     {
@@ -279,7 +279,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                 <h3 className="text-sm font-bold text-black">Tricha AI</h3>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Powered by Google Gemini</span>
+                  <span>BAALANCE AI</span>
                 </span>
                 {isKeyConfigured && (
                   <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#3186FF] border border-blue-200">
@@ -310,10 +310,10 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
               type="button"
               onClick={() => setShowKeyModal(true)}
               className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-[#E2E8F0] text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer shrink-0"
-              title="Configure or test Google Gemini API Key"
+              title="Use your own AI key"
             >
               <Key className="w-3.5 h-3.5 text-[#3186FF]" />
-              <span className="hidden sm:inline">{isKeyConfigured ? 'API Connected' : 'Connect Gemini API'}</span>
+              <span className="hidden sm:inline">{isKeyConfigured ? 'API Connected' : 'Add AI key'}</span>
             </button>
           </div>
         </div>
@@ -324,7 +324,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 font-bold text-black">
                 <Key className="w-4 h-4 text-[#3186FF]" />
-                <span>Connect Google Gemini API Key:</span>
+                <span>Use your own AI key:</span>
               </div>
               <button
                 type="button"
@@ -336,7 +336,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
             </div>
 
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              To enable live reasoning powered by <strong>Google Gemini</strong>, paste your free Google AI Studio API key below:
+              Optional: paste your own Google AI Studio key to run Tricha on it:
             </p>
 
             <form onSubmit={handleSaveApiKey} className="flex items-center gap-2">
@@ -433,7 +433,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
           {isLoading && (
             <div className="flex items-center gap-2.5 text-xs text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-200 max-w-[70%]">
               <RefreshCw className="w-4 h-4 animate-spin text-[#3186FF]" />
-              <span>Tricha is finding the cause with Google Gemini...</span>
+              <span>Tricha is finding the cause...</span>
             </div>
           )}
           <div ref={messagesEndRef} />

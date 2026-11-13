@@ -33,7 +33,7 @@ export const ChainOfCustodyCard: React.FC<ChainOfCustodyCardProps> = ({
     },
     {
       step: 4,
-      label: 'Gemini Correlation',
+      label: 'AI Correlation',
       sublabel: 'Active',
       icon: Sparkles,
       activeSpark: true,

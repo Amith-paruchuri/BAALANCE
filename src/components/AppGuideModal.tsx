@@ -85,11 +85,11 @@ export const AppGuideModal: React.FC<AppGuideModalProps> = ({
     {
       id: 'allostatic-tricha',
       tab: 'tricha' as DashboardTab,
-      badge: 'Step 4 • Gemini Action Plan',
+      badge: 'Step 4 • AI Action Plan',
       title: 'Your 3-Step Recovery Plan',
       icon: Brain,
       iconColor: 'text-emerald-600 bg-emerald-50 border-emerald-200',
-      summary: 'Google Gemini creates a clear recovery plan to lower your score before your 8-week re-test.',
+      summary: 'BAALANCE AI creates a clear recovery plan to lower your score before your 8-week re-test.',
       keyPoints: [
         'Step 1: Protect your evenings with a 7:00 PM digital calendar curfew.',
         'Step 2: Morning natural light exposure and evening blue-light curfew to down-regulate the nervous system.',
@@ -256,7 +256,7 @@ export const AppGuideModal: React.FC<AppGuideModalProps> = ({
               <span>Note for Competition Judges:</span>
             </div>
             <p className="leading-relaxed text-amber-950 text-[11px]">
-              You can toggle between the <strong>Live Calendar Sync</strong> (with your own Google Calendar private iCal link) or explore the pre-loaded <strong>Clinical Evaluation Case</strong> (featuring a documented August crunch surge). All charts, graphs, and Gemini AI synthesis adapt dynamically in real-time.
+              You can toggle between the <strong>Live Calendar Sync</strong> (with your own Google Calendar private iCal link) or explore the pre-loaded <strong>Clinical Evaluation Case</strong> (featuring a documented August crunch surge). All charts, graphs, and AI synthesis adapt dynamically in real-time.
             </p>
           </div>
         </div>

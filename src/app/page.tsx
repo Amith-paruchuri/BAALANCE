@@ -2486,7 +2486,7 @@ export default function BaalanceApp() {
                   Wearable Biometrics Integration
                 </h3>
                 <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                  Wearables capture acute minute-to-minute fluctuations in stress (HRV, heart rate spikes), while hair cortisol captures chronic cumulative stress levels over 90 days. We are integrating both so Gemini can autonomously protect your calendar.
+                  Wearables capture acute minute-to-minute fluctuations in stress (HRV, heart rate spikes), while hair cortisol captures chronic cumulative stress levels over 90 days. We are integrating both so BAALANCE AI can protect your calendar.
                 </p>
               </div>
 

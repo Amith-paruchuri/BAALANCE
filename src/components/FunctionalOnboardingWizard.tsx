@@ -519,7 +519,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
 
     setIsExtractingPdf(true);
     setLabUploadError('');
-    setLabExtractionStatus('Scanning report with Gemini AI...');
+    setLabExtractionStatus('Scanning report with AI...');
 
     try {
       // Convert file to Base64
@@ -2073,7 +2073,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       <Sparkles className="w-6 h-6 text-[#3186FF] animate-spin" />
                       <div className="space-y-0.5">
                         <span className="text-xs font-bold text-slate-900 block">
-                          {labExtractionStatus || 'Gemini AI Scanning Document...'}
+                          {labExtractionStatus || 'AI Scanning Document...'}
                         </span>
                         <span className="text-[10px] text-slate-500 font-mono">
                           Extracting 90-day micro-spectrometry & ELISA assay data...
@@ -2101,7 +2101,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       <span className="text-[10px] text-[#5F6368] max-w-xs">
                         {uploadedFileName && labDataSource === 'uploaded'
                           ? '✓ Verified Hair Cortisol ELISA Report (Click to re-upload another PDF)'
-                          : 'Click to select or drag & drop laboratory PDF report (Gemini AI will scan & verify)'}
+                          : 'Click to select or drag & drop laboratory PDF report (AI will scan & verify)'}
                       </span>
                     </>
                   )}
@@ -2269,7 +2269,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#3186FF] via-[#6366F1] to-[#FB7185] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Run Gemini Synthesis</span>
+                  <span>Run AI Synthesis</span>
                 </button>
               </div>
             </div>
@@ -2283,7 +2283,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
               </div>
 
               <div>
-                <h3 className="text-sm font-bold text-black">Gemini Biomedical Synthesis</h3>
+                <h3 className="text-sm font-bold text-black">AI Biomedical Synthesis</h3>
                 <span className="text-xs font-mono font-semibold text-[#3186FF]">{synthesisProgress}%</span>
               </div>
 

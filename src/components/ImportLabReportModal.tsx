@@ -328,7 +328,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                 </div>
 
                 <div className="font-bold text-xs sm:text-sm text-black">
-                  {isExtracting ? 'Gemini Analyzing Document Authenticity...' : 'Drop your Hair Cortisol Report here'}
+                  {isExtracting ? 'AI Analyzing Document Authenticity...' : 'Drop your Hair Cortisol Report here'}
                 </div>
                 <p className="text-[11px] text-slate-500 mt-1 max-w-xs">
                   Supports PDF or photo reports from certified partner salons or clinical diagnostic labs

@@ -119,7 +119,7 @@ export const GeminiChatDrawer: React.FC<GeminiChatDrawerProps> = ({
               </div>
               <div>
                 <h3 className="text-sm font-bold text-[#000000] flex items-center gap-1.5">
-                  <span>Gemini Co-Pilot</span>
+                  <span>AI Co-Pilot</span>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-[#3186FF] font-semibold">
                     v3.6 Flash
                   </span>
