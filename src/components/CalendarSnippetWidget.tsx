@@ -1943,7 +1943,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                 <Flame className="w-3.5 h-3.5" />
               </div>
               <span className="text-xs font-bold text-rose-900 uppercase tracking-wider">
-                What drove your stress
+                The Real Culprit Behind Your Stress Surge
               </span>
             </div>
 
@@ -1958,7 +1958,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
           </div>
 
           <p className="text-xs text-rose-950 leading-relaxed">
-            Meetings after 7 PM (usually {avgLateTimeRange}){travelShiftsCount > 0 ? ` and ${travelShiftsCount} flights` : ''} kept your body from winding down at night.
+            High cortisol in your hair test was the <strong>consequence</strong>. The real <strong>cause</strong> was {feedSource === 'clinical_benchmark' ? 'taking meetings past 7:00 PM' : `scheduling ${cumulativeCurfewBreaches} cumulative meetings past 7:00 PM`} (averaging {avgLateTimeRange}){travelShiftsCount > 0 ? ` and ${travelShiftsCount} timezone travel shifts` : ''}. These evening calls prevented your brain from entering restorative down-regulation, {dynamicSleepImpact}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-sans text-xs">

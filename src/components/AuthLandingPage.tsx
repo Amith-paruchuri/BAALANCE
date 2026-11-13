@@ -281,7 +281,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                   See what your hair reveals
                 </h3>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  A sample 3-month case. No sign-up needed.
+                  Sample 3-month hair cortisol case matched against 57 calls after 7 PM. Explore it without signing up.
                 </p>
 
                 {/* Hair Timeline & Score Preview Mini-Widget */}
@@ -398,7 +398,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                   <span>{oauthPending === 'google' ? 'Opening Google…' : 'Continue with Google'}</span>
                 </button>
                 <p className="text-[10px] text-slate-500 text-center leading-snug">
-                  Also connects your calendar. Nothing changes without your OK.
+                  Signing in with Microsoft or Google also lets BAALANCE read your Outlook or Google calendar. You approve each change before anything moves.
                 </p>
                 <div className="flex items-center gap-2 pt-1">
                   <div className="h-px flex-1 bg-slate-200" />
@@ -541,7 +541,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                 See which teams are burning out, before people quit
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-xl">
-                Measure team stress with periodic hair tests, not surveys.
+                Periodic hair tests measure long-term team stress without intrusive surveys. Objective biological data, calibrated for individual hair wash frequency and medications.
               </p>
 
               {/* Instant Domain Join Input */}
