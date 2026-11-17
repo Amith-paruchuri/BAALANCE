@@ -201,7 +201,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
           {/* Video Recording Tips */}
           <div className="p-4 rounded-3xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400 space-y-2">
-            <p className="font-bold text-slate-300">🎬 Recording Tip for Video Pitch:</p>
+            <p className="font-bold text-slate-300">Recording Tip for Video Pitch:</p>
             <ul className="list-disc list-inside space-y-1 text-[11px]">
               <li>Use a screen capture tool (Loom, QuickTime, or OBS) cropping to the mobile frame on the right.</li>
               <li>Use the Left/Right arrows on your keyboard to switch scenes seamlessly while speaking.</li>

@@ -808,7 +808,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                     {proposals.length} Breaches Across 5 Rules
                   </span>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono">
-                    🇮🇳 All Times in IST (UTC+5:30)
+                    All Times in IST (UTC+5:30)
                   </span>
                 </div>
               </div>
@@ -930,8 +930,8 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                             }`}
                           >
                             {item.isUserOrganizer
-                              ? '👑 Host / Organizer Event'
-                              : `👥 Invitee (Host: ${item.organizerName || item.organizerEmail || 'Organizer'})`}
+                              ? 'Host / Organizer Event'
+                              : `Invitee (Host: ${item.organizerName || item.organizerEmail || 'Organizer'})`}
                           </span>
                           <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md font-mono">
                             IST (UTC+5:30)
@@ -1117,12 +1117,12 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                         </h4>
                         {prop.isUserOrganizer ? (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1 font-mono">
-                            👑 Host / Organizer
+                            Host / Organizer
                           </span>
                         ) : (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-900 border border-indigo-300 flex items-center gap-1 font-mono">
                             <Users className="w-3 h-3 text-indigo-700" />
-                            <span>👥 Invitee (Host: {prop.organizerName || prop.organizerEmail || 'Organizer'})</span>
+                            <span>Invitee (Host: {prop.organizerName || prop.organizerEmail || 'Organizer'})</span>
                           </span>
                         )}
                         {prop.event.category === 'personal' && (
@@ -1176,7 +1176,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                         }`}
                       >
                         <Sliders className="w-3 h-3" />
-                        <span>{isCustom ? '✓ Custom Slot Active' : 'Pick Custom Slot ⚙️'}</span>
+                        <span>{isCustom ? '✓ Custom Slot Active' : 'Pick Custom Slot '}</span>
                       </button>
                     </div>
 
@@ -1364,7 +1364,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                         <div className="flex items-center gap-1.5 flex-wrap pb-1">
                           <span className="text-[10px] text-amber-700 font-mono font-semibold">ORGANIZER:</span>
                           <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200">
-                            👑 {prop.organizerName ? `${prop.organizerName} (${prop.organizerEmail})` : prop.organizerEmail}
+                            {prop.organizerName ? `${prop.organizerName} (${prop.organizerEmail})` : prop.organizerEmail}
                           </span>
                         </div>
                       )}

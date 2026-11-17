@@ -49,7 +49,7 @@ export const ConfounderNormalizationCard: React.FC<ConfounderNormalizationCardPr
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-blue-500" />
-            <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-[#BF6F4E] uppercase tracking-wider">
               Mathematical Normalization Engine
             </span>
           </div>

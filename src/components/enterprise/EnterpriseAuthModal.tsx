@@ -24,7 +24,7 @@ export const EnterpriseAuthModal: React.FC<EnterpriseAuthModalProps> = ({
     e.preventDefault();
     const cleanEmail = email.toLowerCase().trim();
     if (!cleanEmail || !cleanEmail.includes('@')) {
-      setStatusMessage('Please enter a valid institutional email address.');
+      setStatusMessage('Enter a valid work or university email address.');
       return;
     }
 
@@ -63,7 +63,7 @@ export const EnterpriseAuthModal: React.FC<EnterpriseAuthModalProps> = ({
         <div className="flex items-center gap-2 mb-2">
           <span className="w-2.5 h-2.5 rounded-full bg-[#0D4F59] animate-pulse" />
           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Institutional Access
+            For teams
           </span>
         </div>
 
@@ -71,14 +71,14 @@ export const EnterpriseAuthModal: React.FC<EnterpriseAuthModalProps> = ({
           Join Your Organization Workspace
         </h3>
         <p className="text-xs text-slate-500 mt-1">
-          Enter your official work or university email to securely access your cohort stress surveillance matrix.
+          Enter your work or university email to open your organisation's anonymous team stress map.
         </p>
 
         {/* Email Domain Form */}
         <form onSubmit={handleDomainSubmit} className="mt-5 space-y-3">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
-              Institutional Email Address
+              Work or university email
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -103,7 +103,7 @@ export const EnterpriseAuthModal: React.FC<EnterpriseAuthModalProps> = ({
             type="submit"
             className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer"
           >
-            <span>Authenticate Institutional Domain</span>
+            <span>Continue</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
@@ -130,7 +130,7 @@ export const EnterpriseAuthModal: React.FC<EnterpriseAuthModalProps> = ({
             className="w-full p-3 rounded-2xl border border-rose-200/80 bg-rose-50/50 hover:bg-rose-100/60 transition-all flex items-center justify-between text-left cursor-pointer group"
           >
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🏥</span>
+              <span className="text-2xl"></span>
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-black text-slate-900">Apollo & AIIMS Hospital Network</span>
@@ -151,7 +151,7 @@ export const EnterpriseAuthModal: React.FC<EnterpriseAuthModalProps> = ({
             className="w-full p-3 rounded-2xl border border-amber-200/80 bg-amber-50/50 hover:bg-amber-100/60 transition-all flex items-center justify-between text-left cursor-pointer group"
           >
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🎓</span>
+              <span className="text-2xl"></span>
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-black text-slate-900">St. Jude International Academy</span>
@@ -172,7 +172,7 @@ export const EnterpriseAuthModal: React.FC<EnterpriseAuthModalProps> = ({
             className="w-full p-3 rounded-2xl border border-blue-200/80 bg-blue-50/50 hover:bg-blue-100/60 transition-all flex items-center justify-between text-left cursor-pointer group"
           >
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🏢</span>
+              <span className="text-2xl"></span>
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-black text-slate-900">Nexus Technologies & Stripe Global</span>

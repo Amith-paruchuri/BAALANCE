@@ -190,10 +190,10 @@ const MEDICATION_OPTIONS = [
 ];
 
 const SOMATIC_OPTIONS: { id: SomaticSymptom; label: string; note: string }[] = [
-  { id: 'brain_fog', label: 'Brain Fog & Executive Fatigue', note: 'Delayed cognitive retrieval' },
-  { id: 'tension_headaches', label: 'Tension Headaches & Neck Rigidity', note: 'Persistent muscular contraction' },
-  { id: 'heart_palpitations', label: 'Heart Palpitations & Restless Pulse', note: 'Elevated sympathetic tone' },
-  { id: 'gi_gut_friction', label: 'GI Friction & Acid Reflux', note: 'Cortisol-mediated gut barrier shifts' },
+  { id: 'brain_fog', label: 'Brain fog', note: 'Hard to think clearly' },
+  { id: 'tension_headaches', label: 'Tension headaches', note: 'Tight neck and shoulders' },
+  { id: 'heart_palpitations', label: 'Heart palpitations', note: 'Racing or restless pulse' },
+  { id: 'gi_gut_friction', label: 'Stomach trouble', note: 'Acid reflux or an unsettled gut' },
 ];
 
 export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProps> = ({
@@ -251,7 +251,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
   const [customHealthCondition, setCustomHealthCondition] = useState('');
   const [showCustomHealthInput, setShowCustomHealthInput] = useState(false);
 
-  // Current Medications
+  // Medicines you take
   const [medications, setMedications] = useState<string[]>(initialProfile.medications || ['none']);
   const [customMedication, setCustomMedication] = useState('');
   const [showCustomMedInput, setShowCustomMedInput] = useState(false);
@@ -768,7 +768,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
               title="Launch the pre-loaded 90-day interactive clinical demo directly"
             >
               <Play className="w-3 h-3 fill-white" />
-              <span>Open Demo Version</span>
+              <span>Open the sample case</span>
             </button>
 
             <button
@@ -789,7 +789,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
               onClick={() => setCurrentStep(1)}
               className={`p-2 rounded-xl border transition-all cursor-pointer ${currentStep === 1 ? 'border-[#0D4F59] bg-blue-50/60 font-bold text-[#0D4F59] shadow-2xs' : currentStep > 1 ? 'border-emerald-200 bg-emerald-50/40 text-emerald-800 hover:bg-emerald-50' : 'border-[#E2E8F0] text-slate-400 hover:bg-slate-50'}`}
             >
-              <span className="font-mono">1.</span> Lifestyle
+              <span className="font-mono">1.</span> About you
             </button>
 
             <button
@@ -797,7 +797,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
               onClick={() => setCurrentStep(2)}
               className={`p-2 rounded-xl border transition-all cursor-pointer ${currentStep === 2 ? 'border-[#0D4F59] bg-blue-50/60 font-bold text-[#0D4F59] shadow-2xs' : currentStep > 2 ? 'border-emerald-200 bg-emerald-50/40 text-emerald-800 hover:bg-emerald-50' : 'border-[#E2E8F0] text-slate-400 hover:bg-slate-50'}`}
             >
-              <span className="font-mono">2.</span> Calendar Integration
+              <span className="font-mono">2.</span> Calendar
             </button>
 
             <button
@@ -805,7 +805,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
               onClick={() => setCurrentStep(3)}
               className={`p-2 rounded-xl border transition-all cursor-pointer ${currentStep === 3 ? 'border-[#0D4F59] bg-blue-50/60 font-bold text-[#0D4F59] shadow-2xs' : currentStep > 3 ? 'border-emerald-200 bg-emerald-50/40 text-emerald-800 hover:bg-emerald-50' : 'border-[#E2E8F0] text-slate-400 hover:bg-slate-50'}`}
             >
-              <span className="font-mono">3.</span> Hair Test (Cortisol)
+              <span className="font-mono">3.</span> Hair result
             </button>
 
             <button
@@ -813,7 +813,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
               onClick={() => setCurrentStep(4)}
               className={`p-2 rounded-xl border transition-all cursor-pointer ${currentStep === 4 ? 'border-[#0D4F59] bg-blue-50/60 font-bold text-[#0D4F59] shadow-2xs' : 'border-[#E2E8F0] text-slate-400 hover:bg-slate-50'}`}
             >
-              <span className="font-mono">4.</span> Synthesis
+              <span className="font-mono">4.</span> Results
             </button>
           </div>
         </div>
@@ -833,11 +833,11 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="text-sm sm:text-base font-bold text-black tracking-tight">
-                          Demographic & Clinical Baseline
+                          About you
                         </h3>
                         <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                           <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                          Lab Calibrated
+                          Used to read your result
                         </span>
                       </div>
                     </div>
@@ -848,13 +848,13 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   </span>
                 </div>
 
-                {/* Primary Field: Full Legal Name */}
+                {/* Primary Field: Your name */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
                   <div className="lg:col-span-7">
                     <label className="block text-xs font-bold text-slate-800 mb-1.5 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5 text-[#0D4F59]" />
-                        <span>Full Legal Name</span>
+                        <span>Your name</span>
                         <span className="text-rose-500">*</span>
                       </span>
                     </label>
@@ -870,7 +870,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     </div>
                   </div>
 
-                  {/* Age Stepper & Biological Sex */}
+                  {/* Age Stepper & Sex */}
                   <div className="lg:col-span-5 flex flex-wrap items-center gap-3">
                     {/* Age Stepper with - / + buttons */}
                     <div className="flex-1 min-w-[120px]">
@@ -922,10 +922,10 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       </div>
                     </div>
 
-                    {/* Biological Sex Buttons */}
+                    {/* Sex Buttons */}
                     <div className="flex-1 min-w-[170px]">
                       <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                        Biological Sex
+                        Sex
                       </label>
                       <div className="flex items-center p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold">
                         <button
@@ -939,7 +939,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                           }`}
                         >
                           <span>Male</span>
-                          <span className="text-[11px] text-blue-600">♂</span>
+                          <span className="text-[11px] text-blue-600"></span>
                         </button>
                         <button
                           type="button"
@@ -949,7 +949,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                           }`}
                         >
                           <span>Female</span>
-                          <span className="text-[11px] text-rose-500">♀</span>
+                          <span className="text-[11px] text-rose-500"></span>
                         </button>
                         <button
                           type="button"
@@ -961,7 +961,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                             biologicalSex === 'other' ? 'bg-white font-bold text-black shadow-xs' : 'text-slate-600 hover:text-black'
                           }`}
                         >
-                          ⚧
+                          
                         </button>
                       </div>
                     </div>
@@ -1011,7 +1011,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 <div className="flex items-center justify-between mb-2.5">
                   <label className="text-xs sm:text-sm font-bold text-black flex items-center gap-1.5">
                     <Cpu className="w-4 h-4 text-[#0D4F59]" />
-                    <span>Professional Role</span>
+                    <span>Your work</span>
                   </label>
                 </div>
 
@@ -1107,7 +1107,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-black flex items-center gap-1.5">
                       <Clock className="w-3.5 h-3.5 text-[#0D4F59]" />
-                      <span>Weekly Workload</span>
+                      <span>Hours worked per week</span>
                     </span>
                     <span className="text-xs font-bold text-black font-mono bg-white px-2.5 py-0.5 rounded-lg border border-[#E2E8F0] shadow-2xs">
                       {weeklyHours} hrs/week
@@ -1133,10 +1133,10 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   >
                     <span>
                       {weeklyHours > 60
-                        ? '🔴 Heavy Workload Crunch (+78% Stress Increase)'
+                        ? 'Heavy Workload Crunch (+78% Stress Increase)'
                         : weeklyHours > 45
-                        ? '🟡 Elevated Stress Load (+35% Stress Increase)'
-                        : '🟢 Balanced Workload (Normal Baseline)'}
+                        ? 'Elevated Stress Load (+35% Stress Increase)'
+                        : 'Balanced Workload (Normal Baseline)'}
                     </span>
                     <span className="text-[10px] font-mono font-bold">
                       {weeklyHours > 60 ? 'High Risk' : weeklyHours > 45 ? 'Moderate' : 'Optimal'}
@@ -1151,7 +1151,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-bold text-black flex items-center gap-1.5">
                         <Moon className="w-3.5 h-3.5 text-indigo-600" />
-                        <span>Evening Work & Late Calls</span>
+                        <span>Evening work</span>
                       </span>
                     </div>
 
@@ -1160,9 +1160,9 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       onChange={e => setWorkBoundaryBleed(e.target.value as WorkBoundaryBleed)}
                       className="w-full p-2.5 text-xs rounded-xl border border-[#E2E8F0] bg-white text-black font-semibold shadow-2xs focus:ring-2 focus:ring-[#0D4F59] focus:outline-none"
                     >
-                      <option value="strict_boundaries">🌅 Stop by 7:00 PM (No late work)</option>
-                      <option value="occasional_bleed">🌗 Work until 9:00 PM sometimes</option>
-                      <option value="always_on_bed">🌑 Work late into the night / from bed</option>
+                      <option value="strict_boundaries">Stop by 7:00 PM (No late work)</option>
+                      <option value="occasional_bleed">Work until 9:00 PM sometimes</option>
+                      <option value="always_on_bed">Work late into the night / from bed</option>
                     </select>
                   </div>
 
@@ -1171,7 +1171,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-bold text-black flex items-center gap-1.5">
                         <Plane className="w-3.5 h-3.5 text-sky-600" />
-                        <span>International Travel & Timezones</span>
+                        <span>Travel</span>
                       </span>
                     </div>
 
@@ -1180,10 +1180,10 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       onChange={e => setTravelFrequency(e.target.value as TravelFrequency)}
                       className="w-full p-2.5 text-xs rounded-xl border border-[#E2E8F0] bg-white text-black font-semibold shadow-2xs focus:ring-2 focus:ring-[#0D4F59] focus:outline-none"
                     >
-                      <option value="none_domestic">✈️ None / Domestic travel only</option>
-                      <option value="occasional">🌍 Occasional (1–2 trips/year)</option>
-                      <option value="frequent_cross_meridian">🛫 Frequent (Monthly flights)</option>
-                      <option value="constant_nomad">🌐 Constant / Global nomad</option>
+                      <option value="none_domestic">None / Domestic travel only</option>
+                      <option value="occasional">Occasional (1–2 trips/year)</option>
+                      <option value="frequent_cross_meridian">Frequent (Monthly flights)</option>
+                      <option value="constant_nomad">Constant / Global nomad</option>
                     </select>
                   </div>
                 </div>
@@ -1194,7 +1194,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-indigo-950">
                     <Bed className="w-4 h-4 text-indigo-600" />
-                    <span>Sleep Architecture & Nocturnal Recovery</span>
+                    <span>Sleep</span>
                   </div>
                   <span className="text-xs font-bold text-indigo-600 font-mono bg-indigo-100/70 px-2.5 py-0.5 rounded-lg border border-indigo-200">
                     Avg: {nightlySleepHours} hrs/night
@@ -1204,7 +1204,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                   <div>
                     <label className="block text-xs font-bold text-black mb-1.5">
-                      Average Nightly Sleep Duration
+                      Hours of sleep per night
                     </label>
                     <input
                       type="range"
@@ -1216,25 +1216,25 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                     />
                     <div className="flex justify-between text-[10px] text-[#5F6368] mt-1 font-medium">
-                      <span>4h (Severe debt)</span>
-                      <span>6.5h (Baseline)</span>
-                      <span>9.5h (Surplus)</span>
+                      <span>4 h</span>
+                      <span>6.5 h</span>
+                      <span>9.5 h</span>
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold text-black mb-1.5">
-                      Morning Awakening Sensation
+                      How you feel on waking
                     </label>
                     <select
                       value={sleepQuality}
                       onChange={e => setSleepQuality(e.target.value as SleepQuality)}
                       className="w-full p-2.5 text-xs rounded-xl border border-[#E2E8F0] bg-white text-black font-semibold shadow-2xs focus:ring-2 focus:ring-indigo-600 focus:outline-none"
                     >
-                      <option value="middle_night_awakenings">Frequent 3:00 AM Awakenings (Adrenal Spike)</option>
-                      <option value="exhausted_wired">Wake Up "Exhausted & Wired" (High Cortisol)</option>
-                      <option value="moderate">Moderate / Fragmented Light Sleep</option>
-                      <option value="fully_restored">Deeply Restored & Clear-Headed (NREM 3)</option>
+                      <option value="middle_night_awakenings">I often wake in the night</option>
+                      <option value="exhausted_wired">I wake up tired</option>
+                      <option value="moderate">Fair, a bit broken</option>
+                      <option value="fully_restored">I wake up rested</option>
                     </select>
                   </div>
                 </div>
@@ -1242,11 +1242,11 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
 
               {/* 5. CHRONOTYPE AFFINITY & FIRST CAFFEINE INGESTION TIMING */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 sm:p-5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
-                {/* Chronotype Affinity */}
+                {/* Your body clock */}
                 <div>
                   <label className="block text-xs font-bold text-black mb-2 flex items-center gap-1.5">
                     <Sun className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Chronotype Affinity</span>
+                    <span>Your body clock</span>
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     <button
@@ -1259,8 +1259,8 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       }`}
                     >
                       <Sun className="w-4 h-4 mx-auto mb-1 text-amber-500" />
-                      <div className="font-semibold text-[11px] leading-tight">Morning Lark</div>
-                      <div className="text-[9px] text-slate-500 mt-0.5">06:00–11:00 Peak</div>
+                      <div className="font-semibold text-[11px] leading-tight">Morning person</div>
+                      <div className="text-[9px] text-slate-500 mt-0.5">Best 6 to 11 AM</div>
                     </button>
 
                     <button
@@ -1274,7 +1274,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     >
                       <Moon className="w-4 h-4 mx-auto mb-1 text-indigo-500" />
                       <div className="font-semibold text-[11px] leading-tight">Night Owl</div>
-                      <div className="text-[9px] text-slate-500 mt-0.5">18:00–23:00 Peak</div>
+                      <div className="text-[9px] text-slate-500 mt-0.5">Best 6 to 11 PM</div>
                     </button>
 
                     <button
@@ -1288,29 +1288,29 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     >
                       <Activity className="w-4 h-4 mx-auto mb-1 text-purple-600" />
                       <div className="font-semibold text-[11px] leading-tight">Shift Worker</div>
-                      <div className="text-[9px] text-slate-500 mt-0.5">Biphasic / Varied</div>
+                      <div className="text-[9px] text-slate-500 mt-0.5">Varies with shifts</div>
                     </button>
                   </div>
                 </div>
 
-                {/* First Caffeine Ingestion Timing */}
+                {/* First coffee or tea of the day */}
                 <div>
                   <label className="block text-xs font-bold text-black mb-2 flex items-center gap-1.5">
                     <Coffee className="w-3.5 h-3.5 text-amber-600" />
-                    <span>First Caffeine Ingestion Timing</span>
+                    <span>First coffee or tea of the day</span>
                   </label>
                   <select
                     value={caffeineHabit}
                     onChange={e => setCaffeineHabit(e.target.value as CaffeineHabit)}
                     className="w-full p-2.5 text-xs rounded-xl border border-[#E2E8F0] bg-white text-black font-semibold shadow-2xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
                   >
-                    <option value="no_coffee">☕ No coffee / Zero caffeine consumption</option>
-                    <option value="immediate_waking">🌅 Within 30m of waking (Blunts adenosine clearance)</option>
-                    <option value="delayed_morning">☀️ Delayed 90–120m (Protects natural cortisol curve)</option>
-                    <option value="afternoon_excess">🌆 Afternoon / Evening cups (Blocks NREM deep sleep)</option>
+                    <option value="no_coffee">No coffee / Zero caffeine consumption</option>
+                    <option value="immediate_waking">Within 30m of waking (Blunts adenosine clearance)</option>
+                    <option value="delayed_morning">Delayed 90–120m (Protects natural cortisol curve)</option>
+                    <option value="afternoon_excess">Afternoon / Evening cups (Blocks NREM deep sleep)</option>
                   </select>
                   <p className="text-[10px] text-slate-500 mt-2">
-                    Timing of adenosine receptor blockade directly impacts cortisol awakening response (CAR) amplitude.
+                    Caffeine straight after waking can blunt your natural morning alertness.
                   </p>
                 </div>
               </div>
@@ -1337,15 +1337,15 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   className="w-full h-2 bg-rose-200 rounded-lg appearance-none cursor-pointer accent-rose-600"
                 />
                 <div className="flex justify-between text-[10px] text-rose-800 font-medium">
-                  <span>1: Centered & in control</span>
-                  <span>5: Moderate baseline strain</span>
-                  <span>10: Approaching functional exhaustion</span>
+                  <span>1: calm</span>
+                  <span>5: under strain</span>
+                  <span>10: exhausted</span>
                 </div>
 
                 {/* Somatic Manifestations */}
                 <div className="pt-2">
                   <span className="block text-xs font-bold text-black mb-2">
-                    Active Somatic Stress Manifestations (Select all that apply):
+                    Physical signs of stress you notice (select all that apply)
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {SOMATIC_OPTIONS.map(som => {
@@ -1384,7 +1384,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs sm:text-sm font-bold text-black flex items-center gap-1.5">
                     <Zap className="w-4 h-4 text-amber-500" />
-                    <span>Key Stress Drivers</span>
+                    <span>What adds to your stress</span>
                   </span>
                 </div>
 
@@ -1429,7 +1429,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs sm:text-sm font-bold text-black flex items-center gap-1.5">
                     <HeartPulse className="w-4 h-4 text-rose-500" />
-                    <span>Pre-Existing Health Conditions</span>
+                    <span>Health conditions</span>
                   </span>
                 </div>
 
@@ -1483,7 +1483,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                         onClick={() => setHealthConditions(prev => prev.filter(c => c !== custom))}
                         className="text-rose-600 hover:text-rose-800 text-xs px-1"
                       >
-                        ✕
+                        
                       </button>
                     </div>
                   ))}
@@ -1538,7 +1538,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs sm:text-sm font-bold text-black flex items-center gap-1.5">
                     <Pill className="w-4 h-4 text-purple-600" />
-                    <span>Current Medications</span>
+                    <span>Medicines you take</span>
                   </span>
                 </div>
 
@@ -1592,7 +1592,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                         onClick={() => setMedications(prev => prev.filter(m => m !== custom))}
                         className="text-purple-600 hover:text-purple-800 text-xs px-1"
                       >
-                        ✕
+                        
                       </button>
                     </div>
                   ))}
@@ -1649,7 +1649,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   <div className="text-xs text-slate-700">
                     <span className="font-bold text-black">{fullName || 'User'}</span>
                     {' • '}
-                    <span className="font-medium">{age}y {biologicalSex === 'female' ? (isPregnant ? '♀ (Pregnant)' : '♀') : biologicalSex === 'male' ? '♂' : '⚧'}</span>
+                    <span className="font-medium">{age}y {biologicalSex === 'female' ? (isPregnant ? '(Pregnant)' : '') : biologicalSex === 'male' ? '' : ''}</span>
                     {' • '}
                     <span className="font-medium text-[#0D4F59]">{isCustomRole ? customRole || 'Custom Role' : selectedRole}</span>
                   </div>
@@ -1657,7 +1657,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
 
                 <div className="flex items-center gap-2 shrink-0">
                   <span className="text-[10px] font-mono text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200">
-                    Partner Lab Baseline: ~11.0 pg/mg
+                    Healthy hair cortisol is below 14.0 pg/mg
                   </span>
                 </div>
               </div>
@@ -1669,7 +1669,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   onClick={() => setCurrentStep(2)}
                   className="px-6 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white font-bold text-xs flex items-center gap-2 shadow-md transition-all active:scale-95"
                 >
-                  <span>Continue to Calendar</span>
+                  <span>Continue</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -1683,7 +1683,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 <div>
                   <h3 className="text-sm font-bold text-black flex items-center gap-1.5">
                     <Calendar className="w-4 h-4 text-[#0D4F59]" />
-                    <span>Google Calendar Integration</span>
+                    <span>Connect your calendar</span>
                   </h3>
                   <p className="text-[11px] text-slate-500 mt-0.5">
                     Connect your schedule to correlate weekly meeting load and evening calls past 7:00 PM with your cortisol segments.
@@ -1698,7 +1698,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     </span>
                   ) : (
                     <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 font-semibold border border-amber-200">
-                      Optional: Link calendar or use demo data
+                      Optional. You can also use sample data.
                     </span>
                   )}
                 </div>
@@ -1717,10 +1717,10 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     </div>
                     <div>
                       <span className="text-xs font-bold text-black block">
-                        Upload .ics Calendar File
+                        Upload a calendar file (.ics)
                       </span>
                       <span className="text-[10px] text-slate-500">
-                        Settings ⚙️ &gt; Import &amp; export &gt; Export. Works with all accounts (@aiims.edu, Gmail, etc.)
+                        Settings &gt; Import &amp; export &gt; Export. Works with all accounts (@aiims.edu, Gmail, etc.)
                       </span>
                     </div>
                   </div>
@@ -1746,9 +1746,9 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     <Calendar className="w-4 h-4 text-[#0D4F59]" />
-                    <span className="text-xs font-bold text-black">Live Secret iCal Link</span>
+                    <span className="text-xs font-bold text-black">Paste a private calendar link</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-bold">
-                      💻 Desktop / Laptop Only
+                      Desktop / Laptop Only
                     </span>
                   </div>
 
@@ -1760,7 +1760,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       className="text-xs px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#0D4F59] to-[#1D4ED8] hover:from-[#2563EB] hover:to-[#1E40AF] text-white font-bold flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer ring-2 ring-blue-400/25"
                     >
                       <Search className="w-3.5 h-3.5 text-white" />
-                      <span>{showSecretIcalInstructions ? '✕ Hide Guide' : 'FIND MY SECRET LINK'}</span>
+                      <span>{showSecretIcalInstructions ? 'Hide Guide' : 'FIND MY SECRET LINK'}</span>
                     </button>
                   </div>
                 </div>
@@ -1771,22 +1771,22 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     {/* Prominent Desktop Browser Notice */}
                     <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50/60 border-2 border-amber-300 flex items-start gap-2.5 text-left">
                       <div className="w-7 h-7 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-900 shrink-0 font-bold text-xs mt-0.5">
-                        💻
+                        
                       </div>
                       <div className="space-y-1 text-left">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs font-black text-amber-950 uppercase tracking-wide">
-                            Desktop / Laptop Browser Required
+                            Needs a desktop browser
                           </span>
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900">
-                            Not Visible on Mobile App
+                            Not shown in the mobile app
                           </span>
                         </div>
                         <p className="text-[11px] text-amber-900 leading-relaxed">
                           Google Calendar <strong>only reveals</strong> the <em>&ldquo;Integrate calendar&rdquo;</em> and <em>&ldquo;Secret address in iCal format&rdquo;</em> section when viewed on a <strong>Desktop / Laptop computer browser</strong>. The Google Calendar mobile phone app and mobile web browsers hide this link.
                         </p>
                         <p className="text-[10px] text-amber-800 font-medium">
-                          📱 <strong>On a phone right now?</strong> Open <em>calendar.google.com</em> on a computer (or switch your mobile browser to &ldquo;Desktop site&rdquo;), or use the <strong>Upload .ics Calendar File</strong> button above!
+                          <strong>On a phone right now?</strong> Open <em>calendar.google.com</em> on a computer (or switch your mobile browser to &ldquo;Desktop site&rdquo;), or use the <strong>Upload a calendar file (.ics)</strong> button above!
                         </p>
                       </div>
                     </div>
@@ -1796,7 +1796,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       <div className="space-y-0.5">
                         <div className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
                           <Sparkles className="w-4 h-4 text-[#0D4F59]" />
-                          <span>Direct Google Calendar Shortcut (Opens Desktop Settings)</span>
+                          <span>Open your Google Calendar settings</span>
                         </div>
                         <p className="text-[11px] text-slate-600">
                           Click the button to open your calendar settings directly in a new tab:
@@ -1852,7 +1852,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                         <span className="font-mono text-[10px] text-slate-700 truncate">https://calendar.google.com/calendar/ical/.../basic.ics</span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-[10px] font-bold text-amber-700">⚠️ Do not copy Public URL</span>
+                        <span className="text-[10px] font-bold text-amber-700">Do not copy Public URL</span>
                         <span className="text-slate-300">•</span>
                         <span className="text-[10px] text-emerald-700 font-semibold flex items-center gap-0.5">
                           <Lock className="w-3 h-3 inline" /> 256-bit Encrypted
@@ -1890,7 +1890,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 )}
               </div>
 
-              {/* Option 3: Use Demo Calendar Data */}
+              {/* Option 3: Use the sample calendar */}
               <div className={`p-3.5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                 feedSourceName === 'clinical_benchmark' && isCalendarConnected
                   ? 'bg-emerald-50/40 border-emerald-300'
@@ -1899,8 +1899,8 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
                   <div>
-                    <span className="text-xs font-bold text-slate-800 block">Use Demo Calendar Data</span>
-                    <span className="text-[10px] text-slate-500">Pre-loaded 90-day clinical schedule (148 meetings, 23 evening calls, 4 flights)</span>
+                    <span className="text-xs font-bold text-slate-800 block">Use the sample calendar</span>
+                    <span className="text-[10px] text-slate-500">A sample 90 days of meetings, so you can explore without connecting yours</span>
                   </div>
                 </div>
 
@@ -1915,7 +1915,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     }`}
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>{feedSourceName === 'clinical_benchmark' && isCalendarConnected ? 'Demo Calendar Ingested ✓' : 'Use Demo Calendar Data'}</span>
+                    <span>{feedSourceName === 'clinical_benchmark' && isCalendarConnected ? 'Demo Calendar Ingested ✓' : 'Use the sample calendar'}</span>
                   </button>
                 </div>
               </div>
@@ -1945,7 +1945,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       <div className="text-[9px] text-slate-400 mt-0.5 font-medium">~{calendarStats.avgMeetingDurationMins}m / event</div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200">
-                      <div className="text-[10px] text-rose-700 font-medium">Post-7 PM Calls</div>
+                      <div className="text-[10px] text-rose-700 font-medium">Meetings after 7 PM</div>
                       <div className="text-base font-bold text-rose-700 font-mono mt-0.5">{calendarStats.eveningCalls}</div>
                       <div className="text-[9px] text-rose-600 mt-0.5 font-semibold">{calendarStats.curfewBreachPct}% of schedule</div>
                     </div>
@@ -1966,7 +1966,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-100 text-xs space-y-2">
                     <div className="flex items-center gap-1.5 text-blue-900 font-bold text-[11px]">
                       <Sparkles className="w-3.5 h-3.5 text-[#0D4F59]" />
-                      <span>Chrono-Insights Extracted From Your Calendar</span>
+                      <span>What we found in your calendar</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-700">
@@ -1987,7 +1987,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
 
                     <div className="text-[10px] text-blue-950 font-medium bg-blue-100/50 px-2.5 py-1.5 rounded-lg flex items-center justify-between">
                       <span>✓ All synthesis insights and recovery protocols will model strictly from this calendar stream.</span>
-                      <span className="font-mono text-[9px] text-blue-800">Permanent Link Active</span>
+                      <span className="font-mono text-[9px] text-blue-800">Calendar linked</span>
                     </div>
                   </div>
                 </div>
@@ -2013,7 +2013,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   }}
                   className="px-5 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
                 >
-                  <span>Continue to Hair Specimen</span>
+                  <span>Continue</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -2023,7 +2023,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
           {/* STEP 3: SPECIMEN & ELISA LAB REPORT UPLOAD */}
           {currentStep === 3 && (
             <div className="space-y-4 animate-fade-in">
-              <h3 className="text-sm font-bold text-black">Step 3: Hair Specimen & Cortisol Test (ELISA)</h3>
+              <h3 className="text-sm font-bold text-black">Your hair cortisol result</h3>
 
               {/* Ingestion Options */}
               <div className="space-y-2.5">
@@ -2076,7 +2076,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                           {labExtractionStatus || 'AI Scanning Document...'}
                         </span>
                         <span className="text-[10px] text-slate-500 font-mono">
-                          Extracting 90-day micro-spectrometry & ELISA assay data...
+                          Reading your lab report...
                         </span>
                       </div>
                     </div>
@@ -2114,8 +2114,8 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
                       <div className="space-y-1">
                         <div className="font-bold text-rose-950 text-xs flex items-center gap-1.5">
-                          <span>Not a Hair Cortisol ELISA Report</span>
-                          <span className="text-[9px] font-mono px-1.5 py-0.2 bg-rose-200/60 text-rose-900 rounded">Verification Failed</span>
+                          <span>This does not look like a hair cortisol report</span>
+                          <span className="text-[9px] font-mono px-1.5 py-0.2 bg-rose-200/60 text-rose-900 rounded">Could not read it</span>
                         </div>
                         <p className="text-[11px] text-rose-800 leading-relaxed font-medium">
                           {labUploadError}
@@ -2133,7 +2133,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                         className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs cursor-pointer transition-all active:scale-95"
                       >
                         <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                        <span>Try Demo Data Instead</span>
+                        <span>Use sample data</span>
                       </button>
 
                       <button
@@ -2147,7 +2147,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   </div>
                 )}
 
-                {/* Option 2: Use Demo Data */}
+                {/* Or use sample data */}
                 <div className={`p-3.5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                   hasLoadedLabData && labDataSource === 'demo'
                     ? 'bg-emerald-50/40 border-emerald-300'
@@ -2156,8 +2156,8 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
                     <div>
-                      <span className="text-xs font-bold text-slate-800 block">Option 2: Use Demo Data</span>
-                      <span className="text-[10px] text-slate-500">Pre-load 90-day clinical ELISA benchmark (Jul: 11.2, Aug: 28.4, Sep: 15.6 pg/mg)</span>
+                      <span className="text-xs font-bold text-slate-800 block">Or use sample data</span>
+                      <span className="text-[10px] text-slate-500">The sample case: July 11.2, August 28.4, September 15.6 pg/mg</span>
                     </div>
                   </div>
 
@@ -2205,7 +2205,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       </span>
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono bg-slate-100 px-2 py-0.5 rounded">
-                      1 cm hair ≈ 30 days retrospective
+                      1 cm of hair is about 1 month
                     </span>
                   </div>
 
@@ -2233,7 +2233,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                         className="w-16 mx-auto p-1 text-xs font-bold text-center rounded border border-rose-300 bg-white font-mono text-rose-700 mt-1"
                       />
                       <span className="text-[10px] text-rose-500 block mt-0.5">pg/mg</span>
-                      <span className="text-[9px] text-rose-600 font-semibold block mt-0.5">Acute Surge (2.6x)</span>
+                      <span className="text-[9px] text-rose-600 font-semibold block mt-0.5">Peak</span>
                     </div>
 
                     <div className="p-2.5 rounded-xl border border-amber-200 bg-amber-50/40">
@@ -2246,7 +2246,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                         className="w-16 mx-auto p-1 text-xs font-bold text-center rounded border border-amber-300 bg-white font-mono text-amber-700 mt-1"
                       />
                       <span className="text-[10px] text-amber-500 block mt-0.5">pg/mg</span>
-                      <span className="text-[9px] text-amber-600 font-semibold block mt-0.5">Recovery Lag</span>
+                      <span className="text-[9px] text-amber-600 font-semibold block mt-0.5">Recovering</span>
                     </div>
                   </div>
                 </div>
@@ -2269,7 +2269,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#0D4F59] via-[#16636E] to-[#FB7185] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Run AI Synthesis</span>
+                  <span>See my results</span>
                 </button>
               </div>
             </div>
@@ -2283,7 +2283,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
               </div>
 
               <div>
-                <h3 className="text-sm font-bold text-black">AI Biomedical Synthesis</h3>
+                <h3 className="text-sm font-bold text-black">Putting your results together</h3>
                 <span className="text-xs font-mono font-semibold text-[#0D4F59]">{synthesisProgress}%</span>
               </div>
 

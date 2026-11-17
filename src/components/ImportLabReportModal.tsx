@@ -160,9 +160,9 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
       setExtractedSummary('High work crunch: 50+ hours of meetings, late-night calls past 9 PM, and disrupted recovery routines driving severe cortisol surge into hair root.');
     } else {
       setReportName('Case-3-Lingering-Fatigue.pdf');
-      setM1Val(11.2); // July (Hair Tip)
-      setM2Val(28.4); // August (Mid-Shaft)
-      setM3Val(15.6); // September (Scalp Root)
+      setM1Val(11.2); // July (tip)
+      setM2Val(28.4); // August (middle)
+      setM3Val(15.6); // September (scalp end)
       setTestDate('Sep 18, 2026');
       setExtractedSummary('Slow recovery: major deadline over, but midnight screen habits and continued evening triage kept stress hormones mildly elevated.');
     }
@@ -244,14 +244,14 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-sm sm:text-base font-bold text-black tracking-tight">
-                  Import Hair Cortisol Lab Report
+                  Add your hair cortisol result
                 </h3>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                  Auto-Refresh
+                  Updates your score
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                Ingests ELISA test data to automatically recalculate your Burnout Score & timeline
+                Upload the lab report or type the three values. Your timeline and score update straight away.
               </p>
             </div>
           </div>
@@ -264,7 +264,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
           </button>
         </div>
 
-        {/* Tab switcher: File Upload / Case Scenarios / Manual Values */}
+        {/* Tab switcher: File Upload / Try an example / Manual Values */}
         <div className="flex border-b border-slate-200 bg-slate-50/60 px-4 pt-2.5 gap-2 text-xs font-semibold">
           <button
             type="button"
@@ -276,7 +276,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
             }`}
           >
             <Upload className="w-3.5 h-3.5" />
-            <span>Upload PDF / Scan</span>
+            <span>Upload report</span>
           </button>
 
           <button
@@ -289,7 +289,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Case Scenarios</span>
+            <span>Try an example</span>
           </button>
 
           <button
@@ -302,7 +302,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
             }`}
           >
             <Scissors className="w-3.5 h-3.5" />
-            <span>Enter Exact Values</span>
+            <span>Type the values</span>
           </button>
         </div>
 
@@ -331,11 +331,11 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                   {isExtracting ? 'AI Analyzing Document Authenticity...' : 'Drop your Hair Cortisol Report here'}
                 </div>
                 <p className="text-[11px] text-slate-500 mt-1 max-w-xs">
-                  Supports PDF or photo reports from certified partner salons or clinical diagnostic labs
+                  A PDF or a photo of your lab report
                 </p>
 
                 <span className="mt-3 px-3 py-1 bg-white border border-slate-200 rounded-xl text-[11px] font-bold text-[#0D4F59] shadow-2xs">
-                  Browse Files
+                  Choose a file
                 </span>
               </label>
 
@@ -347,10 +347,10 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h4 className="text-xs sm:text-sm font-black text-rose-950">
-                          Document Rejected • Not a Hair Cortisol Report
+                          This does not look like a hair cortisol report
                         </h4>
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-200 text-rose-900">
-                          Verification Error
+                          Could not read it
                         </span>
                       </div>
                       <p className="text-xs text-rose-900/90 leading-relaxed font-sans">
@@ -361,7 +361,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
 
                   <div className="pt-2 border-t border-rose-200 flex items-center justify-between gap-2 flex-wrap text-xs">
                     <span className="text-rose-800 text-[11px] font-medium">
-                      Want to simulate your burnout timeline without an ELISA scan?
+                      No report yet?
                     </span>
                     <button
                       type="button"
@@ -371,7 +371,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                       }}
                       className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-xs transition-colors cursor-pointer text-xs"
                     >
-                      Choose a Real-World Case Scenario →
+                      Try an example instead
                     </button>
                   </div>
                 </div>
@@ -406,7 +406,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
           {activeMode === 'presets' && (
             <div className="space-y-3">
               <div className="text-xs text-slate-600 font-semibold mb-1">
-                Choose a real-world scenario to see how your schedule and lifestyle change your burnout score:
+                Pick an example to see how different three-month patterns change the score:
               </div>
 
               {/* CASE 1: FULL RECOVERY & HEALTHY ROUTINE */}
@@ -417,10 +417,10 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                 <div className="flex items-center justify-between flex-wrap gap-1">
                   <div className="flex items-center gap-2 font-black text-xs sm:text-sm text-emerald-950">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Case 1: Fully Rested & Balanced (Vacation / Healthy Routine)</span>
+                    <span>Rested and balanced</span>
                   </div>
                   <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-900 font-mono">
-                    Optimal • 9.8 pg/mg
+                    9.8 pg/mg
                   </span>
                 </div>
                 <p className="text-[11px] text-emerald-900/90 leading-relaxed pl-6 font-sans">
@@ -436,10 +436,10 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                 <div className="flex items-center justify-between flex-wrap gap-1">
                   <div className="flex items-center gap-2 font-black text-xs sm:text-sm text-rose-950">
                     <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                    <span>Case 2: Heavy Work Crunch & High Stress (Product Launch / Deadlines)</span>
+                    <span>A heavy work crunch</span>
                   </div>
                   <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-200 text-rose-900 font-mono">
-                    Severe Strain • 32.4 pg/mg
+                    32.4 pg/mg
                   </span>
                 </div>
                 <p className="text-[11px] text-rose-900/90 leading-relaxed pl-6 font-sans">
@@ -455,10 +455,10 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                 <div className="flex items-center justify-between flex-wrap gap-1">
                   <div className="flex items-center gap-2 font-black text-xs sm:text-sm text-amber-950">
                     <RefreshCw className="w-4 h-4 text-amber-600 shrink-0" />
-                    <span>Case 3: Lingering Fatigue (Work Eased Up, But Body Still Tired)</span>
+                    <span>Work eased, body still tired</span>
                   </div>
                   <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 font-mono">
-                    Slow Recovery • 15.6 pg/mg
+                    15.6 pg/mg
                   </span>
                 </div>
                 <p className="text-[11px] text-amber-900/90 leading-relaxed pl-6 font-sans">
@@ -473,10 +473,10 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
             <div className="flex items-center justify-between text-xs font-bold text-black border-b border-slate-200 pb-2">
               <span className="flex items-center gap-1.5">
                 <FlaskConical className="w-3.5 h-3.5 text-[#0D4F59]" />
-                <span>Hair Segment Cortisol Values (pg/mg)</span>
+                <span>Cortisol in each 1 cm segment (pg/mg)</span>
               </span>
               <span className="text-[10px] text-slate-500 font-mono font-normal">
-                Normal: 5.0 – 14.0 pg/mg
+                Healthy: 5.0 to 14.0 pg/mg
               </span>
             </div>
 
@@ -484,7 +484,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
               {/* July (Tip) */}
               <div className="bg-white p-2.5 rounded-xl border border-slate-200 space-y-1">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="font-bold text-black">July (Hair Tip)</span>
+                  <span className="font-bold text-black">July (tip)</span>
                   <span className="text-[9px] font-mono text-slate-400">2.0–3.0 cm</span>
                 </div>
                 <input
@@ -503,10 +503,10 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                 </div>
               </div>
 
-              {/* August (Mid-Shaft) */}
+              {/* August (middle) */}
               <div className="bg-white p-2.5 rounded-xl border border-slate-200 space-y-1">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="font-bold text-black">August (Mid-Shaft)</span>
+                  <span className="font-bold text-black">August (middle)</span>
                   <span className="text-[9px] font-mono text-slate-400">1.0–2.0 cm</span>
                 </div>
                 <input
@@ -525,10 +525,10 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                 </div>
               </div>
 
-              {/* September (Scalp Root) */}
+              {/* September (scalp end) */}
               <div className="bg-white p-2.5 rounded-xl border border-slate-200 space-y-1">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="font-bold text-black">September (Scalp Root)</span>
+                  <span className="font-bold text-black">September (scalp end)</span>
                   <span className="text-[9px] font-mono text-slate-400">0.0–1.0 cm</span>
                 </div>
                 <input
@@ -553,7 +553,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div>
               <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                Partner Salon / Laboratory:
+                Lab or salon
               </label>
               <input
                 type="text"
@@ -565,7 +565,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
 
             <div>
               <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                Report Assay Date:
+                Report date
               </label>
               <input
                 type="text"
@@ -581,7 +581,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Burnout Score auto-refreshes immediately upon import</span>
+            <span>Your score updates as soon as you add the result.</span>
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -598,7 +598,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
               className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Import & Auto-Refresh</span>
+              <span>Import & Updates your score</span>
             </button>
           </div>
         </div>

@@ -439,7 +439,7 @@ export default function BaalanceApp() {
           day: fDate.day,
           dayDate: fDate.dayDate,
           dateKey: fDate.dateKey,
-          title: '🛡️ Evening Hard Boundary (Working Hours Closed)',
+          title: 'Evening Hard Boundary (Working Hours Closed)',
           startTime: '07:00 PM',
           endTime: '10:00 PM',
           startHour: 19.0,
@@ -463,7 +463,7 @@ export default function BaalanceApp() {
             day: fDate.day,
             dayDate: fDate.dayDate,
             dateKey: fDate.dateKey,
-            title: '🧠 Deep Work Focus Block (Zero Meetings Shield)',
+            title: 'Deep Work Focus Block (Zero Meetings Shield)',
             startTime: '09:00 AM',
             endTime: '12:00 PM',
             startHour: 9.0,
@@ -1730,7 +1730,7 @@ export default function BaalanceApp() {
 
                 <div className="p-3 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col items-center gap-1">
                   <div className="w-8 h-8 rounded-full bg-rose-500 text-white text-[11px] font-black flex items-center justify-center">
-                    🍎
+                    
                   </div>
                   <span className="text-[11px] font-bold text-slate-800">Apple Watch</span>
                   <span className="text-[9px] text-purple-700 font-bold bg-purple-50 px-1.5 py-0.2 rounded border border-purple-100">
