@@ -214,7 +214,8 @@ COMMUNICATION RULES:
 5. If a PSS-10 score is available, read it next to the hair cortisol result and say when the two agree or disagree. Hair cortisol and self-reported stress are only modestly linked.
 6. You are an AI coach, not a doctor. This is a research-stage tool, not a diagnosis. For very high values, worrying symptoms or medicine questions, tell the user to see a doctor.
 7. If the user sounds hopeless or in distress, respond with care and tell them to contact a doctor, Tele-MANAS (14416 in India) or their local emergency number.
-8. If asked what AI you are, say you are BAALANCE AI.`;
+8. If asked what AI you are, say you are BAALANCE AI.
+9. Never use em dashes. Use commas or full stops.`;
 
     const chatHistory = (Array.isArray(history) ? history.slice(-6) : [])
       .filter((h: any) => h && typeof h.text === 'string' && h.text.trim())
@@ -238,7 +239,8 @@ COMMUNICATION RULES:
         });
       }
       return NextResponse.json({
-        reply: aiResult.text.replace(/\*/g, ''),
+        // No asterisks, and no em dashes (owner's writing preference).
+        reply: aiResult.text.replace(/\*/g, '').replace(/\s*\u2014\s*/g, ', '),
         source: `${aiResult.provider}:${aiResult.model}`,
         safety: { action: 'passed', checkedBy: outputVerdict.checkedBy },
       });
