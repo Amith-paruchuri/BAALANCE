@@ -40,6 +40,10 @@ import {
 import { computeDynamicSynthesis } from '@/lib/gemini';
 import { saveUserDataToStorage, loadCachedUserData, loadUserDataForEmail } from '@/lib/storageService';
 import { getSupabaseClient, signOutUser, getProviderCalendarToken } from '@/lib/supabase';
+import { Pss10Card } from '@/components/Pss10Card';
+import { PrivacyAndActivityPanel } from '@/components/PrivacyAndActivityPanel';
+import { recordAudit } from '@/lib/auditLog';
+import type { Pss10Result } from '@/lib/pss10';
 import {
   Sparkles,
   Calendar,
@@ -1154,6 +1158,16 @@ export default function BaalanceApp() {
   };
 
   // Sign out handler
+  const handlePss10Complete = (result: Pss10Result) => {
+    const history = userProfile.pss10
+      ? [...(userProfile.pss10History || []), userProfile.pss10].slice(-12)
+      : userProfile.pss10History || [];
+    const updated: UserProfile = { ...userProfile, pss10: result, pss10History: history };
+    setUserProfile(updated);
+    saveUserDataToStorage(updated, segments, telemetry).catch(console.warn);
+    recordAudit('pss10_completed', { detail: { score: result.score, band: result.band } });
+  };
+
   const handleSignOut = () => {
     signOutUser().catch(console.warn);
     if (typeof window !== 'undefined') {
@@ -2262,7 +2276,14 @@ export default function BaalanceApp() {
                 </div>
               </div>
 
-              {/* 3. MEDICAL HISTORY & REAGENT CROSS-REACTIVITY DOSSIER */}
+              {/* PSS-10 validated stress questionnaire */}
+              <Pss10Card
+                result={userProfile.pss10}
+                history={userProfile.pss10History}
+                onComplete={handlePss10Complete}
+              />
+
+              {/* 3. MEDICAL HISTORY */}
               <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-6 sm:p-7 space-y-5">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                   <div className="flex items-center gap-2">
@@ -2271,16 +2292,13 @@ export default function BaalanceApp() {
                     </div>
                     <div>
                       <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
-                        Medical Calibrations & Cross-Reactivity Audit
+                        Medical history
                       </h3>
                       <p className="text-[11px] text-slate-500 font-medium">
-                        Audited against partner laboratory quality standards to verify specimen purity
+                        Conditions and medicines that can change hair cortisol, so your result is read in context
                       </p>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                    ✓ Reagent Purity Verified
-                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2295,7 +2313,7 @@ export default function BaalanceApp() {
                         : 'None (No diagnosed chronic metabolic or endocrine conditions)'}
                     </div>
                     <p className="text-[11px] text-slate-500 font-medium">
-                      Baseline hair cortisol algorithm normalizes against endocrine variants (Cushing's, Addison's, Gestation).
+                      Conditions such as Cushing&apos;s, Addison&apos;s and pregnancy change cortisol. If you report one, we flag it on your result.
                     </p>
                   </div>
 
@@ -2310,11 +2328,19 @@ export default function BaalanceApp() {
                         : 'None (No synthetic steroid or corticosteroid medications)'}
                     </div>
                     <p className="text-[11px] text-slate-500 font-medium">
-                      Specimen confirmed free of hydrocortisone, prednisone, or dexamethasone cross-reactivity.
+                      Steroid medicines and hair dye can affect readings. If you report them, we flag it on your result.
                     </p>
                   </div>
                 </div>
               </div>
+
+              {/* Data controls and activity log */}
+              <PrivacyAndActivityPanel
+                userProfile={userProfile}
+                segments={segments}
+                telemetry={telemetry}
+                onDataDeleted={handleSignOut}
+              />
 
               {/* 4. DATA CUSTODY, CLOUD STORAGE & ACCOUNT ACTIONS */}
               <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-6 sm:p-7 space-y-5">

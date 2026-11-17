@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { CalendarEventItem } from './CalendarSnippetWidget';
 import { apiFetch } from '@/lib/apiFetch';
+import { recordAudit } from '@/lib/auditLog';
 import { getProviderCalendarToken } from '@/lib/supabase';
 import {
   getISTDateInfo,
@@ -537,6 +538,14 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
 
   if (!isOpen) return null;
 
+  // Closing without approving is a decline: nothing moves, and the decision is logged.
+  const handleDismiss = () => {
+    if (!successState && proposals.length > 0) {
+      recordAudit('reschedule_declined', { detail: { count: proposals.length } });
+    }
+    onClose();
+  };
+
   // Filtered proposals based on active rule pill
   const filteredProposals = proposals.filter(p => {
     if (activeRuleFilter === 'all') return true;
@@ -619,6 +628,8 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
   // Confirmation Handler: Reschedules meetings, dispatches emails, and prepares Google Calendar links
   const handleConfirm = async () => {
     setIsProcessing(true);
+    // The user pressed Approve: log the decision before anything is changed.
+    recordAudit('reschedule_approved', { detail: { count: proposals.length } });
 
     const liveMoves: Array<{ eventId: string; newStartIso: string; newEndIso: string }> = [];
     const confirmedSummaries: any[] = [];
@@ -743,6 +754,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
               provider: calendarAccess.provider === 'azure' ? 'microsoft' : 'google',
               accessToken: calendarAccess.token,
               items: liveMoves,
+              approvedByUser: true,
             }),
           });
           const data = await res.json().catch(() => ({}));
@@ -794,7 +806,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleDismiss}
             className="w-8 h-8 rounded-full text-slate-400 hover:text-black hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
@@ -1364,10 +1376,10 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
           <div className="flex items-center gap-2 justify-end">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleDismiss}
               className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
             >
-              {successState ? 'Close' : 'Cancel'}
+              {successState ? 'Close' : 'Decline'}
             </button>
 
             {!successState && proposals.length > 0 && (
@@ -1380,12 +1392,12 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                 {isProcessing ? (
                   <>
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Enforcing Rules & Updating Calendar...</span>
+                    <span>Updating your calendar...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Enforce All Rules & Reschedule Meetings</span>
+                    <span>Approve and move meetings</span>
                   </>
                 )}
               </button>

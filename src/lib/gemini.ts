@@ -1,5 +1,6 @@
 import { generateText, getAIStatus, parseJsonObject } from './ai';
 import { CLINICAL_FALLBACK_SYNTHESIS } from './mockData';
+import { describePss10 } from './pss10';
 import { GeminiSynthesisResult, UserProfile, HairCortisolSegment, WeeklyTelemetry } from './types';
 
 
@@ -40,7 +41,8 @@ PATIENT PROFILE:
 - Caffeine Habits: ${profile.caffeineHabit === 'no_coffee' ? 'No Coffee / Zero Caffeine consumption' : profile.caffeineHabit === 'delayed_morning' ? 'Delayed 90–120m after waking' : profile.caffeineHabit === 'afternoon_excess' ? 'Afternoon / Evening cups' : 'Within 30m of waking'}
 - Evening Work / Curfew Boundary: ${profile.workBoundaryBleed || 'occasional_bleed'}
 - International Travel Frequency: ${profile.travelFrequency || 'occasional'}
-- Clinical Perceived Stress Scale (PSS-4): ${profile.perceivedStressRating || 7}/10
+- Self-rated stress (1 to 10, not a validated scale): ${profile.perceivedStressRating || 7}/10
+- ${describePss10(profile.pss10)}
 - Active Somatic Stress Manifestations: ${profile.somaticSymptoms && profile.somaticSymptoms.length > 0 ? profile.somaticSymptoms.join(', ') : 'None reported'}
 - Reported Stress Drivers: ${profile.stressDrivers && profile.stressDrivers.length > 0 ? profile.stressDrivers.join(', ') : 'None reported'}
 - Pre-Existing Health Conditions: ${profile.healthConditions && profile.healthConditions.length > 0 ? profile.healthConditions.join(', ') : 'None reported'}

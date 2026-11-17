@@ -1320,7 +1320,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 <div className="flex items-center justify-between">
                   <label className="text-xs sm:text-sm font-bold text-rose-950 flex items-center gap-1.5">
                     <Flame className="w-4 h-4 text-rose-600" />
-                    <span>Perceived Stress Scale (PSS-4 Clinical Severity Gauge)</span>
+                    <span>How stressed do you feel right now? (1 to 10)</span>
                   </label>
                   <span className="font-bold text-xs px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700 font-mono border border-rose-200">
                     {perceivedStressRating} / 10 • {perceivedStressRating >= 8 ? 'Severe' : perceivedStressRating >= 6 ? 'High' : 'Moderate'}
