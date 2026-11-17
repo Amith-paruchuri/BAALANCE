@@ -1,21 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  Sparkles,
-  Sun,
-  Calendar,
-  Scissors,
-  CheckCircle2,
-  ExternalLink,
-  Flame,
-  ArrowRight,
-  ShieldCheck,
-  Clock,
-  Check,
-  ChevronRight,
-  Bell,
-} from 'lucide-react';
+import { Sparkles, Sun, Calendar, Scissors, CheckCircle2, Check, Bell } from 'lucide-react';
 import { GeminiSynthesisResult } from '@/lib/types';
 
 interface GeminiProtocolCardsProps {
@@ -27,6 +13,16 @@ interface GeminiProtocolCardsProps {
   calendarRulesApplied?: boolean;
 }
 
+const STEP_ICON: Record<string, typeof Sun> = {
+  circadian: Sun,
+  calendar: Calendar,
+  audit: Scissors,
+};
+
+/**
+ * The recovery plan as one path: three numbered steps on a rail, each with
+ * two actions to tick off and one thing to do next.
+ */
 export const GeminiProtocolCards = React.memo<GeminiProtocolCardsProps>(({
   synthesis,
   isSynthesizing = false,
@@ -36,239 +32,175 @@ export const GeminiProtocolCards = React.memo<GeminiProtocolCardsProps>(({
   calendarRulesApplied = false,
 }) => {
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean>>({});
-  const [circadianReminderSet, setCircadianReminderSet] = useState(false);
+  const [windDownGoalSet, setWindDownGoalSet] = useState(false);
+
+  const protocols = synthesis.protocols || [];
+  const allKeys = protocols.flatMap(p => p.actionItems.slice(0, 2).map((_, idx) => `${p.id}-${idx}`));
+  const doneCount = allKeys.filter(k => completedSteps[k]).length;
+  const progress = allKeys.length ? Math.round((doneCount / allKeys.length) * 100) : 0;
+
+  // Re-test date: use the plan's date if it is still ahead, otherwise 8 weeks from today.
+  const retestDate = (() => {
+    const planned = synthesis.nextSalonAuditDate ? new Date(synthesis.nextSalonAuditDate) : null;
+    const target = planned && !isNaN(planned.getTime()) && planned.getTime() > Date.now()
+      ? planned
+      : new Date(Date.now() + 56 * 24 * 60 * 60 * 1000);
+    return target.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  })();
 
   const toggleStep = (stepKey: string) => {
     setCompletedSteps(prev => ({ ...prev, [stepKey]: !prev[stepKey] }));
   };
 
-  const getPillarTheme = (category: string) => {
-    switch (category) {
-      case 'circadian':
-        return {
-          icon: Sun,
-          accentColor: 'text-amber-600',
-          iconBg: 'bg-amber-500/10 border-amber-200/80',
-          badgeBg: 'bg-amber-50 text-amber-900 border-amber-200/80',
-          borderGlow: 'hover:border-amber-300',
-          topLine: 'bg-gradient-to-r from-amber-400 to-orange-400',
-          stepCheck: 'text-amber-600 bg-amber-50 border-amber-200',
-        };
-      case 'calendar':
-        return {
-          icon: Calendar,
-          accentColor: 'text-[#3186FF]',
-          iconBg: 'bg-blue-500/10 border-blue-200/80',
-          badgeBg: 'bg-blue-50 text-blue-900 border-blue-200/80',
-          borderGlow: 'hover:border-blue-300',
-          topLine: 'bg-gradient-to-r from-[#3186FF] to-indigo-500',
-          stepCheck: 'text-[#3186FF] bg-blue-50 border-blue-200',
-        };
-      case 'audit':
-      default:
-        return {
-          icon: Scissors,
-          accentColor: 'text-purple-600',
-          iconBg: 'bg-purple-500/10 border-purple-200/80',
-          badgeBg: 'bg-purple-50 text-purple-900 border-purple-200/80',
-          borderGlow: 'hover:border-purple-300',
-          topLine: 'bg-gradient-to-r from-purple-500 to-rose-400',
-          stepCheck: 'text-purple-600 bg-purple-50 border-purple-200',
-        };
-    }
-  };
-
   return (
-    <div className="space-y-3.5 font-sans">
-      {/* Header: Executive Recovery Architecture */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+    <section
+      className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-5 sm:p-7 space-y-5 font-sans"
+      aria-label="Your three-step plan"
+      data-testid="plan-card"
+    >
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#3186FF]" />
-              <span>Your 3-Step Recovery Plan</span>
-            </span>
-          </div>
-          <h3 className="text-base sm:text-lg font-black text-black tracking-tight mt-0.5">
-            Your 3-Step Plan
-          </h3>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Clear, practical steps to protect your evenings and lower cortisol before your 8-week re-test.
+          <div className="text-[11px] font-bold uppercase tracking-wider text-[#BF6F4E]">What to do next</div>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">Your 3-step plan</h2>
+          <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            Small changes to protect your evenings before your re-test in 8 weeks. The next haircut shows if it worked.
           </p>
         </div>
-
         <button
           type="button"
           onClick={onRefreshSynthesis}
           disabled={isSynthesizing}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-xs font-bold text-[#3186FF] border border-[#E2E8F0] shadow-2xs hover:shadow-xs transition-all active:scale-95 cursor-pointer self-start sm:self-auto shrink-0"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 border border-slate-200 transition-colors cursor-pointer disabled:opacity-60 shrink-0 self-start"
         >
-          <Sparkles className={`w-3.5 h-3.5 ${isSynthesizing ? 'animate-spin' : ''}`} />
-          <span>{isSynthesizing ? 'AI Updating...' : 'Refresh Plan'}</span>
+          <Sparkles className={`w-3.5 h-3.5 text-[#BF6F4E] ${isSynthesizing ? 'animate-spin' : ''}`} />
+          <span>{isSynthesizing ? 'Updating with AI…' : 'Refresh plan'}</span>
         </button>
       </div>
 
-      {/* Three Actionable Protocol Cards with Balanced Vertical Alignments */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
-        {synthesis.protocols.map((protocol, pIdx) => {
-          const theme = getPillarTheme(protocol.category);
-          const PillarIcon = theme.icon;
+      {/* Progress */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Actions done">
+          <div className="h-full rounded-full bg-emerald-500" style={{ width: `${progress}%`, transition: 'width 300ms ease' }} />
+        </div>
+        <span className="text-[11px] font-bold text-slate-500 shrink-0">
+          {doneCount} of {allKeys.length} actions done
+        </span>
+      </div>
+
+      {/* Steps on a rail */}
+      <ol className="relative">
+        {protocols.map((protocol, pIdx) => {
+          const StepIcon = STEP_ICON[protocol.category] || Scissors;
+          const isLast = pIdx === protocols.length - 1;
+          const stepKeys = protocol.actionItems.slice(0, 2).map((_, idx) => `${protocol.id}-${idx}`);
+          const stepDone = stepKeys.length > 0 && stepKeys.every(k => completedSteps[k]);
 
           return (
-            <div
-              key={protocol.id}
-              className={`bg-white rounded-3xl border border-[#E2E8F0] shadow-card hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden relative group ${theme.borderGlow}`}
-            >
-              {/* Top Accent Gradient Ribbon */}
-              <div className={`h-1.5 w-full ${theme.topLine}`} />
-
-              <div className="p-4 sm:p-5 flex-1 flex flex-col">
-                {/* Protocol Header */}
-                <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100 mb-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className={`w-9 h-9 rounded-2xl border flex items-center justify-center shadow-2xs ${theme.iconBg}`}>
-                      <PillarIcon className={`w-4 h-4 ${theme.accentColor}`} />
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                        Step {pIdx + 1}
-                      </span>
-                      <h4 className="text-xs sm:text-[13px] font-bold text-black leading-tight mt-0.5">
-                        {protocol.title}
-                      </h4>
-                    </div>
-                  </div>
-
-                  <span className={`text-[9px] font-bold px-2.5 py-1 rounded-full border shadow-2xs shrink-0 ${theme.badgeBg}`}>
-                    {protocol.badge}
-                  </span>
+            <li key={protocol.id} className="relative flex gap-3 sm:gap-5">
+              {/* Rail: number and connecting line */}
+              <div className="flex flex-col items-center shrink-0">
+                <div
+                  className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-black border-2 transition-colors ${
+                    stepDone ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-white border-[#BF6F4E] text-[#BF6F4E]'
+                  }`}
+                >
+                  {stepDone ? <Check className="w-4 h-4 stroke-[3]" /> : pIdx + 1}
                 </div>
+                {!isLast && <div className="w-0.5 flex-1 bg-[#EFE6DA] my-1.5" />}
+              </div>
 
-                {/* Subtitle / Objective Description */}
-                <p className="text-xs text-slate-600 mb-3.5 leading-relaxed">
-                  {protocol.description}
-                </p>
+              {/* Step body */}
+              <div className={`flex-1 min-w-0 ${isLast ? '' : 'pb-6'}`}>
+                <div className="rounded-2xl border border-slate-200/80 bg-slate-50/60 p-4 sm:p-5">
+                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                    <div className="lg:col-span-2">
+                      <div className="flex items-center gap-2">
+                        <StepIcon className="w-4 h-4 text-slate-400 shrink-0" />
+                        <h3 className="text-sm sm:text-base font-extrabold text-slate-900">{protocol.title}</h3>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed mt-1.5">{protocol.description}</p>
 
-                {/* Action Items List with Interactive Micro-Checklist (max 2 visible) */}
-                <div className="space-y-2 mb-4 flex-1">
-                  <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500 px-0.5">
-                    <span>Key Actions</span>
-                    <span className="text-slate-400 font-medium">Click to check off</span>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    {protocol.actionItems.slice(0, 2).map((item, idx) => {
-                      const itemKey = `${protocol.id}-${idx}`;
-                      const isDone = !!completedSteps[itemKey];
-
-                      return (
-                        <div
-                          key={idx}
-                          onClick={() => toggleStep(itemKey)}
-                          className={`p-2 rounded-xl border transition-all cursor-pointer flex items-start gap-2.5 text-xs ${
-                            isDone
-                              ? 'bg-emerald-50/50 border-emerald-200 text-slate-500 line-through'
-                              : 'bg-slate-50/70 hover:bg-slate-100/80 border-slate-200/70 text-slate-800'
-                          }`}
-                        >
-                          <div
-                            className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                              isDone
-                                ? 'bg-emerald-500 border-emerald-600 text-white'
-                                : 'bg-white border-slate-300 group-hover:border-slate-400'
+                      {/* One thing to do for this step */}
+                      <div className="mt-3">
+                        {protocol.category === 'circadian' && (
+                          <button
+                            type="button"
+                            onClick={() => setWindDownGoalSet(!windDownGoalSet)}
+                            aria-pressed={windDownGoalSet}
+                            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                              windDownGoalSet ? 'bg-emerald-600 text-white' : 'bg-slate-900 hover:bg-slate-700 text-white'
                             }`}
                           >
-                            {isDone ? (
-                              <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
-                            ) : (
-                              <span className="text-[9px] font-bold font-mono text-slate-400">{idx + 1}</span>
-                            )}
+                            {windDownGoalSet ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Bell className="w-3.5 h-3.5" />}
+                            <span>{windDownGoalSet ? 'Goal set: wind down by 9:30 PM' : 'Set a 9:30 PM wind-down goal'}</span>
+                          </button>
+                        )}
+
+                        {protocol.category === 'calendar' && (
+                          <button
+                            type="button"
+                            onClick={onApplyCalendarRules || onOpenCalendarModal}
+                            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                              calendarRulesApplied ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-slate-900 hover:bg-slate-700 text-white'
+                            }`}
+                          >
+                            {calendarRulesApplied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Calendar className="w-3.5 h-3.5" />}
+                            <span>{calendarRulesApplied ? 'Changes approved. Review again' : 'Review suggested calendar changes'}</span>
+                          </button>
+                        )}
+
+                        {protocol.category === 'audit' && (
+                          <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs">
+                            <Scissors className="w-3.5 h-3.5 text-[#BF6F4E]" />
+                            <span className="text-slate-500">Next hair sample around</span>
+                            <span className="font-bold text-slate-900">{retestDate}</span>
                           </div>
-                          <span className="leading-snug text-[11px] select-none">{item}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Section: Impact Metric & Uniform Aligned Action Row */}
-              <div className="p-4 sm:p-5 pt-0 space-y-2.5">
-                {/* Clinical Impact Pill */}
-                <div className="text-[11px] font-medium text-emerald-950 bg-gradient-to-r from-emerald-50 to-teal-50/60 p-2.5 rounded-xl border border-emerald-200/70 flex items-center gap-2 shadow-2xs">
-                  <div className="w-5 h-5 rounded-lg bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                    <Sparkles className="w-3 h-3" />
-                  </div>
-                  <span className="leading-tight">{protocol.impactMetric}</span>
-                </div>
-
-                {/* Pillar Specific Bottom Action (Uniform Height Across All 3 Cards) */}
-                {protocol.category === 'circadian' && (
-                  <button
-                    type="button"
-                    onClick={() => setCircadianReminderSet(!circadianReminderSet)}
-                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-98 ${
-                      circadianReminderSet
-                        ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                        : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white'
-                    }`}
-                  >
-                    {circadianReminderSet ? (
-                      <>
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Curfew Target Activated (9:30 PM)</span>
-                      </>
-                    ) : (
-                      <>
-                        <Bell className="w-3.5 h-3.5" />
-                        <span>Activate 9:30 PM Wind-Down Goal</span>
-                      </>
-                    )}
-                  </button>
-                )}
-
-                {protocol.category === 'calendar' && (
-                  <button
-                    type="button"
-                    onClick={onApplyCalendarRules || onOpenCalendarModal}
-                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-98 ${
-                      calendarRulesApplied
-                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-300 shadow-emerald-200'
-                        : 'bg-[#3186FF] hover:bg-blue-600 text-white'
-                    }`}
-                  >
-                    {calendarRulesApplied ? (
-                      <>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                        <span>✓ Rules Enforced Across Future Dates</span>
-                      </>
-                    ) : (
-                      <>
-                        <Calendar className="w-3.5 h-3.5" />
-                        <span>Apply Calendar Rules</span>
-                      </>
-                    )}
-                  </button>
-                )}
-
-                {protocol.category === 'audit' && (
-                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/90 flex items-center justify-between text-xs px-3">
-                    <div className="text-left">
-                      <span className="text-[10px] text-slate-500 font-medium block">Next Salon Hair Snip</span>
-                      <span className="text-xs font-bold text-black font-mono">
-                        {synthesis.nextSalonAuditDate || 'November 14, 2026'}
-                      </span>
+                        )}
+                      </div>
                     </div>
-                    <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-200">
-                      Certified Partner Salon
-                    </span>
+
+                    {/* Two actions to tick off */}
+                    <ul className="lg:col-span-3 space-y-2">
+                      {protocol.actionItems.slice(0, 2).map((item, idx) => {
+                        const itemKey = `${protocol.id}-${idx}`;
+                        const isDone = !!completedSteps[itemKey];
+                        return (
+                          <li key={idx}>
+                            <button
+                              type="button"
+                              onClick={() => toggleStep(itemKey)}
+                              aria-pressed={isDone}
+                              className={`w-full text-left p-3 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 ${
+                                isDone ? 'bg-emerald-50/60 border-emerald-200' : 'bg-white hover:bg-slate-50 border-slate-200'
+                              }`}
+                            >
+                              <span
+                                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                                  isDone ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-white border-slate-300'
+                                }`}
+                              >
+                                {isDone && <Check className="w-3 h-3 stroke-[3]" />}
+                              </span>
+                              <span className={`text-xs leading-relaxed ${isDone ? 'text-slate-400 line-through' : 'text-slate-800'}`}>{item}</span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </div>
-                )}
+                </div>
               </div>
-            </div>
+            </li>
           );
         })}
-      </div>
-    </div>
+      </ol>
+
+      <p className="text-[11px] text-slate-500">
+        These are general wellbeing suggestions, not medical advice. If you feel unwell, see a doctor.
+      </p>
+    </section>
   );
 });
+
+GeminiProtocolCards.displayName = 'GeminiProtocolCards';
