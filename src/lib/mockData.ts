@@ -297,7 +297,7 @@ export const CLINICAL_FALLBACK_SYNTHESIS: GeminiSynthesisResult = {
       title: 'Protect your evenings',
       iconType: 'calendar',
       badge: 'Calendar Integration',
-      description: 'Set automated boundaries on your Google Calendar to stop work bleeding into your evenings.',
+      description: 'Set boundaries in your calendar to stop work bleeding into your evenings.',
       actionItems: [
         'Set a hard stop: decline or reschedule meeting invites after 7:00 PM local time.',
         'Add 15-minute buffers between meetings to step away and decompress.',
