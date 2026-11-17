@@ -18,6 +18,12 @@ or "BAALANCE AI". Prefer Microsoft features (Outlook/Teams via Graph, Azure Open
   reschedule via PATCH, iCal host allowlist). Routes: `/api/calendar`, `/api/calendar/reschedule`.
 - Server auth helpers: `src/lib/serverAuth.ts` (verify Bearer token, per-IP rate limit).
   Client calls to `/api/*` must go through `apiFetch` (`src/lib/apiFetch.ts`) so the token is attached.
+- Safety: `src/lib/contentSafety.ts` (crisis rule check, always on, plus Azure AI Content Safety when
+  `AZURE_CONTENT_SAFETY_*` is set). `/api/gemini-chat` screens the user's message and the model's reply.
+- PSS-10: `src/lib/pss10.ts` (items, scoring), `src/components/Pss10Card.tsx` (Profile tab). Stored in the profile bundle.
+- Activity log: `src/lib/auditLog.ts` (browser), `src/lib/auditServer.ts` + `/api/audit` (table `baalance_audit_log`).
+  `/api/calendar/reschedule` refuses to move anything without `approvedByUser: true` and logs every move.
+- Data controls: `/api/storage/user-data` (GET export, DELETE), UI in `src/components/PrivacyAndActivityPanel.tsx`.
 - Demo data: `src/lib/mockData.ts` (fictional "Sample Case"; July 11.2, August 28.4, September 15.6 pg/mg).
 
 ## Rules
@@ -36,4 +42,8 @@ or "BAALANCE AI". Prefer Microsoft features (Outlook/Teams via Graph, Azure Open
 2. Run `supabase/migrations/20261107_lock_down_rls.sql` in the Supabase SQL Editor.
 3. Microsoft Entra app registration, redirect `https://<project>.supabase.co/auth/v1/callback`,
    Graph delegated `User.Read` + `Calendars.ReadWrite`; enable the Azure provider in Supabase.
-4. Optional: Azure OpenAI deployment and `AZURE_OPENAI_*` env vars in Vercel (see `.env.example`).
+4. Azure OpenAI deployment and `AZURE_OPENAI_*` env vars in Vercel (see `.env.example`).
+5. Run `supabase/migrations/20261118_audit_log.sql` in the Supabase SQL Editor (activity log table).
+6. Azure AI Content Safety resource and `AZURE_CONTENT_SAFETY_*` env vars in Vercel. Set `AI_PROVIDER=azure`
+   so Azure OpenAI is the model actually used.
+7. PSS-10 is free for non-profit research and education; get the author's permission before commercial use.

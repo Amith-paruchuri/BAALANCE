@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateText } from '@/lib/ai';
 import { userOrDemoQuota } from '@/lib/serverAuth';
+import { screenText, CRISIS_REPLY, CRISIS_RESOURCES, BLOCKED_INPUT_REPLY, BLOCKED_OUTPUT_REPLY } from '@/lib/contentSafety';
+import { writeAudit } from '@/lib/auditServer';
+import { describePss10 } from '@/lib/pss10';
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry } from '@/lib/types';
 
 export async function POST(req: NextRequest) {
@@ -20,6 +23,24 @@ export async function POST(req: NextRequest) {
       verifiedCalendarEmail,
       apiKey: clientApiKey,
     } = await req.json();
+
+    // Safety first: screen what the user wrote before it reaches the coach model.
+    // Crisis language gets help and emergency guidance, never a coaching answer.
+    const inputVerdict = await screenText(String(message || ''), 'input');
+    if (inputVerdict.crisis || inputVerdict.blocked) {
+      const action = inputVerdict.crisis ? 'crisis_escalation' : 'content_blocked';
+      // The message itself is never stored: only that the safety check acted.
+      if (access) await writeAudit(access, action, { detail: { checkedBy: inputVerdict.checkedBy.join('+') } });
+      return NextResponse.json({
+        reply: inputVerdict.crisis ? CRISIS_REPLY : BLOCKED_INPUT_REPLY,
+        source: 'safety',
+        safety: {
+          action: inputVerdict.crisis ? 'crisis' : 'blocked',
+          checkedBy: inputVerdict.checkedBy,
+          resources: inputVerdict.crisis ? CRISIS_RESOURCES : [],
+        },
+      });
+    }
 
     const userProfile: UserProfile = profile || {};
     const july = segments?.find((s: HairCortisolSegment) => s.id === 1)?.cortisolPgPerMg || 11.2;
@@ -133,7 +154,7 @@ export async function POST(req: NextRequest) {
     // but the linked calendar shows 0 or very few meetings (<= 10 hours), this is classic Discordance!
     const isDiscordant = (august > 16 || september > 14) && (hasLinkedCalendar && realMeetingHours <= 10 && realLateCalls <= 2);
 
-    const systemPrompt = `You are Tricha, the intelligent, friendly, and practical AI health guide for BAALANCE, powered by Google Gemini.
+    const systemPrompt = `You are Tricha, the intelligent, friendly, and practical AI health guide for BAALANCE.
 You have the complete diagnostic, lifestyle, calendar, and sleep context for ${userProfile.name || firstName}:
 
 DASHBOARD SUMMARY (ALWAYS QUOTE THESE EXACT FIGURES):
@@ -152,6 +173,7 @@ PATIENT PROFILE & LIFESTYLE:
 - Caffeine Habits: ${caffeineHabit === 'no_coffee' ? 'No coffee / Zero caffeine' : caffeineHabit}
 - Evening Work: ${workBoundaryBleed}
 - Primary Stress Drivers: ${stressDrivers}
+- Self-reported stress: ${describePss10(userProfile.pss10)}
 
 90-DAY HAIR CORTISOL LAB TEST (3.0 cm sample, 1 cm = 30 days):
 - July (60-90 days ago / Hair Tip): ${july} pg/mg (Healthy Baseline)
@@ -188,7 +210,11 @@ COMMUNICATION RULES:
 1. Speak in warm, plain, conversational English that any common person easily understands. Avoid engineering or medical jargon.
 2. Format your answers with short bullets and bold numbers, not long walls of text. Keep answers crisp and fast to read (2-3 short bulleted sections max).
 3. Address the user's EXACT question directly first.
-4. When discussing recovery, recommend 8-week horizon for re-testing. Never claim short-term 14 or 21 day permanent changes.`;
+4. When discussing recovery, recommend 8-week horizon for re-testing. Never claim short-term 14 or 21 day permanent changes.
+5. If a PSS-10 score is available, read it next to the hair cortisol result and say when the two agree or disagree. Hair cortisol and self-reported stress are only modestly linked.
+6. You are an AI coach, not a doctor. This is a research-stage tool, not a diagnosis. For very high values, worrying symptoms or medicine questions, tell the user to see a doctor.
+7. If the user sounds hopeless or in distress, respond with care and tell them to contact a doctor, Tele-MANAS (14416 in India) or their local emergency number.
+8. If asked what AI you are, say you are BAALANCE AI.`;
 
     const chatHistory = (Array.isArray(history) ? history.slice(-6) : [])
       .filter((h: any) => h && typeof h.text === 'string' && h.text.trim())
@@ -201,9 +227,20 @@ COMMUNICATION RULES:
     });
 
     if (aiResult) {
+      // Second check: screen the coach's answer before it is shown.
+      const outputVerdict = await screenText(aiResult.text, 'output');
+      if (outputVerdict.blocked) {
+        if (access) await writeAudit(access, 'content_blocked', { detail: { stage: 'reply', checkedBy: outputVerdict.checkedBy.join('+') } });
+        return NextResponse.json({
+          reply: BLOCKED_OUTPUT_REPLY,
+          source: 'safety',
+          safety: { action: 'blocked', checkedBy: outputVerdict.checkedBy, resources: [] },
+        });
+      }
       return NextResponse.json({
         reply: aiResult.text.replace(/\*/g, ''),
         source: `${aiResult.provider}:${aiResult.model}`,
+        safety: { action: 'passed', checkedBy: outputVerdict.checkedBy },
       });
     }
 
@@ -363,6 +400,7 @@ Would you like specific recommendations for structuring your schedule, improving
     return NextResponse.json({
       reply: cleanResponse,
       source: 'clinical-engine',
+      safety: { action: 'passed', checkedBy: inputVerdict.checkedBy },
     });
   } catch (error: any) {
     return NextResponse.json(

@@ -1,3 +1,5 @@
+import type { Pss10Result } from './pss10';
+
 export type Chronotype = 'morning_lark' | 'night_owl' | 'shift_biphasic';
 
 export type StressDriver = 
@@ -40,7 +42,11 @@ export interface UserProfile {
   caffeineHabit: CaffeineHabit;
   somaticSymptoms: SomaticSymptom[];
   stressDrivers: StressDriver[];
-  perceivedStressRating: number; // 1-10 clinical scale
+  perceivedStressRating: number; // 1-10 self-rating (not a validated scale)
+  /** Latest PSS-10 result (validated questionnaire, 0 to 40). */
+  pss10?: Pss10Result;
+  /** Earlier PSS-10 results, oldest first, so a re-test can be compared with the first one. */
+  pss10History?: Pss10Result[];
   isDemo: boolean;
   calendarIcalUrl?: string;
   haircutDate?: string;
@@ -117,4 +123,6 @@ export interface ChatMessage {
   role: 'user' | 'model';
   text: string;
   timestamp: string;
+  /** Set when the safety check replaced the coach's answer. */
+  safety?: 'crisis' | 'blocked';
 }

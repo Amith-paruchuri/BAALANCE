@@ -137,7 +137,7 @@ export const HairJourneyCard = React.memo<HairJourneyCardProps>(({
       isCurrent: true,
       tags: [],
       custodyDetails: [
-        { label: 'Intelligence', value: 'BAALANCE AI (Azure OpenAI or Gemini)' },
+        { label: 'Intelligence', value: 'BAALANCE AI (Azure OpenAI)' },
         { label: 'Inputs', value: 'Hair Biomarkers + Google Calendar' },
         { label: 'Stress Score', value: '78 / 100 (High stress)' },
       ],
