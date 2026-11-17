@@ -104,7 +104,7 @@ export const GeminiProtocolCards = React.memo<GeminiProtocolCardsProps>(({
           className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-xs font-bold text-[#3186FF] border border-[#E2E8F0] shadow-2xs hover:shadow-xs transition-all active:scale-95 cursor-pointer self-start sm:self-auto shrink-0"
         >
           <Sparkles className={`w-3.5 h-3.5 ${isSynthesizing ? 'animate-spin' : ''}`} />
-          <span>{isSynthesizing ? 'Gemini AI Updating...' : 'Refresh Plan'}</span>
+          <span>{isSynthesizing ? 'AI Updating...' : 'Refresh Plan'}</span>
         </button>
       </div>
 

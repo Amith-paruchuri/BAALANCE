@@ -174,7 +174,7 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
             {isCalendarConnected ? (
               <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                Live Google Calendar
+                Live calendar
               </span>
             ) : (
               <span className="text-[10px] text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
@@ -183,7 +183,7 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
             )}
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            3 monthly hair cortisol bars (1 cm = 1 month) vs weekly Google Calendar meeting hours.
+            3 monthly hair cortisol bars (1 cm = 1 month) vs weekly meeting hours from your calendar.
           </p>
         </div>
 

@@ -66,19 +66,19 @@ const PITCH_SCENES: PitchScene[] = [
   },
   {
     id: 4,
-    title: 'Gemini Synthesis & Stress Trajectory',
+    title: 'AI Synthesis & Stress Trajectory',
     badge: 'Scene 4 • 0:58 - 1:12',
     scriptSnippet:
-      'From there, our intelligent co-pilot, powered by Gemini, interprets the raw values from the lab to build a clear trajectory of your stress levels over the last three months.',
-    keyCallout: 'Gemini translates lab test data into a continuous Burnout Score trajectory.',
+      'From there, our AI co-pilot interprets the raw values from the lab to build a clear trajectory of your stress levels over the last three months.',
+    keyCallout: 'BAALANCE AI translates lab test data into a continuous Burnout Score trajectory.',
   },
   {
     id: 5,
     title: 'Chrono-Correlation & Calendar Defense',
     badge: 'Scene 5 • 1:12 - 1:35',
     scriptSnippet:
-      'Then, by integrating directly with your Google Calendar and wearable data, Gemini correlates the exact causes behind your rise in stress—revealing, for example, that your July cortisol spike coincided with back-to-back project deadlines and late-night meetings. Gemini then delivers tailored lifestyle advice and proactive calendar adjustments for your daily routine. And with a single tap of your approval, it directly executes those changes in your Google Calendar and sends update emails to your invitees automatically.',
-    keyCallout: 'Gemini correlates cortisol spikes with late meetings & executes 1-click Google Calendar defense with auto-email.',
+      'Then, by integrating directly with your Google Calendar and wearable data, BAALANCE AI correlates the exact causes behind your rise in stress—revealing, for example, that your July cortisol spike coincided with back-to-back project deadlines and late-night meetings. It then delivers tailored lifestyle advice and proactive calendar adjustments for your daily routine. And with a single tap of your approval, it directly executes those changes in your Google Calendar and sends update emails to your invitees automatically.',
+    keyCallout: 'BAALANCE AI correlates cortisol spikes with late meetings & executes 1-click Google Calendar defense with auto-email.',
   },
   {
     id: 6,
@@ -377,14 +377,14 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                       </div>
                     </div>
                     <span className="text-[10px] bg-purple-50 text-purple-700 font-bold px-2 py-1 rounded-lg border border-purple-200">
-                      Gemini Co-Pilot
+                      AI Co-Pilot
                     </span>
                   </div>
 
                   <div className="p-3.5 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs space-y-2">
                     <span className="text-xs font-bold text-black flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-[#3186FF]" />
-                      <span>Gemini Synthesis Analysis:</span>
+                      <span>AI Synthesis Analysis:</span>
                     </span>
                     <p className="text-xs text-slate-700 leading-relaxed">
                       "Biomarker trajectory indicates a severe stress surge during Month 2 (+185% baseline elevation), followed by delayed recovery in Month 1 due to late-night calls."
@@ -426,7 +426,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                   <div className="p-3 rounded-2xl bg-rose-50/70 border border-rose-200 text-xs space-y-1">
                     <div className="flex items-center gap-1.5 font-bold text-rose-900">
                       <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                      <span>Root Cause Identified by Gemini:</span>
+                      <span>Root Cause Identified by AI:</span>
                     </div>
                     <p className="text-[11px] text-rose-800 leading-relaxed">
                       July Cortisol Spike correlated with <strong>back-to-back project deadlines (11 calls past 7 PM)</strong> that repeatedly breached evening recovery boundaries.

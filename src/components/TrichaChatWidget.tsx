@@ -72,7 +72,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
     {
       id: 'demo-msg-1',
       role: 'model',
-      text: `Hi ${firstName}! I'm Tricha, your personal stress & recovery guide powered by Google Gemini.\n\nI've analyzed your 90-day hair cortisol timeline alongside your calendar workload. Your 3-month stress score is **78 / 100** (High Stress), with a major biological surge in August at **28.4 pg/mg** (+154% above baseline).\n\nAsk me anything about what triggered your stress or what changes will speed up recovery!`,
+      text: `Hi ${firstName}! I'm Tricha, your personal stress & recovery guide.\n\nI've analyzed your 90-day hair cortisol timeline alongside your calendar workload. Your 3-month stress score is **78 / 100** (High Stress), with a major biological surge in August at **28.4 pg/mg** (+154% above baseline).\n\nAsk me anything about what triggered your stress or what changes will speed up recovery!`,
       timestamp: '2 mins ago',
     },
     {
@@ -240,10 +240,12 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
       if (res.ok) {
         const data = await res.json();
         const cleanReply = (data.reply || '').replace(/\*/g, '');
+        const safetyAction = data.safety?.action;
         const modelMsg: ChatMessage = {
           id: `tricha-${Date.now()}`,
           role: 'model',
           text: cleanReply,
+          ...(safetyAction === 'crisis' || safetyAction === 'blocked' ? { safety: safetyAction } : {}),
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
         setMessages(prev => [...prev, modelMsg]);
@@ -279,7 +281,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                 <h3 className="text-sm font-bold text-black">Tricha AI</h3>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Powered by Google Gemini</span>
+                  <span>BAALANCE AI</span>
                 </span>
                 {isKeyConfigured && (
                   <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#3186FF] border border-blue-200">
@@ -310,10 +312,10 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
               type="button"
               onClick={() => setShowKeyModal(true)}
               className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-[#E2E8F0] text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer shrink-0"
-              title="Configure or test Google Gemini API Key"
+              title="Use your own AI key"
             >
               <Key className="w-3.5 h-3.5 text-[#3186FF]" />
-              <span className="hidden sm:inline">{isKeyConfigured ? 'API Connected' : 'Connect Gemini API'}</span>
+              <span className="hidden sm:inline">{isKeyConfigured ? 'API Connected' : 'Add AI key'}</span>
             </button>
           </div>
         </div>
@@ -324,7 +326,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 font-bold text-black">
                 <Key className="w-4 h-4 text-[#3186FF]" />
-                <span>Connect Google Gemini API Key:</span>
+                <span>Use your own AI key:</span>
               </div>
               <button
                 type="button"
@@ -336,7 +338,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
             </div>
 
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              To enable live reasoning powered by <strong>Google Gemini</strong>, paste your free Google AI Studio API key below:
+              Optional: paste your own Google AI Studio key to run Tricha on it:
             </p>
 
             <form onSubmit={handleSaveApiKey} className="flex items-center gap-2">
@@ -344,7 +346,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                 type="password"
                 value={keyInput}
                 onChange={e => setKeyInput(e.target.value)}
-                placeholder="AIzaSy..."
+                placeholder="Paste your key"
                 className="flex-1 p-2 text-xs rounded-xl border border-slate-300 bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
               />
               <button
@@ -412,12 +414,33 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
 
                 <div
                   className={`max-w-[85%] p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
-                    isTricha
+                    msg.safety === 'crisis'
+                      ? 'bg-rose-50 border-2 border-rose-300 text-slate-900 rounded-tl-xs'
+                      : isTricha
                       ? 'bg-[#F0F4FA] border border-[#E2E8F0] text-slate-900 rounded-tl-xs'
                       : 'bg-[#3186FF] text-white rounded-tr-xs shadow-xs'
                   }`}
+                  {...(msg.safety === 'crisis' ? { role: 'alert' } : {})}
                 >
+                  {msg.safety === 'crisis' && (
+                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-rose-700 mb-1.5">
+                      Please reach out for help now
+                    </div>
+                  )}
                   <div className="whitespace-pre-wrap leading-relaxed">{msg.text.replace(/\*/g, '')}</div>
+                  {msg.safety === 'crisis' && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <a href="tel:112" className="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold">
+                        Call 112 (emergency)
+                      </a>
+                      <a href="tel:14416" className="px-3 py-2 rounded-xl bg-white border border-rose-300 text-rose-700 hover:bg-rose-100 text-xs font-bold">
+                        Call Tele-MANAS 14416
+                      </a>
+                      <a href="tel:18005990019" className="px-3 py-2 rounded-xl bg-white border border-rose-300 text-rose-700 hover:bg-rose-100 text-xs font-bold">
+                        Call KIRAN 1800-599-0019
+                      </a>
+                    </div>
+                  )}
                   <div
                     className={`text-[10px] mt-1 text-right font-mono ${
                       isTricha ? 'text-slate-400' : 'text-blue-100'
@@ -433,7 +456,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
           {isLoading && (
             <div className="flex items-center gap-2.5 text-xs text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-200 max-w-[70%]">
               <RefreshCw className="w-4 h-4 animate-spin text-[#3186FF]" />
-              <span>Tricha is finding the cause with Google Gemini...</span>
+              <span>Tricha is finding the cause...</span>
             </div>
           )}
           <div ref={messagesEndRef} />
@@ -453,6 +476,10 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
             </button>
           ))}
         </div>
+
+        <p className="px-4 py-1.5 bg-white border-t border-slate-100 text-[10px] text-slate-500 text-center">
+          Tricha is an AI coach, not a doctor or an emergency service. Messages are checked for safety. In an emergency call 112.
+        </p>
 
         {/* Input Bar */}
         <form

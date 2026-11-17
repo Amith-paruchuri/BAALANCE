@@ -18,7 +18,7 @@ interface GeminiChatDrawerProps {
 
 const PROMPT_CHIPS = [
   'Why is Month 1 still elevated if my meetings dropped?',
-  'How can I structure my Google Calendar to protect evening recovery?',
+  'How can I structure my calendar to protect evening recovery?',
   'What signs show my stress levels are recovering?',
 ];
 
@@ -36,7 +36,7 @@ export const GeminiChatDrawer: React.FC<GeminiChatDrawerProps> = ({
     {
       id: 'init-1',
       role: 'model',
-      text: `Hello ${userProfile.name.split(' ')[0]}. I have reviewed your 90-day hair cortisol timeline (11.2 -> 28.4 -> 15.6 pg/mg) alongside your Google Calendar workload.\n\nHow can I help you understand what caused your stress spike or how to reset your recovery?`,
+      text: `Hello ${userProfile.name.split(' ')[0]}. I have reviewed your 90-day hair cortisol timeline (11.2 -> 28.4 -> 15.6 pg/mg) alongside your calendar workload.\n\nHow can I help you understand what caused your stress spike or how to reset your recovery?`,
       timestamp: 'Just now',
     },
   ]);
@@ -119,7 +119,7 @@ export const GeminiChatDrawer: React.FC<GeminiChatDrawerProps> = ({
               </div>
               <div>
                 <h3 className="text-sm font-bold text-[#000000] flex items-center gap-1.5">
-                  <span>Gemini Co-Pilot</span>
+                  <span>AI Co-Pilot</span>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-[#3186FF] font-semibold">
                     v3.6 Flash
                   </span>

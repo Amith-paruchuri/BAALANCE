@@ -121,7 +121,7 @@ export const WearablesInsightWidget: React.FC<WearablesInsightWidgetProps> = ({
             <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
               <Sparkles className="w-4 h-4 text-emerald-600" />
             </div>
-            <div className="text-xs font-black text-slate-900">Google Gemini</div>
+            <div className="text-xs font-black text-slate-900">BAALANCE AI</div>
             <p className="text-[11px] text-slate-500 leading-relaxed">
               Connects the dots between your calendar, your day, and your biological recovery.
             </p>
