@@ -1407,8 +1407,8 @@ export default function BaalanceApp() {
 
                 const statusBadge = score > 80
                   ? {
-                      label: 'Critical Burnout Risk',
-                      sublabel: 'Urgent Intervention Needed',
+                      label: 'Very high stress load',
+                      sublabel: 'Worth acting on now',
                       badgeBg: 'bg-rose-50 text-rose-700 border-rose-200/80',
                       ringGradientStart: '#FB7185',
                       ringGradientEnd: '#E11D48',
@@ -1417,7 +1417,7 @@ export default function BaalanceApp() {
                     }
                   : score > 60
                   ? {
-                      label: 'High Stress Warning',
+                      label: 'High stress load',
                       sublabel: 'Overloaded Boundaries',
                       badgeBg: 'bg-orange-50 text-orange-800 border-orange-200/80',
                       ringGradientStart: '#F97316',
@@ -1436,7 +1436,7 @@ export default function BaalanceApp() {
                       icon: Activity,
                     }
                   : {
-                      label: 'Healthy & Thriving',
+                      label: 'Healthy range',
                       sublabel: 'Balanced Biological State',
                       badgeBg: 'bg-emerald-50 text-emerald-800 border-emerald-200/80',
                       ringGradientStart: '#34D399',
@@ -1450,22 +1450,16 @@ export default function BaalanceApp() {
                 return (
                   <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-5 sm:p-7 space-y-5 font-sans relative overflow-hidden">
                     {/* Subtle ambient background glow */}
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-radial from-rose-50/40 via-transparent to-transparent pointer-events-none" />
 
                     {/* Card Header: Category eyebrow + Import Action Button */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#3186FF] via-[#6366F1] to-[#D946EF] p-[1.5px] shadow-2xs">
-                          <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
-                            <Sparkles className="w-4 h-4 text-[#3186FF]" />
-                          </div>
-                        </div>
                         <div>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                            Integrated 90-Day Synthesis
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-[#BF6F4E] block">
+                            Hair and calendar combined
                           </span>
                           <h2 className="text-xl sm:text-2xl font-black text-black tracking-tight leading-none mt-0.5">
-                            Your 3-Month Stress Score
+                            Your 3-month stress score
                           </h2>
                         </div>
                       </div>
@@ -1620,62 +1614,6 @@ export default function BaalanceApp() {
                         <span className="flex items-center gap-1.5 text-rose-700 font-bold">
                           <span className="w-2 h-2 rounded-full bg-rose-500" />
                           81–100 Burnout
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* 3 STAT TILES (Exact figures: 18.4 avg, 57 late calls, 33 hrs/wk avg) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-                      <div className="p-3 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-                            <Droplet className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                              Hair Cortisol
-                            </div>
-                            <div className="text-xs font-black text-black font-mono">
-                              {cumulativeAvgCortisol} <span className="text-[10px] font-normal text-slate-500">pg/mg avg</span>
-                            </div>
-                          </div>
-                        </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border text-rose-700 bg-rose-50 border-rose-200">
-                          Peak in August (28.4)
-                        </span>
-                      </div>
-
-                      <div className="p-3 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-                            <Calendar className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Calls after 7 PM</div>
-                            <div className="text-xs font-black text-black font-mono">
-                              {totalEveningCalls} <span className="text-[10px] font-normal text-slate-500">calls</span>
-                            </div>
-                          </div>
-                        </div>
-                        <span className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
-                          Biggest Stress Driver
-                        </span>
-                      </div>
-
-                      <div className="p-3 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#3186FF] flex items-center justify-center shrink-0">
-                            <Clock className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Meeting Hours</div>
-                            <div className="text-xs font-black text-black font-mono">
-                              {Math.round(totalMeetingHours / 12)} <span className="text-[10px] font-normal text-slate-500">hrs / wk avg</span>
-                            </div>
-                          </div>
-                        </div>
-                        <span className="text-[10px] font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
-                          391 total hours
                         </span>
                       </div>
                     </div>
