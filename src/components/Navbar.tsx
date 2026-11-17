@@ -24,16 +24,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   const initial = (userProfile.name || 'U').charAt(0).toUpperCase();
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#E2E8F0] shadow-2xs font-sans">
+    <header className="sticky top-0 z-30 bg-[#FBF7F2]/90 backdrop-blur-md border-b border-[#E7E1D8] font-sans">
       <div className="max-w-6xl mx-auto px-3 sm:px-6 h-15 flex items-center justify-between gap-3">
         {/* Left: Brand Logo */}
         <div className="flex items-center gap-3 shrink-0">
           <BaalanceLogo size="sm" showTagline={false} animated={true} />
           
           <div className="hidden lg:flex items-center pl-3 border-l border-[#E2E8F0]">
-            <span className="text-[11px] font-semibold text-[#0D4F59] tracking-wider uppercase">
-              "Your hair keeps the receipts."
-            </span>
+            <span className="text-xs font-medium italic text-slate-500">Hair keeps the receipts.</span>
           </div>
         </div>
 
@@ -44,11 +42,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={onOpenEnterprise}
-              className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 transition-all cursor-pointer shadow-2xs"
+              className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors cursor-pointer"
               title="Workspaces for hospitals, colleges and companies"
             >
-              <Building2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="hidden sm:inline">Enterprise</span>
+              <Building2 className="w-3.5 h-3.5 text-slate-500" />
+              <span className="hidden sm:inline">For teams</span>
             </button>
           )}
 
@@ -59,22 +57,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => onSelectTab('profile')}
             className={`flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1 rounded-xl transition-all cursor-pointer ${
               activeTab === 'profile'
-                ? 'bg-blue-50 border border-blue-200 ring-1 ring-blue-300'
-                : 'hover:bg-slate-100 border border-transparent'
+                ? 'bg-white border border-slate-200'
+                : 'hover:bg-white border border-transparent'
             }`}
             title="Profile and settings"
             aria-label="Profile and settings"
           >
-            <div className="w-7 h-7 rounded-full bg-[#3186FF] text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+            <div className="w-7 h-7 rounded-full bg-[#0D4F59] text-white flex items-center justify-center font-bold text-xs">
               {initial}
             </div>
             <div className="hidden md:flex flex-col text-left">
               <span className="text-xs font-bold text-black leading-tight truncate max-w-[120px]">
                 {userProfile.name}
               </span>
-              <span className="text-[10px] text-slate-500 leading-tight">
-                Profile ⚙️
-              </span>
+              <span className="text-[10px] text-slate-500 leading-tight">Profile</span>
             </div>
           </button>
 

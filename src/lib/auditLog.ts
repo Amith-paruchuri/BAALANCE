@@ -1,4 +1,5 @@
 import { apiFetch } from './apiFetch';
+import { getSupabaseClient } from './supabase';
 
 /**
  * Activity log: every approval, decline and calendar change, plus safety and
@@ -96,17 +97,30 @@ export function recordAudit(
   } catch {}
 
   if (CLIENT_AUDIT_ACTIONS.includes(action)) {
-    apiFetch('/api/audit', {
+    void postAudit(entry);
+  }
+}
+
+async function postAudit(entry: AuditEntry): Promise<void> {
+  try {
+    const supabase = getSupabaseClient();
+    const session = supabase ? (await supabase.auth.getSession()).data?.session : null;
+    if (!session) return;
+    await apiFetch('/api/audit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, provider: entry.provider, eventRef: entry.eventRef, detail: entry.detail }),
-    }).catch(() => {});
-  }
+      body: JSON.stringify({ action: entry.action, provider: entry.provider, eventRef: entry.eventRef, detail: entry.detail }),
+    });
+  } catch {}
 }
 
 /** Server log for signed-in users, otherwise the local log. */
 export async function loadAudit(): Promise<{ entries: AuditEntry[]; source: 'server' | 'local' }> {
   try {
+    // Guests have no account log: skip the request instead of logging a 401.
+    const supabase = getSupabaseClient();
+    const session = supabase ? (await supabase.auth.getSession()).data?.session : null;
+    if (!session) return { entries: readLocal(), source: 'local' };
     const res = await apiFetch('/api/audit');
     if (res.ok) {
       const data = await res.json();

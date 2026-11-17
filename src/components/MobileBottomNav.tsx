@@ -22,7 +22,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button
           onClick={() => onSelectTab('overview')}
           className={`flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-lg transition-colors ${
-            activeTab === 'overview' ? 'text-[#3186FF] font-bold' : 'text-[#5F6368] hover:text-black'
+            activeTab === 'overview' ? 'text-[#0D4F59] font-bold' : 'text-[#5F6368] hover:text-black'
           }`}
         >
           <LayoutDashboard className="w-4 h-4" />
@@ -32,7 +32,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button
           onClick={() => onSelectTab('scrubber')}
           className={`flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-lg transition-colors ${
-            activeTab === 'scrubber' ? 'text-[#3186FF] font-bold' : 'text-[#5F6368] hover:text-black'
+            activeTab === 'scrubber' ? 'text-[#0D4F59] font-bold' : 'text-[#5F6368] hover:text-black'
           }`}
         >
           <Sliders className="w-4 h-4" />
@@ -42,7 +42,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button
           onClick={() => onSelectTab('sync')}
           className={`flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-lg transition-colors ${
-            activeTab === 'sync' ? 'text-[#3186FF] font-bold' : 'text-[#5F6368] hover:text-black'
+            activeTab === 'sync' ? 'text-[#0D4F59] font-bold' : 'text-[#5F6368] hover:text-black'
           }`}
         >
           <Activity className="w-4 h-4" />
@@ -52,7 +52,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button
           onClick={() => onSelectTab('protocols')}
           className={`flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-lg transition-colors ${
-            activeTab === 'protocols' ? 'text-[#3186FF] font-bold' : 'text-[#5F6368] hover:text-black'
+            activeTab === 'protocols' ? 'text-[#0D4F59] font-bold' : 'text-[#5F6368] hover:text-black'
           }`}
         >
           <Sparkles className="w-4 h-4" />
@@ -61,7 +61,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
         <button
           onClick={onOpenChat}
-          className="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-lg text-[#3186FF] hover:text-blue-700 transition-colors"
+          className="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-lg text-[#0D4F59] hover:text-blue-700 transition-colors"
         >
           <div className="relative">
             <MessageSquare className="w-4 h-4" />

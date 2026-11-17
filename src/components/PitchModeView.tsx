@@ -135,7 +135,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
               onClick={() => setCurrentSceneIndex(idx)}
               className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all shrink-0 ${
                 currentSceneIndex === idx
-                  ? 'bg-[#3186FF] text-white shadow-md'
+                  ? 'bg-[#0D4F59] text-white shadow-md'
                   : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
               }`}
             >
@@ -157,7 +157,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
           <button
             disabled={currentSceneIndex === PITCH_SCENES.length - 1}
             onClick={() => setCurrentSceneIndex(prev => Math.min(PITCH_SCENES.length - 1, prev + 1))}
-            className="p-1.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 disabled:opacity-30 text-white transition-colors flex items-center gap-1 text-xs font-bold px-3"
+            className="p-1.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 disabled:opacity-30 text-white transition-colors flex items-center gap-1 text-xs font-bold px-3"
             title="Next Scene (Right Arrow)"
           >
             <span>Next</span>
@@ -212,7 +212,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
         {/* Right Column: Curated Clean UI Phone Mockup (7 cols) */}
         <div className="lg:col-span-7 flex justify-center">
-          <div className="relative w-[380px] h-[780px] bg-[#F0F4FA] text-slate-900 rounded-[46px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_0_10px_#0F172A,0_0_0_12px_#334155] overflow-hidden flex flex-col border-[3px] border-slate-900 select-none">
+          <div className="relative w-[380px] h-[780px] bg-[#F6F2EC] text-slate-900 rounded-[46px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_0_10px_#0F172A,0_0_0_12px_#334155] overflow-hidden flex flex-col border-[3px] border-slate-900 select-none">
             {/* Phone Top Chrome / Dynamic Island & Status Bar */}
             <div className="h-10 bg-white/95 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 shrink-0 z-40 relative">
               <span className="text-[12px] font-bold text-black font-sans">9:41</span>
@@ -224,7 +224,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
             </div>
 
             {/* CURATED SCENE CONTENT (CLEAN & MINIMAL) */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3.5 no-scrollbar bg-[#F0F4FA]">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3.5 no-scrollbar bg-[#F6F2EC]">
               {/* SCENE 1: THE DIAGNOSTIC GAP */}
               {currentSceneIndex === 0 && (
                 <div className="space-y-4 animate-fade-in pt-2">
@@ -246,10 +246,10 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
                       <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
-                          <HeartPulse className="w-4 h-4 text-[#3186FF]" />
+                          <HeartPulse className="w-4 h-4 text-[#0D4F59]" />
                           <span className="font-semibold text-blue-950">Blood Pressure Climb</span>
                         </div>
-                        <span className="font-mono text-[11px] font-bold text-[#3186FF] bg-white px-2 py-0.5 rounded">Arm Cuff (15s)</span>
+                        <span className="font-mono text-[11px] font-bold text-[#0D4F59] bg-white px-2 py-0.5 rounded">Arm Cuff (15s)</span>
                       </div>
 
                       <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-300 flex items-center justify-between text-xs">
@@ -284,7 +284,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
               {currentSceneIndex === 1 && (
                 <div className="space-y-3.5 animate-fade-in">
                   <div className="p-3 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#3186FF]">Biochemical Principle</span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#0D4F59]">Biochemical Principle</span>
                     <h3 className="text-xs font-bold text-black mt-0.5">Hair Growth Rate = 1 cm per Month</h3>
                     <p className="text-[11px] text-[#5F6368] mt-0.5">
                       Cortisol is permanently encapsulated into the keratin matrix as hair grows.
@@ -367,7 +367,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                 <div className="space-y-3.5 animate-fade-in">
                   <div className="p-4 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#3186FF] via-[#6366F1] to-[#FB7185] flex items-center justify-center text-white font-black text-lg shadow-sm">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#0D4F59] via-[#16636E] to-[#FB7185] flex items-center justify-center text-white font-black text-lg shadow-sm">
                         78
                       </div>
                       <div>
@@ -383,7 +383,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 
                   <div className="p-3.5 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs space-y-2">
                     <span className="text-xs font-bold text-black flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-[#3186FF]" />
+                      <Sparkles className="w-3.5 h-3.5 text-[#0D4F59]" />
                       <span>AI Synthesis Analysis:</span>
                     </span>
                     <p className="text-xs text-slate-700 leading-relaxed">
@@ -412,7 +412,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
               {currentSceneIndex === 4 && (
                 <div className="space-y-3.5 animate-fade-in">
                   <div className="p-3 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#3186FF]">The Correlation Engine</span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#0D4F59]">The Correlation Engine</span>
                     <h3 className="text-xs font-bold text-black mt-0.5">Hair Cortisol + Calendar</h3>
                   </div>
 
@@ -441,14 +441,14 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                   {/* Tailored Protocol Cards */}
                   <div className="p-3.5 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-2.5 text-xs">
                     <div className="flex items-center gap-1.5 font-bold text-black">
-                      <Sparkles className="w-3.5 h-3.5 text-[#3186FF]" />
+                      <Sparkles className="w-3.5 h-3.5 text-[#0D4F59]" />
                       <span>Tailored Daily Recovery Protocols:</span>
                     </div>
                     
                     <div className="space-y-1.5">
                       <div className="p-2 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-3.5 h-3.5 text-[#3186FF]" />
+                          <Calendar className="w-3.5 h-3.5 text-[#0D4F59]" />
                           <span className="font-semibold text-slate-800">Hard 7:00 PM Calendar Curfew</span>
                         </div>
                         <span className="text-[10px] text-blue-700 font-bold bg-white px-2 py-0.5 rounded">Applied</span>
@@ -476,7 +476,7 @@ export const PitchModeView: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                       </h3>
                     </div>
                     <div className="pt-2">
-                      <span className="inline-block text-[11px] font-bold px-4 py-1.5 rounded-full bg-[#3186FF] text-white shadow-xs">
+                      <span className="inline-block text-[11px] font-bold px-4 py-1.5 rounded-full bg-[#0D4F59] text-white shadow-xs">
                         baalance.ai
                       </span>
                     </div>

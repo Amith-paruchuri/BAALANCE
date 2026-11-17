@@ -29,6 +29,8 @@ interface TrichaChatWidgetProps {
   calendarEvents?: any[];
   calendarIcalUrl?: string;
   verifiedCalendarEmail?: string;
+  /** The dashboard's 3-month stress score, so Tricha quotes the same number. */
+  stressScore?: number;
   embedded?: boolean;
 }
 
@@ -45,6 +47,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
   calendarEvents,
   calendarIcalUrl,
   verifiedCalendarEmail,
+  stressScore,
   embedded = false,
 }) => {
   const [isOpen, setIsOpen] = useState(embedded);
@@ -66,28 +69,27 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
 
   // STRICT PER-USER STORAGE KEY: Never fall back to shared global keys
   const userEmailClean = userProfile?.email ? userProfile.email.toLowerCase().trim() : 'guest_demo';
-  const storageKey = `baalance_tricha_messages_${userEmailClean}`;
+  const storageKey = `baalance_tricha_messages_v2_${userEmailClean}`;
 
-  const getDefaultMessages = (): ChatMessage[] => [
-    {
-      id: 'demo-msg-1',
-      role: 'model',
-      text: `Hi ${firstName}! I'm Tricha, your personal stress & recovery guide.\n\nI've analyzed your 90-day hair cortisol timeline alongside your calendar workload. Your 3-month stress score is **78 / 100** (High Stress), with a major biological surge in August at **28.4 pg/mg** (+154% above baseline).\n\nAsk me anything about what triggered your stress or what changes will speed up recovery!`,
-      timestamp: '2 mins ago',
-    },
-    {
-      id: 'demo-msg-2',
-      role: 'user',
-      text: 'Why did my stress spike so high in August?',
-      timestamp: '1 min ago',
-    },
-    {
-      id: 'demo-msg-3',
-      role: 'model',
-      text: `Here is the biological breakdown of your August spike:\n\n• **57 calls after 7 PM**: Late meetings repeatedly breached your evening recovery window, preventing your nervous system from down-regulating at night.\n• **33 meeting hours / week**: Workload surged to 42 hours/week in August, doubling your baseline meeting load.\n• **11 cross-timezone flights**: Frequent jet lag disrupted your circadian rhythm right during peak deadlines.\n\n**Recovery Outlook**: Hair from September shows cortisol dropping down to **15.6 pg/mg**. Protecting your evenings past 7 PM is projected to bring your score below 35 at your 8-week re-test.`,
-      timestamp: 'Just now',
-    },
-  ];
+  // One opening message, written from the user's own numbers (no scripted exchange).
+  const getDefaultMessages = (): ChatMessage[] => {
+    const peak = segments.length ? segments.reduce((x, y) => (y.cortisolPgPerMg > x.cortisolPgPerMg ? y : x)) : null;
+    const lateMeetings = telemetry.reduce((sum, w) => sum + (w.eveningCalls || 0), 0);
+    const hairLine = peak
+      ? peak.cortisolPgPerMg > 14
+        ? `Your hair cortisol peaked in ${peak.title} at ${peak.cortisolPgPerMg} pg/mg`
+        : `All three months of your hair cortisol are in the healthy range (highest ${peak.cortisolPgPerMg} pg/mg in ${peak.title})`
+      : 'I do not have a hair result for you yet';
+    const calendarLine = lateMeetings > 0 ? `, and your calendar shows ${lateMeetings} meetings after 7 PM in the same 90 days` : '';
+    return [
+      {
+        id: 'tricha-hello',
+        role: 'model',
+        text: `Hi ${firstName}, I'm Tricha, your BAALANCE AI coach.\n\n${hairLine}${calendarLine}.\n\nAsk me what drove it, or what to change before your next test.`,
+        timestamp: 'Now',
+      },
+    ];
+  };
 
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     if (typeof window !== 'undefined') {
@@ -230,9 +232,12 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
           profile: userProfile,
           segments,
           telemetry,
-          calendarEvents: calendarEvents || [],
-          calendarIcalUrl,
-          verifiedCalendarEmail,
+          // The sample case has no real calendar: send its weekly summaries only, so the
+          // coach does not mistake a handful of sample events for an empty calendar.
+          calendarEvents: userProfile.isDemo ? [] : calendarEvents || [],
+          calendarIcalUrl: userProfile.isDemo ? undefined : calendarIcalUrl,
+          verifiedCalendarEmail: userProfile.isDemo ? undefined : verifiedCalendarEmail,
+          stressScore,
           apiKey: geminiApiKey,
         }),
       });
@@ -271,127 +276,26 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
     return (
       <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card flex flex-col h-[80vh] min-h-[600px] max-w-4xl mx-auto overflow-hidden animate-fade-in font-sans">
         {/* Header */}
-        <div className="p-3.5 sm:p-4 bg-gradient-to-r from-blue-50/80 via-slate-50 to-purple-50/80 border-b border-slate-200 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#3186FF] via-[#6366F1] to-[#FB7185] text-white flex items-center justify-center shadow-xs shrink-0">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm font-bold text-black">Tricha AI</h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>BAALANCE AI</span>
-                </span>
-                {isKeyConfigured && (
-                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#3186FF] border border-blue-200">
-                    Live API Active
-                  </span>
-                )}
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                AI health guide for your hair cortisol, calendar workload, and circadian recovery
+        <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-[#0D4F59] text-white flex items-center justify-center font-black shrink-0">T</div>
+            <div className="min-w-0">
+              <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-tight">Tricha</h2>
+              <p className="text-xs text-slate-500 truncate">
+                Your BAALANCE AI coach. Ask about your results, your calendar, or what to change.
               </p>
             </div>
           </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Clear Chat Button */}
-            <button
-              type="button"
-              onClick={handleClearChat}
-              className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-rose-50 hover:text-rose-600 border border-[#E2E8F0] text-xs font-semibold text-slate-600 flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
-              title="Reset conversation transcript"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Clear</span>
-            </button>
-
-            {/* Gemini API Key Configuration Button */}
-            <button
-              type="button"
-              onClick={() => setShowKeyModal(true)}
-              className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-[#E2E8F0] text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer shrink-0"
-              title="Use your own AI key"
-            >
-              <Key className="w-3.5 h-3.5 text-[#3186FF]" />
-              <span className="hidden sm:inline">{isKeyConfigured ? 'API Connected' : 'Add AI key'}</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleClearChat}
+            className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-600 flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+            title="Start the conversation again"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">New chat</span>
+          </button>
         </div>
-
-        {/* API Key Modal */}
-        {showKeyModal && (
-          <div className="p-3.5 bg-blue-50/70 border-b border-blue-200 text-xs animate-fade-in space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 font-bold text-black">
-                <Key className="w-4 h-4 text-[#3186FF]" />
-                <span>Use your own AI key:</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowKeyModal(false)}
-                className="text-slate-400 hover:text-black cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <p className="text-[11px] text-slate-600 leading-relaxed">
-              Optional: paste your own Google AI Studio key to run Tricha on it:
-            </p>
-
-            <form onSubmit={handleSaveApiKey} className="flex items-center gap-2">
-              <input
-                type="password"
-                value={keyInput}
-                onChange={e => setKeyInput(e.target.value)}
-                placeholder="Paste your key"
-                className="flex-1 p-2 text-xs rounded-xl border border-slate-300 bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
-              />
-              <button
-                type="submit"
-                disabled={isVerifyingKey || !keyInput.trim()}
-                className="px-4 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
-              >
-                {isVerifyingKey ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Verifying...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Connect Key</span>
-                  </>
-                )}
-              </button>
-            </form>
-
-            {keyFeedback && (
-              <p
-                className={`text-[11px] font-semibold ${
-                  keyFeedback.type === 'success' ? 'text-emerald-700' : 'text-rose-600'
-                }`}
-              >
-                {keyFeedback.text}
-              </p>
-            )}
-
-            <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1">
-              <span>Need a free API key? Get one from Google AI Studio.</span>
-              <a
-                href="https://aistudio.google.com/app/apikey"
-                target="_blank"
-                rel="noreferrer"
-                className="text-[#3186FF] font-semibold hover:underline flex items-center gap-0.5"
-              >
-                <span>Get API Key</span>
-                <ExternalLink className="w-2.5 h-2.5" />
-              </a>
-            </div>
-          </div>
-        )}
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 text-xs sm:text-sm">
@@ -403,10 +307,8 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                 className={`flex gap-3 ${isTricha ? 'items-start' : 'items-start flex-row-reverse'}`}
               >
                 <div
-                  className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold ${
-                    isTricha
-                      ? 'bg-gradient-to-tr from-[#3186FF] to-[#6366F1] text-white shadow-2xs'
-                      : 'bg-slate-800 text-white'
+                  className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                    isTricha ? 'bg-[#0D4F59] text-white' : 'bg-[#BF6F4E] text-white'
                   }`}
                 >
                   {isTricha ? 'T' : userInitial}
@@ -417,8 +319,8 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                     msg.safety === 'crisis'
                       ? 'bg-rose-50 border-2 border-rose-300 text-slate-900 rounded-tl-xs'
                       : isTricha
-                      ? 'bg-[#F0F4FA] border border-[#E2E8F0] text-slate-900 rounded-tl-xs'
-                      : 'bg-[#3186FF] text-white rounded-tr-xs shadow-xs'
+                      ? 'bg-[#F6F2EC] border border-[#E2E8F0] text-slate-900 rounded-tl-xs'
+                      : 'bg-[#0D4F59] text-white rounded-tr-xs shadow-xs'
                   }`}
                   {...(msg.safety === 'crisis' ? { role: 'alert' } : {})}
                 >
@@ -455,7 +357,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
 
           {isLoading && (
             <div className="flex items-center gap-2.5 text-xs text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-200 max-w-[70%]">
-              <RefreshCw className="w-4 h-4 animate-spin text-[#3186FF]" />
+              <RefreshCw className="w-4 h-4 animate-spin text-[#0D4F59]" />
               <span>Tricha is finding the cause...</span>
             </div>
           )}
@@ -470,7 +372,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
               key={idx}
               type="button"
               onClick={() => handleSendMessage(chip)}
-              className="shrink-0 text-xs font-medium text-slate-700 bg-white hover:bg-blue-50 hover:text-[#3186FF] hover:border-blue-200 px-3 py-1.5 rounded-full border border-slate-200 transition-colors shadow-2xs cursor-pointer"
+              className="shrink-0 text-xs font-medium text-slate-700 bg-white hover:bg-blue-50 hover:text-[#0D4F59] hover:border-blue-200 px-3 py-1.5 rounded-full border border-slate-200 transition-colors shadow-2xs cursor-pointer"
             >
               {chip}
             </button>
@@ -494,12 +396,12 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
             value={inputPrompt}
             onChange={(e) => setInputPrompt(e.target.value)}
             placeholder="Ask Tricha about your cortisol timeline, late calls, or burnout score..."
-            className="flex-1 text-xs sm:text-sm px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3186FF] bg-slate-50/50"
+            className="flex-1 text-xs sm:text-sm px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0D4F59] bg-slate-50/50"
           />
           <button
             type="submit"
             disabled={!inputPrompt.trim() || isLoading}
-            className="px-4 py-2.5 rounded-xl bg-[#3186FF] text-white hover:bg-blue-600 disabled:opacity-40 transition-colors shadow-xs flex items-center gap-1.5 font-semibold text-xs cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-[#0D4F59] text-white hover:bg-blue-600 disabled:opacity-40 transition-colors shadow-xs flex items-center gap-1.5 font-semibold text-xs cursor-pointer"
           >
             <span>Send</span>
             <Send className="w-3.5 h-3.5" />
@@ -515,7 +417,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
       <div className="fixed bottom-20 right-5 z-30 flex items-center gap-2.5">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-12 h-12 rounded-full bg-[#3186FF] text-white flex items-center justify-center shadow-lg hover:scale-105 transition-all cursor-pointer"
+          className="w-12 h-12 rounded-full bg-[#0D4F59] text-white flex items-center justify-center shadow-lg hover:scale-105 transition-all cursor-pointer"
           title="Open Tricha AI"
         >
           {isOpen ? <X className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}

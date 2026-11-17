@@ -147,17 +147,13 @@ export const PrivacyAndActivityPanel: React.FC<PrivacyAndActivityPanelProps> = (
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-6 sm:p-7 space-y-5" data-testid="privacy-panel">
-      <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-        <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-          <ShieldCheck className="w-4 h-4" />
-        </div>
-        <div>
-          <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">Your data and activity</h3>
-          <p className="text-[11px] text-slate-500 font-medium">
-            Your data belongs to you. Export it or delete it at any time. Nothing in your calendar changes without your approval.
-          </p>
-        </div>
+    <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-5 sm:p-7 space-y-5" data-testid="privacy-panel">
+      <div>
+        <div className="text-[11px] font-bold uppercase tracking-wider text-[#BF6F4E]">Your data belongs to you</div>
+        <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">Your data and activity</h2>
+        <p className="text-xs sm:text-sm text-slate-600 mt-1">
+          Export it or delete it at any time. Nothing in your calendar changes without your approval.
+        </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -218,7 +214,7 @@ export const PrivacyAndActivityPanel: React.FC<PrivacyAndActivityPanelProps> = (
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs font-extrabold text-slate-800">
-            <History className="w-4 h-4 text-[#3186FF]" />
+            <History className="w-4 h-4 text-[#0D4F59]" />
             <span>Activity log</span>
           </div>
           <span className="text-[10px] font-semibold text-slate-500">

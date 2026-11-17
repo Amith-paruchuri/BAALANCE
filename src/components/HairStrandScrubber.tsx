@@ -16,7 +16,7 @@ export const HairStrandScrubber: React.FC<HairStrandScrubberProps> = ({
   onSelectSegment,
 }) => {
   const getBorderColor = (id: number) => {
-    if (activeSegmentId === id) return 'border-[#3186FF] ring-2 ring-[#3186FF]/40';
+    if (activeSegmentId === id) return 'border-[#0D4F59] ring-2 ring-[#0D4F59]/40';
     return 'border-[#E2E8F0] hover:border-slate-300';
   };
 
@@ -30,14 +30,14 @@ export const HairStrandScrubber: React.FC<HairStrandScrubberProps> = ({
       {/* Minimal Header */}
       <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#3186FF] animate-pulse" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#0D4F59] animate-pulse" />
           <h3 className="text-sm font-bold text-black">3cm Hair Strand Scrubber</h3>
         </div>
 
         {activeSegment && (
-          <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-[#F0F4FA] border border-[#E2E8F0] text-xs">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-[#F6F2EC] border border-[#E2E8F0] text-xs">
             <span className="font-semibold text-black">{activeSegment.title}</span>
-            <span className="font-mono font-bold text-[#3186FF] bg-white px-2 py-0.5 rounded border border-[#E2E8F0]">
+            <span className="font-mono font-bold text-[#0D4F59] bg-white px-2 py-0.5 rounded border border-[#E2E8F0]">
               {activeSegment.cortisolPgPerMg} pg/mg
             </span>
           </div>

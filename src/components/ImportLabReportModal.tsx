@@ -238,7 +238,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
         {/* Header */}
         <div className="p-4 sm:p-5 bg-gradient-to-r from-blue-50/80 via-slate-50 to-indigo-50/70 border-b border-[#E2E8F0] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#3186FF] text-white flex items-center justify-center shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-[#0D4F59] text-white flex items-center justify-center shadow-xs">
               <FlaskConical className="w-5 h-5" />
             </div>
             <div>
@@ -271,7 +271,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
             onClick={() => setActiveMode('upload')}
             className={`pb-2 px-3 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
               activeMode === 'upload'
-                ? 'border-[#3186FF] text-[#3186FF] font-bold'
+                ? 'border-[#0D4F59] text-[#0D4F59] font-bold'
                 : 'border-transparent text-slate-500 hover:text-black'
             }`}
           >
@@ -284,7 +284,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
             onClick={() => setActiveMode('presets')}
             className={`pb-2 px-3 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
               activeMode === 'presets'
-                ? 'border-[#3186FF] text-[#3186FF] font-bold'
+                ? 'border-[#0D4F59] text-[#0D4F59] font-bold'
                 : 'border-transparent text-slate-500 hover:text-black'
             }`}
           >
@@ -297,7 +297,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
             onClick={() => setActiveMode('manual')}
             className={`pb-2 px-3 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
               activeMode === 'manual'
-                ? 'border-[#3186FF] text-[#3186FF] font-bold'
+                ? 'border-[#0D4F59] text-[#0D4F59] font-bold'
                 : 'border-transparent text-slate-500 hover:text-black'
             }`}
           >
@@ -312,16 +312,16 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
           {/* MODE 1: FILE UPLOAD */}
           {activeMode === 'upload' && (
             <div className="space-y-4">
-              <label className="border-2 border-dashed border-blue-200 hover:border-[#3186FF] bg-blue-50/30 hover:bg-blue-50/60 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all">
+              <label className="border-2 border-dashed border-blue-200 hover:border-[#0D4F59] bg-blue-50/30 hover:bg-blue-50/60 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all">
                 <input
                   type="file"
                   accept=".pdf,.png,.jpg,.jpeg"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
-                <div className="w-12 h-12 rounded-2xl bg-white border border-blue-200 flex items-center justify-center text-[#3186FF] shadow-xs mb-2.5">
+                <div className="w-12 h-12 rounded-2xl bg-white border border-blue-200 flex items-center justify-center text-[#0D4F59] shadow-xs mb-2.5">
                   {isExtracting ? (
-                    <RefreshCw className="w-6 h-6 animate-spin text-[#3186FF]" />
+                    <RefreshCw className="w-6 h-6 animate-spin text-[#0D4F59]" />
                   ) : (
                     <Upload className="w-6 h-6" />
                   )}
@@ -334,7 +334,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                   Supports PDF or photo reports from certified partner salons or clinical diagnostic labs
                 </p>
 
-                <span className="mt-3 px-3 py-1 bg-white border border-slate-200 rounded-xl text-[11px] font-bold text-[#3186FF] shadow-2xs">
+                <span className="mt-3 px-3 py-1 bg-white border border-slate-200 rounded-xl text-[11px] font-bold text-[#0D4F59] shadow-2xs">
                   Browse Files
                 </span>
               </label>
@@ -472,7 +472,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
           <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
             <div className="flex items-center justify-between text-xs font-bold text-black border-b border-slate-200 pb-2">
               <span className="flex items-center gap-1.5">
-                <FlaskConical className="w-3.5 h-3.5 text-[#3186FF]" />
+                <FlaskConical className="w-3.5 h-3.5 text-[#0D4F59]" />
                 <span>Hair Segment Cortisol Values (pg/mg)</span>
               </span>
               <span className="text-[10px] text-slate-500 font-mono font-normal">
@@ -494,7 +494,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                   max="45.0"
                   value={m1Val}
                   onChange={e => setM1Val(parseFloat(e.target.value) || 0)}
-                  className="w-full text-base font-extrabold font-mono text-black p-1 rounded border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
+                  className="w-full text-base font-extrabold font-mono text-black p-1 rounded border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0D4F59]"
                 />
                 <div className={`text-[9px] font-bold ${
                   m1Val > 20 ? 'text-rose-600' : m1Val > 14 ? 'text-amber-600' : 'text-emerald-700'
@@ -516,7 +516,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                   max="45.0"
                   value={m2Val}
                   onChange={e => setM2Val(parseFloat(e.target.value) || 0)}
-                  className="w-full text-base font-extrabold font-mono text-black p-1 rounded border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
+                  className="w-full text-base font-extrabold font-mono text-black p-1 rounded border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0D4F59]"
                 />
                 <div className={`text-[9px] font-bold ${
                   m2Val > 20 ? 'text-rose-600' : m2Val > 14 ? 'text-amber-600' : 'text-emerald-700'
@@ -538,7 +538,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                   max="45.0"
                   value={m3Val}
                   onChange={e => setM3Val(parseFloat(e.target.value) || 0)}
-                  className="w-full text-base font-extrabold font-mono text-black p-1 rounded border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
+                  className="w-full text-base font-extrabold font-mono text-black p-1 rounded border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0D4F59]"
                 />
                 <div className={`text-[9px] font-bold ${
                   m3Val > 20 ? 'text-rose-600' : m3Val > 14 ? 'text-amber-600' : 'text-emerald-700'
@@ -559,7 +559,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                 type="text"
                 value={labPartner}
                 onChange={e => setLabPartner(e.target.value)}
-                className="w-full p-2 text-xs rounded-xl border border-slate-200 bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
+                className="w-full p-2 text-xs rounded-xl border border-slate-200 bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#0D4F59]"
               />
             </div>
 
@@ -571,7 +571,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
                 type="text"
                 value={testDate}
                 onChange={e => setTestDate(e.target.value)}
-                className="w-full p-2 text-xs rounded-xl border border-slate-200 bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
+                className="w-full p-2 text-xs rounded-xl border border-slate-200 bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#0D4F59]"
               />
             </div>
           </div>
@@ -595,7 +595,7 @@ export const ImportLabReportModal: React.FC<ImportLabReportModalProps> = ({
             <button
               type="button"
               onClick={handleSubmit}
-              className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+              className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Import & Auto-Refresh</span>

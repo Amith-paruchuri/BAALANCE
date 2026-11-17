@@ -175,7 +175,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#F0F4FA] flex flex-col justify-between p-4 sm:p-8 selection:bg-[#3186FF] selection:text-white font-sans">
+    <div className="min-h-screen bg-[#F6F2EC] flex flex-col justify-between p-4 sm:p-8 selection:bg-[#0D4F59] selection:text-white font-sans">
       {/* Top Bar */}
       <div className="max-w-5xl mx-auto w-full flex items-center justify-between">
         <BaalanceLogo size="sm" showTagline={false} animated={true} />
@@ -214,7 +214,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                 onClick={() => setPortalMode('individual')}
                 className="px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 active:scale-95 cursor-pointer"
               >
-                <User className="w-3 h-3 text-[#3186FF]" />
+                <User className="w-3 h-3 text-[#0D4F59]" />
                 <span>For you</span>
               </button>
               <button
@@ -315,7 +315,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <User className={`w-3.5 h-3.5 ${portalMode === 'individual' ? 'text-[#3186FF]' : 'text-slate-400'}`} />
+            <User className={`w-3.5 h-3.5 ${portalMode === 'individual' ? 'text-[#0D4F59]' : 'text-slate-400'}`} />
             <span>For you</span>
           </button>
 
@@ -429,7 +429,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                         value={name}
                         onChange={e => setName(e.target.value)}
                         placeholder="Enter your full name"
-                        className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[#E2E8F0] focus:ring-2 focus:ring-[#3186FF] focus:outline-none bg-white text-black"
+                        className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[#E2E8F0] focus:ring-2 focus:ring-[#0D4F59] focus:outline-none bg-white text-black"
                       />
                     </div>
                   </div>
@@ -447,7 +447,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       placeholder="Enter your email ID"
-                      className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[#E2E8F0] focus:ring-2 focus:ring-[#3186FF] focus:outline-none bg-white text-black"
+                      className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[#E2E8F0] focus:ring-2 focus:ring-[#0D4F59] focus:outline-none bg-white text-black"
                     />
                   </div>
                 </div>
@@ -464,7 +464,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                       placeholder={activeTab === 'signin' ? 'Enter your password' : 'Min. 6 characters'}
-                      className="w-full pl-8 pr-9 py-1.5 text-xs rounded-xl border border-[#E2E8F0] focus:ring-2 focus:ring-[#3186FF] focus:outline-none bg-white text-black"
+                      className="w-full pl-8 pr-9 py-1.5 text-xs rounded-xl border border-[#E2E8F0] focus:ring-2 focus:ring-[#0D4F59] focus:outline-none bg-white text-black"
                     />
                     <button
                       type="button"
@@ -489,7 +489,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                         value={confirmPassword}
                         onChange={e => setConfirmPassword(e.target.value)}
                         placeholder="Re-enter password"
-                        className="w-full pl-8 pr-9 py-1.5 text-xs rounded-xl border border-[#E2E8F0] focus:ring-2 focus:ring-[#3186FF] focus:outline-none bg-white text-black"
+                        className="w-full pl-8 pr-9 py-1.5 text-xs rounded-xl border border-[#E2E8F0] focus:ring-2 focus:ring-[#0D4F59] focus:outline-none bg-white text-black"
                       />
                       <button
                         type="button"
@@ -519,7 +519,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-2.5 px-4 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer mt-2 disabled:opacity-60"
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer mt-2 disabled:opacity-60"
                 >
                   <span>{isSubmitting ? 'Please wait…' : activeTab === 'signin' ? 'Sign in' : 'Create account'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -565,12 +565,12 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                       setEnterpriseError(null);
                     }}
                     placeholder="Enter work/school email (e.g. dr@aiims.edu)"
-                    className="w-full pl-10 pr-3 py-2.5 text-xs rounded-xl border border-slate-700 bg-slate-800 text-white placeholder-slate-400 focus:ring-2 focus:ring-[#3186FF] focus:outline-none"
+                    className="w-full pl-10 pr-3 py-2.5 text-xs rounded-xl border border-slate-700 bg-slate-800 text-white placeholder-slate-400 focus:ring-2 focus:ring-[#0D4F59] focus:outline-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-2"
+                  className="px-5 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-2"
                 >
                   <span>Open Workspace</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -688,7 +688,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
       {/* Social Proof & Origin Footer */}
       <footer className="w-full text-center py-4 border-t border-slate-200/80">
         <p className="text-xs font-medium text-slate-500">
-          Built by a final-year medical student at <span className="font-semibold text-slate-700">AIIMS New Delhi</span> · <span className="text-[#3186FF] font-semibold">Winner, Google Fund My Crazy 2026</span>
+          Built by a final-year medical student at <span className="font-semibold text-slate-700">AIIMS New Delhi</span> · <span className="text-[#0D4F59] font-semibold">Winner, Google Fund My Crazy 2026</span>
         </p>
       </footer>
     </div>

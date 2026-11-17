@@ -452,7 +452,7 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
 
             {/* Header */}
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-[#3186FF] text-[11px] font-mono font-bold uppercase tracking-wider mb-2 border border-blue-100">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-[#0D4F59] text-[11px] font-mono font-bold uppercase tracking-wider mb-2 border border-blue-100">
                 <Dna className="w-3.5 h-3.5" />
                 Biological Chrono-Marker
               </div>
@@ -506,7 +506,7 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
                 {/* Step 3 */}
                 <div className="p-3.5 rounded-xl bg-gradient-to-b from-blue-50/70 to-white border border-blue-100 flex flex-col justify-between">
                   <div>
-                    <div className="w-7 h-7 rounded-lg bg-[#3186FF] text-white flex items-center justify-center font-black text-xs font-mono mb-2 shadow-xs">
+                    <div className="w-7 h-7 rounded-lg bg-[#0D4F59] text-white flex items-center justify-center font-black text-xs font-mono mb-2 shadow-xs">
                       03
                     </div>
                     <h4 className="text-sm font-extrabold text-slate-900">1 cm = 30 Days</h4>
@@ -524,7 +524,7 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
             {/* Head-to-Head Comparison: Hair vs Blood vs Saliva */}
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-2.5 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-[#3186FF]" />
+                <ShieldCheck className="w-4 h-4 text-[#0D4F59]" />
                 Why Hair Outperforms Blood & Saliva Tests
               </h3>
 
@@ -553,8 +553,8 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
 
                 {/* Hair Cortisol */}
                 <div className="p-3 rounded-lg bg-blue-50/60 border border-blue-200">
-                  <div className="font-extrabold text-[#3186FF] flex items-center gap-1.5 mb-1 text-[13px]">
-                    <span className="w-2 h-2 rounded-full bg-[#3186FF]" />
+                  <div className="font-extrabold text-[#0D4F59] flex items-center gap-1.5 mb-1 text-[13px]">
+                    <span className="w-2 h-2 rounded-full bg-[#0D4F59]" />
                     Hair Cortisol (Chronic Retrospective)
                   </div>
                   <ul className="space-y-1.5 text-slate-700 text-[11.5px] mt-2">

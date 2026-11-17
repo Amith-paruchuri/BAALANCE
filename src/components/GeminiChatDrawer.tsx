@@ -112,15 +112,15 @@ export const GeminiChatDrawer: React.FC<GeminiChatDrawerProps> = ({
       <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
         <div className="w-screen max-w-md bg-white border-l border-[#E2E8F0] shadow-2xl flex flex-col justify-between">
           {/* Drawer Header */}
-          <div className="p-4 bg-[#F0F4FA] border-b border-[#E2E8F0] flex items-center justify-between">
+          <div className="p-4 bg-[#F6F2EC] border-b border-[#E2E8F0] flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#3186FF] via-[#6366F1] to-[#FB7185] flex items-center justify-center shadow-xs">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#0D4F59] via-[#16636E] to-[#FB7185] flex items-center justify-center shadow-xs">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-[#000000] flex items-center gap-1.5">
                   <span>AI Co-Pilot</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-[#3186FF] font-semibold">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-[#0D4F59] font-semibold">
                     v3.6 Flash
                   </span>
                 </h3>
@@ -146,7 +146,7 @@ export const GeminiChatDrawer: React.FC<GeminiChatDrawerProps> = ({
                 className={`flex gap-3 text-xs ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.role === 'model' && (
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#3186FF] via-[#6366F1] to-[#FB7185] flex items-center justify-center shrink-0 shadow-xs">
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#0D4F59] via-[#16636E] to-[#FB7185] flex items-center justify-center shrink-0 shadow-xs">
                     <Sparkles className="w-3.5 h-3.5 text-white" />
                   </div>
                 )}
@@ -154,8 +154,8 @@ export const GeminiChatDrawer: React.FC<GeminiChatDrawerProps> = ({
                 <div
                   className={`max-w-[85%] rounded-2xl p-3.5 ${
                     msg.role === 'user'
-                      ? 'bg-[#3186FF] text-white rounded-br-none shadow-xs'
-                      : 'bg-[#F0F4FA] text-[#000000] border border-[#E2E8F0] rounded-bl-none shadow-xs'
+                      ? 'bg-[#0D4F59] text-white rounded-br-none shadow-xs'
+                      : 'bg-[#F6F2EC] text-[#000000] border border-[#E2E8F0] rounded-bl-none shadow-xs'
                   }`}
                 >
                   <div className="whitespace-pre-line leading-relaxed">
@@ -180,11 +180,11 @@ export const GeminiChatDrawer: React.FC<GeminiChatDrawerProps> = ({
 
             {isLoading && (
               <div className="flex gap-3 text-xs justify-start">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#3186FF] via-[#6366F1] to-[#FB7185] flex items-center justify-center shrink-0 animate-pulse">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#0D4F59] via-[#16636E] to-[#FB7185] flex items-center justify-center shrink-0 animate-pulse">
                   <Sparkles className="w-3.5 h-3.5 text-white animate-spin" />
                 </div>
-                <div className="bg-[#F0F4FA] border border-[#E2E8F0] rounded-2xl p-3 text-[#5F6368] flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#3186FF] animate-ping" />
+                <div className="bg-[#F6F2EC] border border-[#E2E8F0] rounded-2xl p-3 text-[#5F6368] flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#0D4F59] animate-ping" />
                   <span>Synthesizing neuroendocrine telemetry...</span>
                 </div>
               </div>
@@ -202,7 +202,7 @@ export const GeminiChatDrawer: React.FC<GeminiChatDrawerProps> = ({
                   key={idx}
                   onClick={() => handleSendMessage(chip)}
                   disabled={isLoading}
-                  className="text-[11px] whitespace-nowrap px-2.5 py-1 rounded-full bg-[#F0F4FA] hover:bg-blue-50 text-[#000000] hover:text-[#3186FF] border border-[#E2E8F0] transition-colors flex items-center gap-1 shrink-0"
+                  className="text-[11px] whitespace-nowrap px-2.5 py-1 rounded-full bg-[#F6F2EC] hover:bg-blue-50 text-[#000000] hover:text-[#0D4F59] border border-[#E2E8F0] transition-colors flex items-center gap-1 shrink-0"
                 >
                   <span>{chip}</span>
                   <ChevronRight className="w-3 h-3 text-[#5F6368]" />
@@ -223,12 +223,12 @@ export const GeminiChatDrawer: React.FC<GeminiChatDrawerProps> = ({
                 value={inputPrompt}
                 onChange={(e) => setInputPrompt(e.target.value)}
                 placeholder="Ask about your cortisol curve or calendar recovery..."
-                className="w-full pl-3 pr-10 py-2.5 text-xs rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#3186FF] text-[#000000] bg-[#F8FAFC]"
+                className="w-full pl-3 pr-10 py-2.5 text-xs rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#0D4F59] text-[#000000] bg-[#F8FAFC]"
               />
               <button
                 type="submit"
                 disabled={!inputPrompt.trim() || isLoading}
-                className="absolute right-1.5 p-1.5 rounded-lg bg-[#3186FF] text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
+                className="absolute right-1.5 p-1.5 rounded-lg bg-[#0D4F59] text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
               >
                 <Send className="w-3.5 h-3.5" />
               </button>

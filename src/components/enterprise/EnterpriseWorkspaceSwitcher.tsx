@@ -117,7 +117,7 @@ export const EnterpriseWorkspaceSwitcher: React.FC<EnterpriseWorkspaceSwitcherPr
                             </p>
                           </div>
                         </div>
-                        {isSelected && <Check className="w-4 h-4 text-[#3186FF] shrink-0" />}
+                        {isSelected && <Check className="w-4 h-4 text-[#0D4F59] shrink-0" />}
                       </button>
                     );
                   })}

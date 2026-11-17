@@ -134,7 +134,7 @@ export const StressSummary: React.FC<StressSummaryProps> = ({
               <button
                 type="button"
                 onClick={onTakeQuestionnaire}
-                className="mt-2 px-3 py-1.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-[11px] font-bold cursor-pointer"
+                className="mt-2 px-3 py-1.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-[11px] font-bold cursor-pointer"
               >
                 Answer the questionnaire
               </button>

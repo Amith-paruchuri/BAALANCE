@@ -75,7 +75,7 @@ export const SyncIntegrationsPanel: React.FC<SyncIntegrationsPanelProps> = ({
               onClick={() => handleSelectMonth('all')}
               className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
                 selectedMonthFilter === 'all'
-                  ? 'bg-white text-[#3186FF] font-bold shadow-xs'
+                  ? 'bg-white text-[#0D4F59] font-bold shadow-xs'
                   : 'text-slate-600 hover:text-black'
               }`}
             >
@@ -85,7 +85,7 @@ export const SyncIntegrationsPanel: React.FC<SyncIntegrationsPanelProps> = ({
               onClick={() => handleSelectMonth(1)}
               className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
                 selectedMonthFilter === 1
-                  ? 'bg-white text-[#3186FF] font-bold shadow-xs'
+                  ? 'bg-white text-[#0D4F59] font-bold shadow-xs'
                   : 'text-slate-600 hover:text-black'
               }`}
             >
@@ -127,7 +127,7 @@ export const SyncIntegrationsPanel: React.FC<SyncIntegrationsPanelProps> = ({
       <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-card p-5">
         <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#3186FF]">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0D4F59]">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
@@ -149,7 +149,7 @@ export const SyncIntegrationsPanel: React.FC<SyncIntegrationsPanelProps> = ({
               <button
                 type="button"
                 onClick={onOpenCalendarModal}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#3186FF] hover:bg-blue-600 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#0D4F59] hover:bg-blue-600 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                 title="Integrate Demo or Connect Google Calendar"
               >
                 <Calendar className="w-3.5 h-3.5" />
@@ -160,10 +160,10 @@ export const SyncIntegrationsPanel: React.FC<SyncIntegrationsPanelProps> = ({
             <button
               onClick={handleManualSync}
               disabled={isSyncing}
-              className="p-1.5 rounded-lg text-[#5F6368] hover:text-black hover:bg-[#F0F4FA] transition-colors"
+              className="p-1.5 rounded-lg text-[#5F6368] hover:text-black hover:bg-[#F6F2EC] transition-colors"
               title="Refresh Google Calendar"
             >
-              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin text-[#3186FF]' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin text-[#0D4F59]' : ''}`} />
             </button>
           </div>
         </div>
@@ -172,7 +172,7 @@ export const SyncIntegrationsPanel: React.FC<SyncIntegrationsPanelProps> = ({
         <div className="grid grid-cols-3 gap-2.5 my-3.5">
           <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
             <div className="flex items-center gap-1 text-[11px] text-[#5F6368] mb-1">
-              <Clock className="w-3.5 h-3.5 text-[#3186FF]" />
+              <Clock className="w-3.5 h-3.5 text-[#0D4F59]" />
               <span>Meeting Load</span>
             </div>
             <div className="text-lg font-bold text-black font-mono">
@@ -210,7 +210,7 @@ export const SyncIntegrationsPanel: React.FC<SyncIntegrationsPanelProps> = ({
             <button
               type="button"
               onClick={onOpenCalendarModal}
-              className="text-xs font-bold text-[#3186FF] hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-bold text-[#0D4F59] hover:underline flex items-center gap-1 cursor-pointer"
             >
               <span>Switch / Re-sync Calendar →</span>
             </button>
@@ -242,7 +242,7 @@ export const SyncIntegrationsPanel: React.FC<SyncIntegrationsPanelProps> = ({
           <button
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="p-1.5 rounded-lg text-[#5F6368] hover:text-black hover:bg-[#F0F4FA] transition-colors"
+            className="p-1.5 rounded-lg text-[#5F6368] hover:text-black hover:bg-[#F6F2EC] transition-colors"
             title="Refresh Wearable biometrics"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin text-purple-600' : ''}`} />

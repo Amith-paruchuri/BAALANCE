@@ -89,7 +89,7 @@ const PRESET_ROLES = [
     role: 'Tech Founder & AI Lead',
     sector: 'Software & AI',
     icon: Cpu,
-    iconColor: 'text-[#3186FF]',
+    iconColor: 'text-[#0D4F59]',
     iconBg: 'bg-blue-50 border-blue-200',
     accentGradient: 'from-blue-500 to-indigo-600',
     description: 'Sprint crunches & runway pressure',
@@ -754,7 +754,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
   };
 
   return (
-    <div className="min-h-screen bg-[#F0F4FA] py-5 px-3 sm:px-6 flex flex-col justify-between">
+    <div className="min-h-screen bg-[#F6F2EC] py-5 px-3 sm:px-6 flex flex-col justify-between">
       <div className="max-w-3xl mx-auto w-full">
         {/* Top Header */}
         <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0] mb-5">
@@ -787,7 +787,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
             <button
               type="button"
               onClick={() => setCurrentStep(1)}
-              className={`p-2 rounded-xl border transition-all cursor-pointer ${currentStep === 1 ? 'border-[#3186FF] bg-blue-50/60 font-bold text-[#3186FF] shadow-2xs' : currentStep > 1 ? 'border-emerald-200 bg-emerald-50/40 text-emerald-800 hover:bg-emerald-50' : 'border-[#E2E8F0] text-slate-400 hover:bg-slate-50'}`}
+              className={`p-2 rounded-xl border transition-all cursor-pointer ${currentStep === 1 ? 'border-[#0D4F59] bg-blue-50/60 font-bold text-[#0D4F59] shadow-2xs' : currentStep > 1 ? 'border-emerald-200 bg-emerald-50/40 text-emerald-800 hover:bg-emerald-50' : 'border-[#E2E8F0] text-slate-400 hover:bg-slate-50'}`}
             >
               <span className="font-mono">1.</span> Lifestyle
             </button>
@@ -795,7 +795,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
             <button
               type="button"
               onClick={() => setCurrentStep(2)}
-              className={`p-2 rounded-xl border transition-all cursor-pointer ${currentStep === 2 ? 'border-[#3186FF] bg-blue-50/60 font-bold text-[#3186FF] shadow-2xs' : currentStep > 2 ? 'border-emerald-200 bg-emerald-50/40 text-emerald-800 hover:bg-emerald-50' : 'border-[#E2E8F0] text-slate-400 hover:bg-slate-50'}`}
+              className={`p-2 rounded-xl border transition-all cursor-pointer ${currentStep === 2 ? 'border-[#0D4F59] bg-blue-50/60 font-bold text-[#0D4F59] shadow-2xs' : currentStep > 2 ? 'border-emerald-200 bg-emerald-50/40 text-emerald-800 hover:bg-emerald-50' : 'border-[#E2E8F0] text-slate-400 hover:bg-slate-50'}`}
             >
               <span className="font-mono">2.</span> Calendar Integration
             </button>
@@ -803,7 +803,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
             <button
               type="button"
               onClick={() => setCurrentStep(3)}
-              className={`p-2 rounded-xl border transition-all cursor-pointer ${currentStep === 3 ? 'border-[#3186FF] bg-blue-50/60 font-bold text-[#3186FF] shadow-2xs' : currentStep > 3 ? 'border-emerald-200 bg-emerald-50/40 text-emerald-800 hover:bg-emerald-50' : 'border-[#E2E8F0] text-slate-400 hover:bg-slate-50'}`}
+              className={`p-2 rounded-xl border transition-all cursor-pointer ${currentStep === 3 ? 'border-[#0D4F59] bg-blue-50/60 font-bold text-[#0D4F59] shadow-2xs' : currentStep > 3 ? 'border-emerald-200 bg-emerald-50/40 text-emerald-800 hover:bg-emerald-50' : 'border-[#E2E8F0] text-slate-400 hover:bg-slate-50'}`}
             >
               <span className="font-mono">3.</span> Hair Test (Cortisol)
             </button>
@@ -811,7 +811,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
             <button
               type="button"
               onClick={() => setCurrentStep(4)}
-              className={`p-2 rounded-xl border transition-all cursor-pointer ${currentStep === 4 ? 'border-[#3186FF] bg-blue-50/60 font-bold text-[#3186FF] shadow-2xs' : 'border-[#E2E8F0] text-slate-400 hover:bg-slate-50'}`}
+              className={`p-2 rounded-xl border transition-all cursor-pointer ${currentStep === 4 ? 'border-[#0D4F59] bg-blue-50/60 font-bold text-[#0D4F59] shadow-2xs' : 'border-[#E2E8F0] text-slate-400 hover:bg-slate-50'}`}
             >
               <span className="font-mono">4.</span> Synthesis
             </button>
@@ -827,7 +827,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
               <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-blue-50/70 via-white to-indigo-50/60 border border-[#E2E8F0] shadow-card space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[#E2E8F0]">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#3186FF] to-[#6366F1] text-white flex items-center justify-center font-bold text-base shadow-sm ring-2 ring-blue-100">
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#0D4F59] to-[#16636E] text-white flex items-center justify-center font-bold text-base shadow-sm ring-2 ring-blue-100">
                       {fullName.trim() ? fullName.trim().charAt(0).toUpperCase() : 'U'}
                     </div>
                     <div>
@@ -853,7 +853,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   <div className="lg:col-span-7">
                     <label className="block text-xs font-bold text-slate-800 mb-1.5 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5 text-[#3186FF]" />
+                        <User className="w-3.5 h-3.5 text-[#0D4F59]" />
                         <span>Full Legal Name</span>
                         <span className="text-rose-500">*</span>
                       </span>
@@ -865,7 +865,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                         value={fullName}
                         onChange={e => setFullName(e.target.value)}
                         placeholder="Enter your full legal name"
-                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-[#E2E8F0] bg-white text-black font-semibold focus:ring-2 focus:ring-[#3186FF] focus:outline-none shadow-xs transition-all"
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-[#E2E8F0] bg-white text-black font-semibold focus:ring-2 focus:ring-[#0D4F59] focus:outline-none shadow-xs transition-all"
                       />
                     </div>
                   </div>
@@ -905,7 +905,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                               if (!age || age < 14) setAge(18);
                               else if (age > 99) setAge(99);
                             }}
-                            className="w-10 text-center font-mono font-bold text-xs sm:text-sm text-black bg-slate-50 focus:bg-white border border-transparent focus:border-[#3186FF] rounded py-0.5 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="w-10 text-center font-mono font-bold text-xs sm:text-sm text-black bg-slate-50 focus:bg-white border border-transparent focus:border-[#0D4F59] rounded py-0.5 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="Age"
                             title="Click to type age or use +/- buttons"
                           />
@@ -1010,7 +1010,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
               <div>
                 <div className="flex items-center justify-between mb-2.5">
                   <label className="text-xs sm:text-sm font-bold text-black flex items-center gap-1.5">
-                    <Cpu className="w-4 h-4 text-[#3186FF]" />
+                    <Cpu className="w-4 h-4 text-[#0D4F59]" />
                     <span>Professional Role</span>
                   </label>
                 </div>
@@ -1030,7 +1030,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                         }}
                         className={`cursor-pointer p-3.5 rounded-2xl border transition-all relative flex flex-col justify-between group ${
                           isSelected
-                            ? 'border-[#3186FF] bg-blue-50/50 ring-2 ring-[#3186FF]/30 shadow-xs'
+                            ? 'border-[#0D4F59] bg-blue-50/50 ring-2 ring-[#0D4F59]/30 shadow-xs'
                             : 'border-[#E2E8F0] hover:border-slate-300 bg-white hover:shadow-2xs'
                         }`}
                       >
@@ -1041,7 +1041,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                             </div>
 
                             {isSelected && (
-                              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-[#3186FF] text-white">
+                              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-[#0D4F59] text-white">
                                 ✓ Active
                               </span>
                             )}
@@ -1050,7 +1050,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                           <div className="text-xs font-bold text-black leading-snug">
                             {r.role}
                           </div>
-                          <div className="text-[10px] font-semibold text-[#3186FF] mt-0.5">
+                          <div className="text-[10px] font-semibold text-[#0D4F59] mt-0.5">
                             {r.sector}
                           </div>
                         </div>
@@ -1066,12 +1066,12 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     onClick={() => setIsCustomRole(!isCustomRole)}
                     className={`w-full p-2.5 rounded-2xl border text-xs flex items-center justify-between transition-all ${
                       isCustomRole
-                        ? 'border-[#3186FF] bg-blue-50/50 text-[#3186FF] font-semibold shadow-2xs'
+                        ? 'border-[#0D4F59] bg-blue-50/50 text-[#0D4F59] font-semibold shadow-2xs'
                         : 'border-dashed border-slate-300 hover:border-slate-400 bg-slate-50/50 text-slate-700'
                     }`}
                   >
                     <span className="flex items-center gap-2">
-                      <PlusCircle className="w-4 h-4 text-[#3186FF]" />
+                      <PlusCircle className="w-4 h-4 text-[#0D4F59]" />
                       <span>{isCustomRole ? 'Custom Role Selected' : '+ Enter Other Specialized Profession'}</span>
                     </span>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white border border-slate-200">
@@ -1106,7 +1106,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-black flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-[#3186FF]" />
+                      <Clock className="w-3.5 h-3.5 text-[#0D4F59]" />
                       <span>Weekly Workload</span>
                     </span>
                     <span className="text-xs font-bold text-black font-mono bg-white px-2.5 py-0.5 rounded-lg border border-[#E2E8F0] shadow-2xs">
@@ -1120,7 +1120,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     max="95"
                     value={weeklyHours}
                     onChange={e => setWeeklyHours(Number(e.target.value))}
-                    className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#3186FF] bg-slate-200"
+                    className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#0D4F59] bg-slate-200"
                   />
 
                   {/* Dynamic Risk Pill */}
@@ -1158,7 +1158,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     <select
                       value={workBoundaryBleed}
                       onChange={e => setWorkBoundaryBleed(e.target.value as WorkBoundaryBleed)}
-                      className="w-full p-2.5 text-xs rounded-xl border border-[#E2E8F0] bg-white text-black font-semibold shadow-2xs focus:ring-2 focus:ring-[#3186FF] focus:outline-none"
+                      className="w-full p-2.5 text-xs rounded-xl border border-[#E2E8F0] bg-white text-black font-semibold shadow-2xs focus:ring-2 focus:ring-[#0D4F59] focus:outline-none"
                     >
                       <option value="strict_boundaries">🌅 Stop by 7:00 PM (No late work)</option>
                       <option value="occasional_bleed">🌗 Work until 9:00 PM sometimes</option>
@@ -1178,7 +1178,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     <select
                       value={travelFrequency}
                       onChange={e => setTravelFrequency(e.target.value as TravelFrequency)}
-                      className="w-full p-2.5 text-xs rounded-xl border border-[#E2E8F0] bg-white text-black font-semibold shadow-2xs focus:ring-2 focus:ring-[#3186FF] focus:outline-none"
+                      className="w-full p-2.5 text-xs rounded-xl border border-[#E2E8F0] bg-white text-black font-semibold shadow-2xs focus:ring-2 focus:ring-[#0D4F59] focus:outline-none"
                     >
                       <option value="none_domestic">✈️ None / Domestic travel only</option>
                       <option value="occasional">🌍 Occasional (1–2 trips/year)</option>
@@ -1254,7 +1254,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       onClick={() => setChronotype('morning_lark')}
                       className={`p-2.5 rounded-xl border text-center transition-all ${
                         chronotype === 'morning_lark'
-                          ? 'border-[#3186FF] bg-blue-50/70 text-black font-semibold ring-1 ring-[#3186FF] shadow-2xs'
+                          ? 'border-[#0D4F59] bg-blue-50/70 text-black font-semibold ring-1 ring-[#0D4F59] shadow-2xs'
                           : 'border-[#E2E8F0] bg-white text-slate-600 hover:border-slate-300'
                       }`}
                     >
@@ -1268,7 +1268,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       onClick={() => setChronotype('night_owl')}
                       className={`p-2.5 rounded-xl border text-center transition-all ${
                         chronotype === 'night_owl'
-                          ? 'border-[#3186FF] bg-blue-50/70 text-black font-semibold ring-1 ring-[#3186FF] shadow-2xs'
+                          ? 'border-[#0D4F59] bg-blue-50/70 text-black font-semibold ring-1 ring-[#0D4F59] shadow-2xs'
                           : 'border-[#E2E8F0] bg-white text-slate-600 hover:border-slate-300'
                       }`}
                     >
@@ -1282,7 +1282,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       onClick={() => setChronotype('shift_biphasic')}
                       className={`p-2.5 rounded-xl border text-center transition-all ${
                         chronotype === 'shift_biphasic'
-                          ? 'border-[#3186FF] bg-blue-50/70 text-black font-semibold ring-1 ring-[#3186FF] shadow-2xs'
+                          ? 'border-[#0D4F59] bg-blue-50/70 text-black font-semibold ring-1 ring-[#0D4F59] shadow-2xs'
                           : 'border-[#E2E8F0] bg-white text-slate-600 hover:border-slate-300'
                       }`}
                     >
@@ -1400,7 +1400,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                         onClick={() => handleToggleStressDriver(d.id)}
                         className={`p-2.5 rounded-2xl border text-left text-xs flex items-center justify-between transition-all group ${
                           isChecked
-                            ? 'border-[#3186FF] bg-blue-50/60 font-semibold text-black shadow-2xs'
+                            ? 'border-[#0D4F59] bg-blue-50/60 font-semibold text-black shadow-2xs'
                             : 'border-[#E2E8F0] hover:border-slate-300 bg-white text-slate-700'
                         }`}
                       >
@@ -1413,7 +1413,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
 
                         <div className={`w-4 h-4 rounded-md shrink-0 flex items-center justify-center border transition-all ${
                           isChecked
-                            ? 'bg-[#3186FF] text-white border-[#3186FF]'
+                            ? 'bg-[#0D4F59] text-white border-[#0D4F59]'
                             : 'border-slate-300 group-hover:border-slate-400'
                         }`}>
                           {isChecked && <Check className="w-3 h-3" />}
@@ -1494,7 +1494,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     <button
                       type="button"
                       onClick={() => setShowCustomHealthInput(true)}
-                      className="text-[11px] text-[#3186FF] hover:underline font-semibold flex items-center gap-1"
+                      className="text-[11px] text-[#0D4F59] hover:underline font-semibold flex items-center gap-1"
                     >
                       <PlusCircle className="w-3.5 h-3.5" />
                       <span>+ Add other medical condition</span>
@@ -1517,7 +1517,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       <button
                         type="button"
                         onClick={handleAddCustomHealthCondition}
-                        className="px-3 py-1.5 rounded-lg bg-[#3186FF] text-white text-xs font-bold shrink-0"
+                        className="px-3 py-1.5 rounded-lg bg-[#0D4F59] text-white text-xs font-bold shrink-0"
                       >
                         Add
                       </button>
@@ -1603,7 +1603,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     <button
                       type="button"
                       onClick={() => setShowCustomMedInput(true)}
-                      className="text-[11px] text-[#3186FF] hover:underline font-semibold flex items-center gap-1"
+                      className="text-[11px] text-[#0D4F59] hover:underline font-semibold flex items-center gap-1"
                     >
                       <PlusCircle className="w-3.5 h-3.5" />
                       <span>+ Add other medication</span>
@@ -1626,7 +1626,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       <button
                         type="button"
                         onClick={handleAddCustomMedication}
-                        className="px-3 py-1.5 rounded-lg bg-[#3186FF] text-white text-xs font-bold shrink-0"
+                        className="px-3 py-1.5 rounded-lg bg-[#0D4F59] text-white text-xs font-bold shrink-0"
                       >
                         Add
                       </button>
@@ -1651,7 +1651,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     {' • '}
                     <span className="font-medium">{age}y {biologicalSex === 'female' ? (isPregnant ? '♀ (Pregnant)' : '♀') : biologicalSex === 'male' ? '♂' : '⚧'}</span>
                     {' • '}
-                    <span className="font-medium text-[#3186FF]">{isCustomRole ? customRole || 'Custom Role' : selectedRole}</span>
+                    <span className="font-medium text-[#0D4F59]">{isCustomRole ? customRole || 'Custom Role' : selectedRole}</span>
                   </div>
                 </div>
 
@@ -1667,7 +1667,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)}
-                  className="px-6 py-2.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold text-xs flex items-center gap-2 shadow-md transition-all active:scale-95"
+                  className="px-6 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white font-bold text-xs flex items-center gap-2 shadow-md transition-all active:scale-95"
                 >
                   <span>Continue to Calendar</span>
                   <ArrowRight className="w-4 h-4" />
@@ -1682,7 +1682,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
               <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E2E8F0] gap-2">
                 <div>
                   <h3 className="text-sm font-bold text-black flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-[#3186FF]" />
+                    <Calendar className="w-4 h-4 text-[#0D4F59]" />
                     <span>Google Calendar Integration</span>
                   </h3>
                   <p className="text-[11px] text-slate-500 mt-0.5">
@@ -1712,7 +1712,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
               }`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#3186FF]">
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0D4F59]">
                       <Upload className="w-4 h-4" />
                     </div>
                     <div>
@@ -1745,7 +1745,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
               }`}>
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Calendar className="w-4 h-4 text-[#3186FF]" />
+                    <Calendar className="w-4 h-4 text-[#0D4F59]" />
                     <span className="text-xs font-bold text-black">Live Secret iCal Link</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-bold">
                       💻 Desktop / Laptop Only
@@ -1757,7 +1757,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     <button
                       type="button"
                       onClick={() => setShowSecretIcalInstructions(!showSecretIcalInstructions)}
-                      className="text-xs px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#3186FF] to-[#1D4ED8] hover:from-[#2563EB] hover:to-[#1E40AF] text-white font-bold flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer ring-2 ring-blue-400/25"
+                      className="text-xs px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#0D4F59] to-[#1D4ED8] hover:from-[#2563EB] hover:to-[#1E40AF] text-white font-bold flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer ring-2 ring-blue-400/25"
                     >
                       <Search className="w-3.5 h-3.5 text-white" />
                       <span>{showSecretIcalInstructions ? '✕ Hide Guide' : 'FIND MY SECRET LINK'}</span>
@@ -1795,7 +1795,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-gradient-to-r from-blue-50 via-indigo-50/70 to-blue-50 border border-blue-200">
                       <div className="space-y-0.5">
                         <div className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
-                          <Sparkles className="w-4 h-4 text-[#3186FF]" />
+                          <Sparkles className="w-4 h-4 text-[#0D4F59]" />
                           <span>Direct Google Calendar Shortcut (Opens Desktop Settings)</span>
                         </div>
                         <p className="text-[11px] text-slate-600">
@@ -1807,7 +1807,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                         href="https://calendar.google.com/calendar/u/0/r/settings"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold text-xs shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 shrink-0 group active:scale-95 cursor-pointer ring-2 ring-blue-300/40"
+                        className="px-4 py-2 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white font-bold text-xs shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 shrink-0 group active:scale-95 cursor-pointer ring-2 ring-blue-300/40"
                       >
                         <span>Open Calendar Settings</span>
                         <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -1868,12 +1868,12 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     value={icalUrlInput}
                     onChange={e => setIcalUrlInput(e.target.value)}
                     placeholder="https://calendar.google.com/calendar/ical/.../basic.ics"
-                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-[#E2E8F0] bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
+                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-[#E2E8F0] bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#0D4F59]"
                   />
                   <button
                     type="submit"
                     disabled={isConnectingCalendar || !icalUrlInput.trim()}
-                    className="px-4 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 disabled:opacity-50 text-white text-xs font-bold transition-all shrink-0 cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-[#0D4F59] hover:bg-blue-600 disabled:opacity-50 text-white text-xs font-bold transition-all shrink-0 cursor-pointer"
                   >
                     {isConnectingCalendar ? 'Syncing...' : 'Sync'}
                   </button>
@@ -1911,7 +1911,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     className={`px-4 py-2 rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 ${
                       feedSourceName === 'clinical_benchmark' && isCalendarConnected
                         ? 'bg-emerald-600 text-white border border-emerald-600 shadow-xs'
-                        : 'border border-[#3186FF] bg-blue-50 hover:bg-blue-100 text-[#3186FF]'
+                        : 'border border-[#0D4F59] bg-blue-50 hover:bg-blue-100 text-[#0D4F59]'
                     }`}
                   >
                     <Sparkles className="w-3.5 h-3.5" />
@@ -1965,7 +1965,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   {/* Calendar Chrono-Insights Derived Exclusively From User's Events */}
                   <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-100 text-xs space-y-2">
                     <div className="flex items-center gap-1.5 text-blue-900 font-bold text-[11px]">
-                      <Sparkles className="w-3.5 h-3.5 text-[#3186FF]" />
+                      <Sparkles className="w-3.5 h-3.5 text-[#0D4F59]" />
                       <span>Chrono-Insights Extracted From Your Calendar</span>
                     </div>
 
@@ -2011,7 +2011,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                     }
                     setCurrentStep(3);
                   }}
-                  className="px-5 py-2.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
                 >
                   <span>Continue to Hair Specimen</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -2060,17 +2060,17 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                   }}
                   className={`border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-1.5 ${
                     isDraggingFile
-                      ? 'border-[#3186FF] bg-blue-100/50 scale-[1.01]'
+                      ? 'border-[#0D4F59] bg-blue-100/50 scale-[1.01]'
                       : uploadedFileName && labDataSource === 'uploaded'
                       ? 'border-emerald-400 bg-emerald-50/30'
                       : labUploadError
                       ? 'border-rose-300 hover:border-rose-400 bg-rose-50/20'
-                      : 'border-[#3186FF]/40 hover:border-[#3186FF] bg-blue-50/20'
+                      : 'border-[#0D4F59]/40 hover:border-[#0D4F59] bg-blue-50/20'
                   }`}
                 >
                   {isExtractingPdf ? (
                     <div className="flex flex-col items-center gap-2 py-2">
-                      <Sparkles className="w-6 h-6 text-[#3186FF] animate-spin" />
+                      <Sparkles className="w-6 h-6 text-[#0D4F59] animate-spin" />
                       <div className="space-y-0.5">
                         <span className="text-xs font-bold text-slate-900 block">
                           {labExtractionStatus || 'AI Scanning Document...'}
@@ -2085,7 +2085,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
                         uploadedFileName && labDataSource === 'uploaded'
                           ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-blue-100/70 text-[#3186FF]'
+                          : 'bg-blue-100/70 text-[#0D4F59]'
                       }`}>
                         {uploadedFileName && labDataSource === 'uploaded' ? (
                           <CheckCircle2 className="w-5 h-5" />
@@ -2168,7 +2168,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                       className={`px-4 py-2 rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 ${
                         hasLoadedLabData && labDataSource === 'demo'
                           ? 'bg-emerald-600 text-white border border-emerald-600 shadow-xs'
-                          : 'border border-[#3186FF] bg-blue-50 hover:bg-blue-100 text-[#3186FF]'
+                          : 'border border-[#0D4F59] bg-blue-50 hover:bg-blue-100 text-[#0D4F59]'
                       }`}
                     >
                       <Sparkles className="w-3.5 h-3.5" />
@@ -2266,7 +2266,7 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
                 <button
                   type="button"
                   onClick={handleTriggerSynthesis}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#3186FF] via-[#6366F1] to-[#FB7185] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#0D4F59] via-[#16636E] to-[#FB7185] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Run AI Synthesis</span>
@@ -2278,18 +2278,18 @@ export const FunctionalOnboardingWizard: React.FC<FunctionalOnboardingWizardProp
           {/* STEP 4: GEMINI SYNTHESIS ANIMATION */}
           {currentStep === 4 && (
             <div className="py-10 flex flex-col items-center justify-center text-center space-y-4 animate-fade-in">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#3186FF] via-[#6366F1] to-[#FB7185] flex items-center justify-center shadow-md">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#0D4F59] via-[#16636E] to-[#FB7185] flex items-center justify-center shadow-md">
                 <Sparkles className="w-7 h-7 text-white animate-spin" />
               </div>
 
               <div>
                 <h3 className="text-sm font-bold text-black">AI Biomedical Synthesis</h3>
-                <span className="text-xs font-mono font-semibold text-[#3186FF]">{synthesisProgress}%</span>
+                <span className="text-xs font-mono font-semibold text-[#0D4F59]">{synthesisProgress}%</span>
               </div>
 
               <div className="w-full max-w-xs bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200">
                 <div
-                  className="h-full bg-gradient-to-r from-[#3186FF] via-[#6366F1] to-[#FB7185] transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-[#0D4F59] via-[#16636E] to-[#FB7185] transition-all duration-300"
                   style={{ width: `${synthesisProgress}%` }}
                 />
               </div>

@@ -206,7 +206,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-[#E2E8F0] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#3186FF]">
+            <div className="w-9 h-9 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0D4F59]">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
@@ -244,7 +244,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                 <button
                   type="button"
                   onClick={() => handleConnectLive('google')}
-                  className="p-3 rounded-2xl border border-[#E2E8F0] hover:border-[#3186FF] hover:bg-blue-50/40 text-left transition-all cursor-pointer"
+                  className="p-3 rounded-2xl border border-[#E2E8F0] hover:border-[#0D4F59] hover:bg-blue-50/40 text-left transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
                     <svg aria-hidden="true" width="14" height="14" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
@@ -270,11 +270,11 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                 onClick={() => fileInputRef.current?.click()}
                 className={`p-4 rounded-2xl border-2 border-dashed transition-all cursor-pointer text-center space-y-2 ${
                   isDragOver
-                    ? 'border-[#3186FF] bg-blue-50/50'
+                    ? 'border-[#0D4F59] bg-blue-50/50'
                     : 'border-slate-200 hover:border-slate-300 bg-slate-50/50'
                 }`}
               >
-                <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#3186FF] mx-auto shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#0D4F59] mx-auto shadow-xs">
                   <Upload className="w-5 h-5" />
                 </div>
                 <div>
@@ -304,7 +304,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
               <div className="p-4 rounded-2xl border border-[#E2E8F0] space-y-3">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs flex-wrap">
-                    <Lock className="w-3.5 h-3.5 text-[#3186FF]" />
+                    <Lock className="w-3.5 h-3.5 text-[#0D4F59]" />
                     <span>Secret address in iCal format:</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-bold">
                       💻 Desktop / Laptop Only
@@ -314,7 +314,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                   <button
                     type="button"
                     onClick={() => setShowSecretHelp(!showSecretHelp)}
-                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#3186FF] to-[#1D4ED8] hover:from-[#2563EB] hover:to-[#1E40AF] text-white text-[11px] font-bold shadow-xs hover:shadow transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer ring-2 ring-blue-400/30"
+                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#0D4F59] to-[#1D4ED8] hover:from-[#2563EB] hover:to-[#1E40AF] text-white text-[11px] font-bold shadow-xs hover:shadow transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer ring-2 ring-blue-400/30"
                   >
                     <Search className="w-3.5 h-3.5 text-white" />
                     <span>{showSecretHelp ? '✕ HIDE GUIDE' : 'FIND MY SECRET LINK'}</span>
@@ -350,7 +350,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-gradient-to-r from-blue-50 via-indigo-50/70 to-blue-50 border border-blue-200">
                       <div className="space-y-0.5">
                         <div className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
-                          <Sparkles className="w-4 h-4 text-[#3186FF]" />
+                          <Sparkles className="w-4 h-4 text-[#0D4F59]" />
                           <span>Direct Google Calendar Shortcut (Opens Desktop Settings)</span>
                         </div>
                         <p className="text-[11px] text-slate-600">
@@ -362,7 +362,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                         href="https://calendar.google.com/calendar/u/0/r/settings"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold text-xs shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 shrink-0 group active:scale-95 cursor-pointer ring-2 ring-blue-300/40"
+                        className="px-4 py-2 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white font-bold text-xs shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 shrink-0 group active:scale-95 cursor-pointer ring-2 ring-blue-300/40"
                       >
                         <span>Open Calendar Settings</span>
                         <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -423,7 +423,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                     value={icalUrlInput}
                     onChange={e => setIcalUrlInput(e.target.value)}
                     placeholder="Paste Secret iCal URL or Secret Code..."
-                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-[#E2E8F0] bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
+                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-[#E2E8F0] bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#0D4F59]"
                   />
                   <button
                     type="submit"
@@ -462,7 +462,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
           {/* STAGE: VERIFYING */}
           {stage === 'verifying' && (
             <div className="py-8 space-y-3 text-center">
-              <RefreshCw className="w-8 h-8 text-[#3186FF] animate-spin mx-auto" />
+              <RefreshCw className="w-8 h-8 text-[#0D4F59] animate-spin mx-auto" />
               <p className="text-xs font-bold text-black">Parsing calendar telemetry...</p>
             </div>
           )}
@@ -551,7 +551,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                 <button
                   type="button"
                   onClick={handleApplyToDashboard}
-                  className="flex-1 py-2 px-4 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="flex-1 py-2 px-4 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <span>Apply Telemetry to Dashboard</span>
                   <ArrowRight className="w-3.5 h-3.5" />

@@ -129,7 +129,7 @@ export const GeminiProtocolCards = React.memo<GeminiProtocolCardsProps>(({
                             onClick={() => setWindDownGoalSet(!windDownGoalSet)}
                             aria-pressed={windDownGoalSet}
                             className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                              windDownGoalSet ? 'bg-emerald-600 text-white' : 'bg-slate-900 hover:bg-slate-700 text-white'
+                              windDownGoalSet ? 'bg-emerald-600 text-white' : 'bg-[#0D4F59] hover:bg-[#0B434B] text-white'
                             }`}
                           >
                             {windDownGoalSet ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Bell className="w-3.5 h-3.5" />}
@@ -142,7 +142,7 @@ export const GeminiProtocolCards = React.memo<GeminiProtocolCardsProps>(({
                             type="button"
                             onClick={onApplyCalendarRules || onOpenCalendarModal}
                             className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                              calendarRulesApplied ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-slate-900 hover:bg-slate-700 text-white'
+                              calendarRulesApplied ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-[#0D4F59] hover:bg-[#0B434B] text-white'
                             }`}
                           >
                             {calendarRulesApplied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Calendar className="w-3.5 h-3.5" />}

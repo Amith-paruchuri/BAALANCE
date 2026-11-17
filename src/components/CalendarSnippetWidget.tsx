@@ -92,7 +92,7 @@ export const DEFAULT_EVENTS: CalendarEventItem[] = [
     hasMeet: true,
     attendeesCount: 6,
     category: 'core',
-    colorBg: 'bg-[#3186FF] text-white border-blue-600',
+    colorBg: 'bg-[#0D4F59] text-white border-blue-600',
     isUserOrganizer: true,
     attendees: ['engineering-leads@company.com', 'product@company.com', 'qa-team@company.com'],
   },
@@ -172,7 +172,7 @@ export const DEFAULT_EVENTS: CalendarEventItem[] = [
     hasMeet: true,
     attendeesCount: 6,
     category: 'strategy',
-    colorBg: 'bg-[#3186FF] text-white border-blue-600',
+    colorBg: 'bg-[#0D4F59] text-white border-blue-600',
   },
   {
     id: 'evt-sep-6',
@@ -327,7 +327,7 @@ export const DEFAULT_EVENTS: CalendarEventItem[] = [
     hasMeet: true,
     attendeesCount: 12,
     category: 'strategy',
-    colorBg: 'bg-[#3186FF] text-white border-blue-600',
+    colorBg: 'bg-[#0D4F59] text-white border-blue-600',
   },
   {
     id: 'evt-aug-2',
@@ -414,7 +414,7 @@ export const DEFAULT_EVENTS: CalendarEventItem[] = [
     hasMeet: true,
     attendeesCount: 5,
     category: 'core',
-    colorBg: 'bg-[#3186FF] text-white border-blue-600',
+    colorBg: 'bg-[#0D4F59] text-white border-blue-600',
   },
   {
     id: 'evt-jul-2',
@@ -778,7 +778,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
 
       // Format incoming parsed events
       const colors = [
-        'bg-[#3186FF] text-white border-blue-600',
+        'bg-[#0D4F59] text-white border-blue-600',
         'bg-emerald-600 text-white border-emerald-700',
         'bg-purple-600 text-white border-purple-700',
         'bg-amber-600 text-white border-amber-700',
@@ -834,7 +834,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
             isCurfewBreach: false,
             colorBg: evt.category === 'personal'
               ? 'bg-[#6772E5] text-white border-indigo-700 shadow-xs ring-2 ring-emerald-400/50'
-              : 'bg-[#3186FF] text-white border-blue-600 shadow-xs ring-2 ring-emerald-400/50',
+              : 'bg-[#0D4F59] text-white border-blue-600 shadow-xs ring-2 ring-emerald-400/50',
             title: evt.title?.includes('Curfew Protected') ? evt.title : `${evt.title} (Curfew Protected)`,
           };
         }
@@ -938,7 +938,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
 
         if (parsed.events.length > 0) {
           const formatted: CalendarEventItem[] = parsed.events.slice(0, 300).map((evt: any, i: number) => {
-            let colorBg = 'bg-[#3186FF] text-white border-blue-600';
+            let colorBg = 'bg-[#0D4F59] text-white border-blue-600';
             if (evt.isCurfewBreach) {
               colorBg = 'bg-rose-600 text-white border-rose-700 ring-2 ring-rose-300';
             } else if (evt.category === 'birthday') {
@@ -1030,7 +1030,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
       category: isCurfew ? 'late_sync' : 'core',
       colorBg: isCurfew
         ? 'bg-rose-600 text-white border-rose-700 ring-2 ring-rose-300'
-        : 'bg-[#3186FF] text-white border-blue-600',
+        : 'bg-[#0D4F59] text-white border-blue-600',
     };
 
     const updated = [newEvt, ...events];
@@ -1200,42 +1200,10 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
 
   return (
     <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card overflow-hidden font-sans">
-      {/* TOP INSIGHT BANNER */}
-      <div className="p-3 sm:px-5 bg-rose-50/90 border-b border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-        <div className="flex items-center gap-2">
-          <Flame className="w-4 h-4 text-rose-600 shrink-0" />
-          <span className="font-bold text-rose-950">
-            57 calls after 7 PM in 90 days. Your biggest stress trigger.
-          </span>
-        </div>
-        <div className="flex items-center gap-3 text-[11px] font-semibold text-rose-800">
-          <span className="flex items-center gap-1">
-            <Plane className="w-3.5 h-3.5 text-rose-600" />
-            <span>11 flights · jet lag adds stress</span>
-          </span>
-          <span>•</span>
-          <span className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 rounded-sm bg-rose-600 ring-1 ring-rose-400" />
-            <span>Red = after 7 PM</span>
-          </span>
-        </div>
-      </div>
-
       {/* 1. TOP CALENDAR HEADER & NAVIGATION BAR */}
       <div className="p-3 sm:p-4 bg-white border-b border-[#E2E8F0] flex flex-col md:flex-row md:items-center justify-between gap-3">
         {/* Left: Brand & Week Navigation Controls */}
         <div className="flex items-center gap-3 flex-wrap">
-          {/* Calendar App Icon */}
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 flex flex-col items-center justify-center shadow-xs shrink-0">
-              <span className="text-[8px] font-bold text-blue-600 uppercase leading-none">CAL</span>
-              <span className="text-xs font-black text-blue-700 leading-none mt-0.5">20</span>
-            </div>
-            <span className="text-base font-bold text-slate-900 hidden sm:inline">Your calendar</span>
-          </div>
-
-          <div className="h-6 w-px bg-slate-200 hidden sm:block" />
-
           {/* Navigation: Today, Prev (<), Next (>) */}
           <div className="flex items-center gap-1.5">
             <button
@@ -1250,7 +1218,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
               type="button"
               onClick={handlePrevWeek}
               title="Previous Week"
-              className="px-3 py-1.5 rounded-xl border border-slate-300 hover:border-[#3186FF] hover:bg-blue-50 text-slate-700 hover:text-[#3186FF] text-xs font-bold flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-xl border border-slate-300 hover:border-[#0D4F59] hover:bg-blue-50 text-slate-700 hover:text-[#0D4F59] text-xs font-bold flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" strokeWidth={2.5} />
               <span>Prev</span>
@@ -1260,7 +1228,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
               type="button"
               onClick={handleNextWeek}
               title="Next Week"
-              className="px-3 py-1.5 rounded-xl border border-slate-300 hover:border-[#3186FF] hover:bg-blue-50 text-slate-700 hover:text-[#3186FF] text-xs font-bold flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-xl border border-slate-300 hover:border-[#0D4F59] hover:bg-blue-50 text-slate-700 hover:text-[#0D4F59] text-xs font-bold flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
             >
               <span>Next</span>
               <ChevronRight className="w-4 h-4" strokeWidth={2.5} />
@@ -1270,10 +1238,6 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
             <span className="text-sm sm:text-base font-bold text-slate-900 ml-1.5 font-sans">
               {weekHeaderTitle}
             </span>
-            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>IST (UTC+5:30)</span>
-            </span>
           </div>
         </div>
 
@@ -1281,17 +1245,17 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
         <div className="flex items-center gap-2 flex-wrap">
           {/* Quick Cohort Jump Pills */}
           <div className="flex items-center gap-1 text-[11px] font-semibold bg-slate-50 p-1 rounded-xl border border-slate-200">
-            <span className="text-slate-400 px-1.5 text-[10px] uppercase font-bold">Timeline:</span>
+            <span className="text-slate-400 px-1.5 text-[11px] font-semibold">Jump to</span>
             <button
               type="button"
               onClick={() => handleJumpToMonth(8)}
               className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
                 currentWeekStart.getMonth() === 8
-                  ? 'bg-[#3186FF] text-white shadow-xs font-bold'
+                  ? 'bg-[#0D4F59] text-white shadow-xs font-bold'
                   : 'text-slate-600 hover:text-black'
               }`}
             >
-              Sep (Now)
+              September
             </button>
             <button
               type="button"
@@ -1303,7 +1267,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
               }`}
               title="View the August Stress Surge Week (Mid-Shaft Spike)"
             >
-              Aug (Surge)
+              August
             </button>
             <button
               type="button"
@@ -1315,7 +1279,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
               }`}
               title="View the July Baseline Week (Hair Tip)"
             >
-              Jul (Baseline)
+              July
             </button>
           </div>
 
@@ -1326,7 +1290,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
               onClick={() => setViewMode('grid')}
               className={`px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all ${
                 viewMode === 'grid'
-                  ? 'bg-white text-[#3186FF] shadow-2xs font-bold'
+                  ? 'bg-white text-[#0D4F59] shadow-2xs font-bold'
                   : 'text-slate-600 hover:text-black'
               }`}
             >
@@ -1338,7 +1302,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
               onClick={() => setViewMode('list')}
               className={`px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all ${
                 viewMode === 'list'
-                  ? 'bg-white text-[#3186FF] shadow-2xs font-bold'
+                  ? 'bg-white text-[#0D4F59] shadow-2xs font-bold'
                   : 'text-slate-600 hover:text-black'
               }`}
             >
@@ -1347,50 +1311,25 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
             </button>
           </div>
 
-          {/* Apply Calendar Defense Rules */}
-          {onApplyRules && (
-            <button
-              type="button"
-              onClick={onApplyRules}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer ${
-                rulesApplied
-                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100'
-                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-              }`}
-              title="Enforce 7:00 PM evening curfew and protective boundary shields across all future dates"
-            >
-              {rulesApplied ? (
-                <>
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="hidden sm:inline">Rules Active</span>
-                </>
-              ) : (
-                <>
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Apply Rules</span>
-                </>
-              )}
-            </button>
-          )}
         </div>
       </div>
 
       {/* 2. PROTECTED / MASKED PRIVATE iCAL LINK STATUS BAR */}
       {activeIcalUrl ? (
-        <div className="p-3 sm:px-4 bg-gradient-to-r from-emerald-50/90 via-blue-50/50 to-emerald-50/90 border-b border-[#E2E8F0]">
+        <div className="p-3 sm:px-4 bg-[#FBF7F2] border-b border-[#EFE6DA]">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-xs shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-white border border-[#EFE6DA] text-[#0D4F59] flex items-center justify-center shrink-0">
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-slate-900">
-                    Live Google Calendar Linked
+                    Calendar linked
                   </span>
                   <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
                     <Lock className="w-2.5 h-2.5" />
-                    Private URL Hidden & Encrypted
+                    Link kept private
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500 font-mono">
@@ -1409,7 +1348,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                 className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer disabled:opacity-50"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isSyncingIcal ? 'animate-spin' : ''}`} />
-                <span>{isSyncingIcal ? 'Syncing...' : 'Sync Live Now'}</span>
+                <span>{isSyncingIcal ? 'Syncing...' : 'Sync now'}</span>
               </button>
 
               <button
@@ -1417,7 +1356,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                 onClick={() => setShowChangeInput(!showChangeInput)}
                 className="px-2.5 py-1.5 rounded-xl border border-slate-200 hover:bg-white text-slate-600 hover:text-black text-xs font-semibold transition-all cursor-pointer"
               >
-                {showChangeInput ? 'Hide' : 'Change Link'}
+                {showChangeInput ? 'Hide' : 'Change link'}
               </button>
             </div>
           </div>
@@ -1431,13 +1370,13 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                   value={icalUrlInput}
                   onChange={e => setIcalUrlInput(e.target.value)}
                   placeholder="Paste updated Secret address in iCal format..."
-                  className="flex-1 p-2 text-xs rounded-xl border border-[#E2E8F0] bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
+                  className="flex-1 p-2 text-xs rounded-xl border border-[#E2E8F0] bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#0D4F59]"
                 />
                 <div className="flex items-center gap-2">
                   <button
                     type="submit"
                     disabled={isSyncingIcal || !icalUrlInput.trim()}
-                    className="px-3.5 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold cursor-pointer disabled:opacity-50"
+                    className="px-3.5 py-2 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold cursor-pointer disabled:opacity-50"
                   >
                     Update & Sync
                   </button>
@@ -1455,24 +1394,24 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
         </div>
       ) : (
         /* Pre-Connected Demo Calendar Status Bar (Clean, no secret iCal paste box or desktop warnings) */
-        <div className="p-3 sm:px-4 bg-gradient-to-r from-emerald-50/90 via-blue-50/50 to-emerald-50/90 border-b border-[#E2E8F0]">
+        <div className="p-3 sm:px-4 bg-[#FBF7F2] border-b border-[#EFE6DA]">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-xs shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-white border border-[#EFE6DA] text-[#0D4F59] flex items-center justify-center shrink-0">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-slate-900">
-                    Google Calendar Pre-Connected
+                    Sample calendar
                   </span>
                   <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
                     <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
-                    Demo Telemetry Synced
+                    Sample data
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500">
-                  <span className="text-slate-600 font-medium">90-day workload history: 391 hours · 57 late calls past 7 PM</span>
+                  <span className="text-slate-600 font-medium">A sample 90 days, so you can explore without connecting your own calendar.</span>
                 </div>
               </div>
             </div>
@@ -1483,7 +1422,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                 onClick={() => setShowChangeInput(!showChangeInput)}
                 className="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-white text-slate-700 hover:text-black text-xs font-semibold transition-all cursor-pointer shadow-2xs"
               >
-                {showChangeInput ? 'Hide Sync Settings' : 'Sync Custom Calendar'}
+                {showChangeInput ? 'Hide' : 'Connect by calendar link'}
               </button>
             </div>
           </div>
@@ -1496,13 +1435,13 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                   value={icalUrlInput}
                   onChange={e => setIcalUrlInput(e.target.value)}
                   placeholder="Paste calendar URL or iCal feed link..."
-                  className="flex-1 p-2 text-xs rounded-xl border border-[#E2E8F0] bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
+                  className="flex-1 p-2 text-xs rounded-xl border border-[#E2E8F0] bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#0D4F59]"
                 />
                 <div className="flex items-center gap-2">
                   <button
                     type="submit"
                     disabled={isSyncingIcal || !icalUrlInput.trim()}
-                    className="px-3.5 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold cursor-pointer disabled:opacity-50"
+                    className="px-3.5 py-2 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold cursor-pointer disabled:opacity-50"
                   >
                     Sync Calendar
                   </button>
@@ -1542,7 +1481,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
             className="p-2 rounded-xl border border-[#E2E8F0] bg-white font-mono"
             required
           />
-          <button type="submit" className="px-3.5 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold cursor-pointer">
+          <button type="submit" className="px-3.5 py-2 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white font-bold cursor-pointer">
             Add to Grid
           </button>
           <button type="button" onClick={() => setShowAddModal(false)} className="px-2.5 py-2 rounded-xl border border-[#E2E8F0] text-slate-500 hover:text-black cursor-pointer">
@@ -1559,7 +1498,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
           onClick={handlePrevWeek}
           aria-label="Previous Week"
           title="Previous Week"
-          className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/95 backdrop-blur-md border-2 border-slate-300 hover:border-[#3186FF] hover:bg-blue-50 text-slate-700 hover:text-[#3186FF] shadow-lg hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3186FF]"
+          className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/95 backdrop-blur-md border-2 border-slate-300 hover:border-[#0D4F59] hover:bg-blue-50 text-slate-700 hover:text-[#0D4F59] shadow-lg hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0D4F59]"
         >
           <ChevronLeft className="w-6 h-6" strokeWidth={2.5} />
         </button>
@@ -1570,7 +1509,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
           onClick={handleNextWeek}
           aria-label="Next Week"
           title="Next Week"
-          className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/95 backdrop-blur-md border-2 border-slate-300 hover:border-[#3186FF] hover:bg-blue-50 text-slate-700 hover:text-[#3186FF] shadow-lg hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3186FF]"
+          className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/95 backdrop-blur-md border-2 border-slate-300 hover:border-[#0D4F59] hover:bg-blue-50 text-slate-700 hover:text-[#0D4F59] shadow-lg hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0D4F59]"
         >
           <ChevronRight className="w-6 h-6" strokeWidth={2.5} />
         </button>
@@ -1581,8 +1520,8 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
             {/* Google Calendar Multi-Calendar Layers Bar (matching user's Google Calendar checkboxes) */}
             <div className="flex flex-wrap items-center justify-between gap-2 p-2 px-3 mb-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
               <div className="flex items-center gap-1.5 text-slate-600 font-bold text-[11px]">
-                <Layers className="w-3.5 h-3.5 text-[#3186FF]" />
-                <span>Google Calendar Layers:</span>
+                <Layers className="w-3.5 h-3.5 text-[#0D4F59]" />
+                <span>Show</span>
               </div>
 
               <div className="flex flex-wrap items-center gap-3 text-[11px]">
@@ -1591,10 +1530,10 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                     type="checkbox"
                     checked={showPrimaryLayer}
                     onChange={(e) => setShowPrimaryLayer(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded text-[#3186FF] accent-[#3186FF] focus:ring-1 focus:ring-[#3186FF] cursor-pointer"
+                    className="w-3.5 h-3.5 rounded text-[#0D4F59] accent-[#0D4F59] focus:ring-1 focus:ring-[#0D4F59] cursor-pointer"
                   />
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#3186FF] shrink-0" />
-                  <span>Primary Schedule</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#0D4F59] shrink-0" />
+                  <span>Meetings</span>
                 </label>
 
                 <label className="flex items-center gap-1.5 cursor-pointer select-none font-semibold text-emerald-800 hover:text-emerald-950">
@@ -1605,7 +1544,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                     className="w-3.5 h-3.5 rounded text-emerald-600 accent-emerald-600 focus:ring-1 focus:ring-emerald-600 cursor-pointer"
                   />
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span>Birthdays 🎂</span>
+                  <span>Birthdays</span>
                 </label>
 
                 <label className="flex items-center gap-1.5 cursor-pointer select-none font-semibold text-amber-800 hover:text-amber-950">
@@ -1616,7 +1555,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                     className="w-3.5 h-3.5 rounded text-amber-600 accent-amber-600 focus:ring-1 focus:ring-amber-600 cursor-pointer"
                   />
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
-                  <span>Holidays in India 🇮🇳</span>
+                  <span>Holidays in India</span>
                 </label>
               </div>
             </div>
@@ -1624,34 +1563,29 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
             {/* Top Timezone & Legend Indicator */}
             <div className="flex flex-wrap items-center justify-between pb-2 mb-2 border-b border-slate-100 text-xs gap-2">
               <div className="flex items-center gap-2 font-bold text-black">
-                <span className="text-slate-500 font-mono text-[11px]">GMT+05:30 (India Standard Time)</span>
-                {feedSource === 'real_ical' && (
-                  <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    Live Stream Connected
-                  </span>
-                )}
+                <span className="text-slate-500 text-[11px] font-medium">Times in India Standard Time</span>
               </div>
 
               <div className="flex flex-wrap items-center gap-3 text-[11px]">
                 <div className="flex items-center gap-1 text-slate-600">
-                  <span className="w-2.5 h-2.5 rounded-sm bg-[#3186FF]" />
-                  <span>Day Calls</span>
+                  <span className="w-2.5 h-2.5 rounded-sm bg-[#0D4F59]" />
+                  <span>Daytime</span>
                 </div>
                 <div className="flex items-center gap-1 text-rose-700 font-semibold">
                   <span className="w-2.5 h-2.5 rounded-sm bg-rose-600 ring-1 ring-rose-400" />
-                  <span>After 7 PM (Red)</span>
+                  <span>After 7 PM</span>
                 </div>
                 <div className="flex items-center gap-1 text-emerald-700 font-semibold">
                   <span className="w-2.5 h-2.5 rounded-sm bg-emerald-600" />
-                  <span>Birthdays 🎂</span>
+                  <span>Birthdays</span>
                 </div>
                 <div className="flex items-center gap-1 text-[#6772E5] font-semibold">
                   <span className="w-2.5 h-2.5 rounded-sm bg-[#6772E5]" />
-                  <span>Personal 🎉</span>
+                  <span>Personal</span>
                 </div>
                 <div className="flex items-center gap-1 text-amber-700 font-semibold">
                   <span className="w-2.5 h-2.5 rounded-sm bg-amber-600" />
-                  <span>Festivals 🇮🇳</span>
+                  <span>Festivals</span>
                 </div>
               </div>
             </div>
@@ -1664,13 +1598,13 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                   key={d.dateKey}
                   className={`py-1.5 px-1 rounded-2xl transition-all ${
                     d.isToday
-                      ? 'bg-blue-50/60 border-2 border-[#3186FF]'
+                      ? 'bg-blue-50/60 border-2 border-[#0D4F59]'
                       : 'bg-slate-50/80 border border-slate-100 hover:bg-slate-100/60'
                   }`}
                 >
                   <div
                     className={`text-[11px] font-bold uppercase ${
-                      d.isToday ? 'text-[#3186FF]' : 'text-slate-600'
+                      d.isToday ? 'text-[#0D4F59]' : 'text-slate-600'
                     }`}
                   >
                     {d.dayHeader}
@@ -1679,7 +1613,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                     <span
                       className={`text-sm font-black font-mono leading-none flex items-center justify-center ${
                         d.isToday
-                          ? 'w-7 h-7 rounded-full bg-[#3186FF] text-white shadow-xs'
+                          ? 'w-7 h-7 rounded-full bg-[#0D4F59] text-white shadow-xs'
                           : 'text-slate-900 py-1'
                       }`}
                     >
@@ -1843,7 +1777,7 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                     <div className="font-bold text-black flex items-center gap-1.5">
                       <span>{evt.title}</span>
                       {evt.hasMeet && (
-                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-blue-50 text-[#3186FF] font-semibold border border-blue-100">
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-blue-50 text-[#0D4F59] font-semibold border border-blue-100">
                           Meet
                         </span>
                       )}
@@ -1887,119 +1821,15 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
       )}
       </div>
 
-      {/* 5. CULPRIT SUMMARY CARD (Dynamically linked to Google Calendar load & Hair Cortisol) */}
-      {feedSource !== 'clinical_benchmark' && cumulativeCurfewBreaches <= 3 ? (
-        <div className="p-3.5 sm:p-4 bg-amber-50/90 border-t border-amber-200 space-y-2 animate-fade-in">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-amber-600 text-white flex items-center justify-center shadow-xs shrink-0">
-                <AlertCircle className="w-3.5 h-3.5" />
-              </div>
-              <span className="text-xs font-bold text-amber-900 uppercase tracking-wider">
-                Biomarker-Calendar Discordance Detected
-              </span>
-            </div>
-
-            <span className="text-xs font-bold text-amber-800 font-mono bg-white px-2 py-0.5 rounded-lg border border-amber-200">
-              Inferences Withheld Pending Intake
-            </span>
-          </div>
-
-          <p className="text-xs text-amber-950 leading-relaxed">
-            Your hair test recorded significant physiological cortisol elevation, but your Google Calendar contains <strong>{cumulativeCurfewBreaches === 0 ? '0 late calls after 7 PM' : `only ${cumulativeCurfewBreaches} evening calls`}</strong> and minimal late meetings across the 90-day retrospective window. Standard corporate meeting conclusions are withheld. Chat with <strong>Tricha AI</strong> to log your real-world clinical rotations, hospital ward rounds, study sprints, and shift patterns.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-sans text-xs">
-            <div className="p-2.5 rounded-xl bg-white border border-amber-200 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <div>
-                <div className="text-[10px] text-slate-500">Calls after 7 PM</div>
-                <div className="font-bold text-black font-mono">{cumulativeCurfewBreaches} Late Calls ({cumulativeCurfewBreaches === 0 ? 'No desk breaches' : 'Well within normal limits'})</div>
-              </div>
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-white border border-amber-200 flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-amber-600 shrink-0" />
-              <div>
-                <div className="text-[10px] text-slate-500">Workload Source</div>
-                <div className="font-bold text-black font-mono">Clinical / Study Shift Strain</div>
-              </div>
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-white border border-amber-200 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-600 shrink-0" />
-              <div>
-                <div className="text-[10px] text-slate-500">Next Action</div>
-                <div className="font-bold text-blue-700">Intake with Tricha AI</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="p-3.5 sm:p-4 bg-rose-50/70 border-t border-rose-200 space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center shadow-xs shrink-0">
-                <Flame className="w-3.5 h-3.5" />
-              </div>
-              <span className="text-xs font-bold text-rose-900 uppercase tracking-wider">
-                The Real Culprit Behind Your Stress Surge
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-rose-700 font-mono bg-white px-2 py-0.5 rounded-lg border border-rose-200">
-                {weekCurfewBreaches} Late Calls This Week
-              </span>
-              <span className="text-xs font-bold text-slate-700 font-mono bg-white px-2 py-0.5 rounded-lg border border-slate-200">
-                {cumulativeCurfewBreaches} Calls after 7 PM
-              </span>
-            </div>
-          </div>
-
-          <p className="text-xs text-rose-950 leading-relaxed">
-            High cortisol in your hair test was the <strong>consequence</strong>. The real <strong>cause</strong> was {feedSource === 'clinical_benchmark' ? 'taking meetings past 7:00 PM' : `scheduling ${cumulativeCurfewBreaches} cumulative meetings past 7:00 PM`} (averaging {avgLateTimeRange}){travelShiftsCount > 0 ? ` and ${travelShiftsCount} timezone travel shifts` : ''}. These evening calls prevented your brain from entering restorative down-regulation, {dynamicSleepImpact}
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-sans text-xs">
-            <div className="p-2.5 rounded-xl bg-white border border-rose-200 flex items-center gap-2">
-              <Moon className="w-4 h-4 text-rose-600 shrink-0" />
-              <div>
-                <div className="text-[10px] text-slate-500">Calls after 7 PM</div>
-                <div className="font-bold text-black font-mono">{cumulativeCurfewBreaches} Late Calls</div>
-              </div>
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-white border border-rose-200 flex items-center gap-2">
-              {travelShiftsCount > 0 ? (
-                <>
-                  <Plane className="w-4 h-4 text-amber-600 shrink-0" />
-                  <div>
-                    <div className="text-[10px] text-slate-500">Flights</div>
-                    <div className="font-bold text-black font-mono">{travelShiftsCount} Flights (Jet Lag)</div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <div>
-                    <div className="text-[10px] text-slate-500">Travel Disruptions</div>
-                    <div className="font-bold text-black font-mono">0 Shifts (Localized)</div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-white border border-rose-200 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-600 shrink-0" />
-              <div>
-                <div className="text-[10px] text-slate-500">Prescribed Boundary</div>
-                <div className="font-bold text-black">Hard 7:00 PM Cutoff</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* What this calendar shows: computed from the events, with no claim beyond them */}
+      <div className="p-4 sm:p-5 bg-[#FBF7F2] border-t border-[#EFE6DA]">
+        <div className="text-xs font-extrabold text-slate-900">What this calendar shows</div>
+        <p className="text-xs text-slate-700 leading-relaxed mt-1">
+          {feedSource !== 'clinical_benchmark' && cumulativeCurfewBreaches <= 3
+            ? `Only ${cumulativeCurfewBreaches} meeting${cumulativeCurfewBreaches === 1 ? '' : 's'} after 7 PM in 90 days, so your calendar does not explain a high hair cortisol reading. The cause is likely outside it: shifts, study, sleep or life events. Tell Tricha more and it will look with you.`
+            : `${cumulativeCurfewBreaches} meetings after 7 PM in 90 days, ${weekCurfewBreaches} of them in the week shown${travelShiftsCount > 0 ? `, plus ${travelShiftsCount} flights` : ''}. Late meetings cut into evening recovery, so they are the first thing to change.`}
+        </p>
+      </div>
     </div>
   );
 });

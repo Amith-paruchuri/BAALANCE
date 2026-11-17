@@ -127,7 +127,7 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
           {/* Compressed Workload Row */}
           <div className="pt-1 text-[10px] font-mono">
             <div className="flex items-center justify-between bg-slate-50/90 px-2.5 py-1 rounded-lg border border-slate-100">
-              <span className="text-slate-600 font-sans text-[10px] font-medium">Google Calendar Load:</span>
+              <span className="text-slate-600 font-sans text-[10px] font-medium">Calendar load:</span>
               <span className="font-bold text-slate-900 text-[11px]">
                 {data.meetingHours}h{' '}
                 {data.eveningCalls > 0 && (
@@ -162,15 +162,15 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-card p-4 sm:p-6 font-sans">
+    <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-5 sm:p-7 font-sans" data-testid="chart-card">
       {/* Chart Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[#E2E8F0]">
         <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <TrendingUp className="w-5 h-5 text-[#BF6F4E]" />
-            <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-[#BF6F4E]">Week by week</div>
+          <div className="flex items-center gap-2 flex-wrap mt-1">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
               Stress rose when meetings did.
-            </h3>
+            </h2>
             {isCalendarConnected ? (
               <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
@@ -178,12 +178,12 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
               </span>
             ) : (
               <span className="text-[10px] text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
-                Demo Data
+                Sample data
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            3 monthly hair cortisol bars (1 cm = 1 month) vs weekly meeting hours from your calendar.
+          <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            Bars are hair cortisol per month. The line is your weekly meeting hours.
           </p>
         </div>
 
@@ -231,7 +231,7 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
           onClick={() => onSelectSegment && onSelectSegment(1)}
           className={`py-1 border-b-2 transition-all cursor-pointer font-bold ${
             activeSegmentId === 1
-              ? 'border-[#3186FF] text-[#3186FF]'
+              ? 'border-[#0D4F59] text-[#0D4F59]'
               : 'border-slate-200 text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -253,7 +253,7 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
           onClick={() => onSelectSegment && onSelectSegment(3)}
           className={`py-1 border-b-2 transition-all cursor-pointer font-bold ${
             activeSegmentId === 3
-              ? 'border-[#3186FF] text-[#3186FF]'
+              ? 'border-[#0D4F59] text-[#0D4F59]'
               : 'border-slate-200 text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -271,8 +271,8 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
           >
             <defs>
               <linearGradient id="cortisolCurveGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3186FF" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#3186FF" stopOpacity={0.0} />
+                <stop offset="5%" stopColor="#0D4F59" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#0D4F59" stopOpacity={0.0} />
               </linearGradient>
             </defs>
 
@@ -283,9 +283,9 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
               x1={`Week ${activeWeekStart}`}
               x2={`Week ${activeWeekEnd}`}
               yAxisId="left"
-              fill="#3186FF"
+              fill="#0D4F59"
               fillOpacity={0.05}
-              stroke="#3186FF"
+              stroke="#0D4F59"
               strokeOpacity={0.3}
               strokeDasharray="3 3"
             />
@@ -311,7 +311,7 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
               yAxisId="left"
               orientation="left"
               domain={[0, yAxisMax]}
-              tick={{ fill: '#3186FF', fontSize: 10, fontWeight: 700 }}
+              tick={{ fill: '#0D4F59', fontSize: 10, fontWeight: 700 }}
               axisLine={{ stroke: '#E2E8F0' }}
               tickLine={false}
               unit=" pg"
@@ -330,7 +330,7 @@ export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
 
             {/* Integrated Week Inspector Tooltip (Positioned down towards X-axis) */}
             <Tooltip
-              cursor={{ stroke: '#3186FF', strokeWidth: 1.5, strokeDasharray: '4 4' }}
+              cursor={{ stroke: '#0D4F59', strokeWidth: 1.5, strokeDasharray: '4 4' }}
               content={<CustomTooltip />}
               position={{ y: 175 }}
               allowEscapeViewBox={{ x: false, y: true }}

@@ -324,7 +324,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
       <div className="relative w-full max-w-2xl bg-white rounded-2xl border border-[#E2E8F0] shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header with Baalance Logo and Tagline */}
-        <div className="p-5 bg-[#F0F4FA] border-b border-[#E2E8F0] flex flex-col items-center relative shrink-0">
+        <div className="p-5 bg-[#F6F2EC] border-b border-[#E2E8F0] flex flex-col items-center relative shrink-0">
           <button
             onClick={onClose}
             className="absolute right-4 top-4 p-1.5 rounded-lg hover:bg-white text-[#5F6368] hover:text-[#000000] transition-colors"
@@ -342,7 +342,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
             </span>
 
             {step === 'questionnaire' && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#3186FF] border border-blue-200">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#0D4F59] border border-blue-200">
                 <Activity className="w-3 h-3" />
                 Est. Strain: {liveEstimatedStrain}/100
               </span>
@@ -357,7 +357,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
               {/* Quick Demo Mode Pill Button */}
               <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl flex items-center justify-between">
                 <div>
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#3186FF]">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#0D4F59]">
                     <Zap className="w-3.5 h-3.5" />
                     <span>Evaluation Bypass Available</span>
                   </div>
@@ -368,7 +368,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 <button
                   type="button"
                   onClick={handleQuickDemoBypass}
-                  className="px-3 py-1.5 rounded-lg bg-[#3186FF] text-white text-xs font-semibold hover:bg-blue-600 transition-colors shadow-sm"
+                  className="px-3 py-1.5 rounded-lg bg-[#0D4F59] text-white text-xs font-semibold hover:bg-blue-600 transition-colors shadow-sm"
                 >
                   Quick Demo Mode
                 </button>
@@ -385,7 +385,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                       type="email"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#3186FF] text-[#000000]"
+                      className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#0D4F59] text-[#000000]"
                       placeholder="name@institution.edu"
                     />
                   </div>
@@ -399,7 +399,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={e => setPassword(e.target.value)}
-                      className="w-full pl-9 pr-9 py-2 text-xs rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#3186FF] text-[#000000]"
+                      className="w-full pl-9 pr-9 py-2 text-xs rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#0D4F59] text-[#000000]"
                       placeholder="Enter your password"
                     />
                     <button
@@ -416,7 +416,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setStep('questionnaire')}
-                  className="w-full py-2.5 rounded-xl bg-[#3186FF] text-white text-xs font-semibold hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center gap-2"
+                  className="w-full py-2.5 rounded-xl bg-[#0D4F59] text-white text-xs font-semibold hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center gap-2"
                 >
                   <span>Sign In & Calibrate</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -430,7 +430,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h3 className="text-xs font-bold text-black flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-[#3186FF]" />
+                      <User className="w-3.5 h-3.5 text-[#0D4F59]" />
                       <span>Demographic Baseline & Identity</span>
                     </h3>
                     <p className="text-[10px] text-[#5F6368] mt-0.5">
@@ -452,7 +452,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                       value={fullName}
                       onChange={e => setFullName(e.target.value)}
                       placeholder="Enter your full legal name"
-                      className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[#E2E8F0] bg-white text-black font-semibold focus:ring-2 focus:ring-[#3186FF] focus:outline-none shadow-xs"
+                      className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[#E2E8F0] bg-white text-black font-semibold focus:ring-2 focus:ring-[#0D4F59] focus:outline-none shadow-xs"
                     />
                   </div>
                 </div>
@@ -546,7 +546,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-[#000000] flex items-center gap-1.5">
-                    <Briefcase className="w-4 h-4 text-[#3186FF]" />
+                    <Briefcase className="w-4 h-4 text-[#0D4F59]" />
                     <span>Job Role & Sector Specialization</span>
                   </label>
                 </div>
@@ -561,7 +561,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                         onClick={() => handleSelectPresetRole(item.role, item.sector)}
                         className={`text-left p-2.5 rounded-xl border text-xs transition-all ${
                           isSelected
-                            ? 'border-[#3186FF] bg-blue-50/70 text-[#000000] ring-1 ring-[#3186FF] font-semibold'
+                            ? 'border-[#0D4F59] bg-blue-50/70 text-[#000000] ring-1 ring-[#0D4F59] font-semibold'
                             : 'border-[#E2E8F0] bg-white text-[#5F6368] hover:border-slate-300'
                         }`}
                       >
@@ -579,7 +579,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                     onClick={() => setIsCustomRole(!isCustomRole)}
                     className={`w-full p-2.5 rounded-xl border flex items-center justify-between text-xs transition-all ${
                       isCustomRole
-                        ? 'border-[#3186FF] bg-blue-50/50 text-[#3186FF] font-semibold'
+                        ? 'border-[#0D4F59] bg-blue-50/50 text-[#0D4F59] font-semibold'
                         : 'border-dashed border-slate-300 bg-white text-[#5F6368] hover:border-slate-400'
                     }`}
                   >
@@ -603,7 +603,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                           value={customRoleInput}
                           onChange={e => setCustomRoleInput(e.target.value)}
                           placeholder="e.g. Lead Cinematographer, Emergency Veterinarian"
-                          className="w-full px-3 py-2 text-xs rounded-lg border border-[#E2E8F0] focus:ring-2 focus:ring-[#3186FF] bg-white"
+                          className="w-full px-3 py-2 text-xs rounded-lg border border-[#E2E8F0] focus:ring-2 focus:ring-[#0D4F59] bg-white"
                         />
                       </div>
                       <div>
@@ -615,7 +615,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                           value={customSectorInput}
                           onChange={e => setCustomSectorInput(e.target.value)}
                           placeholder="e.g. Film Production, Veterinary Critical Care"
-                          className="w-full px-3 py-2 text-xs rounded-lg border border-[#E2E8F0] focus:ring-2 focus:ring-[#3186FF] bg-white"
+                          className="w-full px-3 py-2 text-xs rounded-lg border border-[#E2E8F0] focus:ring-2 focus:ring-[#0D4F59] bg-white"
                         />
                       </div>
                     </div>
@@ -624,14 +624,14 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
               </div>
 
               {/* SECTION 2: WORKLOAD INTENSITY & BOUNDARY BLEED */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-[#F0F4FA] border border-[#E2E8F0]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-[#F6F2EC] border border-[#E2E8F0]">
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs font-bold text-[#000000] flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-[#3186FF]" />
+                      <Clock className="w-3.5 h-3.5 text-[#0D4F59]" />
                       <span>Weekly Working Hours</span>
                     </label>
-                    <span className="font-bold text-[#3186FF] bg-white px-2 py-0.5 rounded-md border border-[#E2E8F0]">
+                    <span className="font-bold text-[#0D4F59] bg-white px-2 py-0.5 rounded-md border border-[#E2E8F0]">
                       {weeklyHours} hrs
                     </span>
                   </div>
@@ -642,7 +642,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                     step="1"
                     value={weeklyHours}
                     onChange={e => setWeeklyHours(Number(e.target.value))}
-                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#3186FF]"
+                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0D4F59]"
                   />
                   <div className="flex justify-between text-[10px] text-[#5F6368] mt-1">
                     <span>35h (Standard)</span>
@@ -654,13 +654,13 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-bold text-[#000000] mb-1.5 flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-[#3186FF]" />
+                      <Layers className="w-3.5 h-3.5 text-[#0D4F59]" />
                       <span>Evening Work & Late Calls</span>
                     </label>
                     <select
                       value={workBoundaryBleed}
                       onChange={e => setWorkBoundaryBleed(e.target.value as WorkBoundaryBleed)}
-                      className="w-full p-2 text-xs rounded-lg border border-[#E2E8F0] bg-white text-[#000000] focus:ring-2 focus:ring-[#3186FF]"
+                      className="w-full p-2 text-xs rounded-lg border border-[#E2E8F0] bg-white text-[#000000] focus:ring-2 focus:ring-[#0D4F59]"
                     >
                       <option value="strict_boundaries">🌅 Stop by 7:00 PM (No late work)</option>
                       <option value="occasional_bleed">🌗 Work until 9:00 PM sometimes</option>
@@ -676,7 +676,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                     <select
                       value={travelFrequency}
                       onChange={e => setTravelFrequency(e.target.value as TravelFrequency)}
-                      className="w-full p-2 text-xs rounded-lg border border-[#E2E8F0] bg-white text-[#000000] focus:ring-2 focus:ring-[#3186FF]"
+                      className="w-full p-2 text-xs rounded-lg border border-[#E2E8F0] bg-white text-[#000000] focus:ring-2 focus:ring-[#0D4F59]"
                     >
                       <option value="none_domestic">✈️ None / Domestic travel only</option>
                       <option value="occasional">🌍 Occasional (1–2 trips/year)</option>
@@ -751,7 +751,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                       onClick={() => setChronotype('morning_lark')}
                       className={`p-2 rounded-xl border text-center transition-all ${
                         chronotype === 'morning_lark'
-                          ? 'border-[#3186FF] bg-blue-50/70 text-[#000000] font-semibold ring-1 ring-[#3186FF]'
+                          ? 'border-[#0D4F59] bg-blue-50/70 text-[#000000] font-semibold ring-1 ring-[#0D4F59]'
                           : 'border-[#E2E8F0] bg-white text-[#5F6368]'
                       }`}
                     >
@@ -765,7 +765,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                       onClick={() => setChronotype('night_owl')}
                       className={`p-2 rounded-xl border text-center transition-all ${
                         chronotype === 'night_owl'
-                          ? 'border-[#3186FF] bg-blue-50/70 text-[#000000] font-semibold ring-1 ring-[#3186FF]'
+                          ? 'border-[#0D4F59] bg-blue-50/70 text-[#000000] font-semibold ring-1 ring-[#0D4F59]'
                           : 'border-[#E2E8F0] bg-white text-[#5F6368]'
                       }`}
                     >
@@ -779,7 +779,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                       onClick={() => setChronotype('shift_biphasic')}
                       className={`p-2 rounded-xl border text-center transition-all ${
                         chronotype === 'shift_biphasic'
-                          ? 'border-[#3186FF] bg-blue-50/70 text-[#000000] font-semibold ring-1 ring-[#3186FF]'
+                          ? 'border-[#0D4F59] bg-blue-50/70 text-[#000000] font-semibold ring-1 ring-[#0D4F59]'
                           : 'border-[#E2E8F0] bg-white text-[#5F6368]'
                       }`}
                     >
@@ -893,7 +893,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                         onClick={() => handleToggleStressDriver(opt.id)}
                         className={`w-full text-left p-2.5 rounded-xl border flex items-center justify-between transition-all ${
                           isSelected
-                            ? 'border-[#3186FF] bg-blue-50/50 text-[#000000] shadow-xs'
+                            ? 'border-[#0D4F59] bg-blue-50/50 text-[#000000] shadow-xs'
                             : 'border-[#E2E8F0] bg-white text-[#5F6368] hover:border-slate-300'
                         }`}
                       >
@@ -902,7 +902,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                         </div>
                         <div
                           className={`w-4 h-4 rounded flex items-center justify-center border transition-colors shrink-0 ${
-                            isSelected ? 'bg-[#3186FF] border-[#3186FF] text-white' : 'border-slate-300 bg-white'
+                            isSelected ? 'bg-[#0D4F59] border-[#0D4F59] text-white' : 'border-slate-300 bg-white'
                           }`}
                         >
                           {isSelected && <Check className="w-3 h-3" />}
@@ -975,7 +975,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowCustomHealthInput(true)}
-                      className="text-[11px] text-[#3186FF] hover:underline font-semibold flex items-center gap-1"
+                      className="text-[11px] text-[#0D4F59] hover:underline font-semibold flex items-center gap-1"
                     >
                       <PlusCircle className="w-3 h-3" />
                       <span>+ Add other health condition</span>
@@ -998,7 +998,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                       <button
                         type="button"
                         onClick={handleAddCustomHealthCondition}
-                        className="px-3 py-1.5 rounded-lg bg-[#3186FF] text-white text-xs font-bold shrink-0"
+                        className="px-3 py-1.5 rounded-lg bg-[#0D4F59] text-white text-xs font-bold shrink-0"
                       >
                         Add
                       </button>
@@ -1076,7 +1076,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowCustomMedInput(true)}
-                      className="text-[11px] text-[#3186FF] hover:underline font-semibold flex items-center gap-1"
+                      className="text-[11px] text-[#0D4F59] hover:underline font-semibold flex items-center gap-1"
                     >
                       <PlusCircle className="w-3 h-3" />
                       <span>+ Add other medication</span>
@@ -1099,7 +1099,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                       <button
                         type="button"
                         onClick={handleAddCustomMedication}
-                        className="px-3 py-1.5 rounded-lg bg-[#3186FF] text-white text-xs font-bold shrink-0"
+                        className="px-3 py-1.5 rounded-lg bg-[#0D4F59] text-white text-xs font-bold shrink-0"
                       >
                         Add
                       </button>
@@ -1127,7 +1127,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 <button
                   type="button"
                   onClick={handleSaveQuestionnaire}
-                  className="px-6 py-2.5 rounded-xl bg-[#3186FF] text-white text-xs font-bold hover:bg-blue-600 transition-colors shadow-sm flex items-center gap-2 active:scale-95"
+                  className="px-6 py-2.5 rounded-xl bg-[#0D4F59] text-white text-xs font-bold hover:bg-blue-600 transition-colors shadow-sm flex items-center gap-2 active:scale-95"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>Save Profile & Recalibrate</span>
