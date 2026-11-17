@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
       calendarEvents,
       calendarIcalUrl,
       verifiedCalendarEmail,
+      stressScore,
       apiKey: clientApiKey,
     } = await req.json();
 
@@ -109,6 +110,11 @@ export async function POST(req: NextRequest) {
       ? realFlights
       : (weeklyData.length > 0 ? weeklyData.reduce((sum, item) => sum + (item.flightShifts || 0), 0) : 0);
 
+    const scoreNumber = Number(stressScore);
+    const scoreLine = Number.isFinite(scoreNumber) && scoreNumber > 0
+      ? `${Math.round(scoreNumber)} / 100 (healthy is below 35)`
+      : 'not calculated yet';
+
     const avgDeepSleep = weeklyData.length > 0
       ? (weeklyData.reduce((sum, item) => sum + item.deepSleepHours, 0) / weeklyData.length).toFixed(1)
       : '0.8';
@@ -153,17 +159,19 @@ export async function POST(req: NextRequest) {
     // When hair cortisol reflects a high stress spike (>16 pg/mg in August or >14 pg/mg in September),
     // but the linked calendar shows 0 or very few meetings (<= 10 hours), this is classic Discordance!
     const isDiscordant = (august > 16 || september > 14) && (hasLinkedCalendar && realMeetingHours <= 10 && realLateCalls <= 2);
+    // Only say the calendar is empty when the numbers the user sees say so too.
+    const calendarLooksEmpty = isDiscordant || (totalLateCalls === 0 && totalMeetings <= 10);
 
     const systemPrompt = `You are Tricha, the intelligent, friendly, and practical AI health guide for BAALANCE.
 You have the complete diagnostic, lifestyle, calendar, and sleep context for ${userProfile.name || firstName}:
 
-DASHBOARD SUMMARY (ALWAYS QUOTE THESE EXACT FIGURES):
-- 3-Month Stress Score: 78 / 100 (High stress zone; healthy is below 35)
-- 90-Day Hair Cortisol: July baseline 11.2 pg/mg → August surge 28.4 pg/mg (peak) → September 15.6 pg/mg (delayed recovery)
-- Google Calendar Load: 33 hours/week average (391 total meeting hours across 90 days)
-- Late Calls Past 7 PM: 57 late calls across 90 days (primary evening disruptor)
-- Flights: 11 flights across 90 days
-- Recommended Next Step: Re-test in 8 weeks (expect a lower score)
+DASHBOARD SUMMARY (THE USER SEES THESE EXACT FIGURES, SO QUOTE THEM AND NO OTHERS):
+- 3-Month Stress Score: ${scoreLine}
+- 90-Day Hair Cortisol: July ${july} pg/mg, August ${august} pg/mg, September ${september} pg/mg (healthy is below 14.0)
+- Calendar load: ${totalMeetings} total meeting hours across 90 days (about ${Math.round(totalMeetings / 12)} hours/week)
+- Meetings after 7 PM: ${totalLateCalls} across 90 days
+- Flights: ${totalFlights} across 90 days
+- Recommended Next Step: Re-test in 8 weeks
 
 PATIENT PROFILE & LIFESTYLE:
 - Name: ${userProfile.name || firstName} (${sex}, Age ${age})${isPregnant ? ' [PREGNANT / POSTPARTUM - Gestational Hypercortisolemia Calibration Active]' : ''}
@@ -183,27 +191,27 @@ PATIENT PROFILE & LIFESTYLE:
 REAL GOOGLE CALENDAR STATUS:
 ${hasLinkedCalendar ? (
   realEventCount > 0
-    ? `- Google Calendar: CONNECTED & INGESTED (${realEventCount} events found, ${totalMeetings} total hours, ${totalLateCalls} late calls past 7 PM, ${totalFlights} flights).
+    ? `- Calendar: CONNECTED & INGESTED (${realEventCount} events found, ${totalMeetings} total hours, ${totalLateCalls} late calls past 7 PM, ${totalFlights} flights).
 - Sample Ingested Events:
 ${sampleEventsSummary}`
-    : `- Google Calendar: CONNECTED, BUT HAS 0 SCHEDULED MEETINGS (Empty calendar: 0 hours of meetings, 0 evening calls, 0 flights).`
-) : `- Google Calendar: Benchmark Data (391 total hours, 33 hrs/week average, 57 calls after 7 PM, 11 flights).`}
+    : `- Calendar: CONNECTED, BUT HAS 0 SCHEDULED MEETINGS (Empty calendar: 0 hours of meetings, 0 evening calls, 0 flights).`
+) : `- Calendar: sample or summary data (${totalMeetings} total hours, ${totalLateCalls} meetings after 7 PM, ${totalFlights} flights).`}
 
 ${isDiscordant ? `
 *** CRITICAL CLINICAL PROTOCOL: BIOMARKER-CALENDAR DISCORDANCE & INTAKE INTERVIEW ***
-- Biological stress is HIGH in hair cortisol (August spike ${august} pg/mg, September ${september} pg/mg), yet Google Calendar contains virtually NO meetings (${totalMeetings} hours total, ${totalLateCalls} late calls).
+- Biological stress is HIGH in hair cortisol (August spike ${august} pg/mg, September ${september} pg/mg), yet Calendar contains virtually NO meetings (${totalMeetings} hours total, ${totalLateCalls} late calls).
 - THIS IS A BIOMARKER-CALENDAR DISCORDANCE:
   The user has real physiological stress recorded in their hair, but their digital calendar does not have scheduled desk meetings.
 - MANDATORY INSTRUCTION FROM USER:
   DO NOT jump to conclusions or give unsolicited recovery suggestions upfront!
   DO NOT assume corporate desk work or make up meetings or flights!
   Instead:
-  1) Explicitly highlight the Biomarker-Calendar Discordance: explain that their hair test reveals significant cortisol elevation despite having ${totalMeetings} hours of scheduled meetings on their Google Calendar.
+  1) Explicitly highlight the Biomarker-Calendar Discordance: explain that their hair test reveals significant cortisol elevation despite having ${totalMeetings} hours of scheduled meetings on their Calendar.
   2) Withhold inferences across workload sections and ask the user leading, exploratory questions to understand their daily life before giving conclusions or suggestions.
 ` : `
 *** GENUINE CALENDAR CORRELATIONS PROTOCOL ***
-- The user has 78/100 stress score, 33 hours/week average meetings (391 total hours), 57 calls past 7 PM, and 11 flights.
-- Correlate their August hair cortisol spike (28.4 pg/mg) with these 57 evening calls and workload crunch.
+- The user has a stress score of ${scoreLine}, ${totalMeetings} total meeting hours, ${totalLateCalls} meetings past 7 PM, and ${totalFlights} flights.
+- Relate their highest hair cortisol month to these evening meetings and the workload, and say it is an association, not proof.
 `}
 
 COMMUNICATION RULES:
@@ -353,10 +361,10 @@ In 8 weeks, a follow-up 10-second hair snip at our certified partner salon will 
       q.includes('events') ||
       q.includes('schedule')
     ) {
-      if (isDiscordant || realEventCount === 0 || isMedicalStudent) {
-        responseText = `Looking directly at your synced Google Calendar, you currently have ${realEventCount} scheduled events (${totalMeetings} meeting hours, 0 flights, and ${totalLateCalls} late calls).
+      if (calendarLooksEmpty) {
+        responseText = `Looking directly at your synced Calendar, you currently have ${realEventCount} scheduled events (${totalMeetings} meeting hours, 0 flights, and ${totalLateCalls} late calls).
 
-As a ${role}, your calendar is virtually clear of traditional corporate meetings. This illustrates a textbook Biomarker-Calendar Discordance: your 90-day hair cortisol analysis (${m2} pg/mg peak) captures the intense physical, emotional, and academic strain of medical training—including long hospital clinical postings, ward duties, standing fatigue, and medical examination preparation—which never get scheduled on a Google Calendar.
+As a ${role}, your calendar is virtually clear of traditional corporate meetings. This illustrates a textbook Biomarker-Calendar Discordance: your 90-day hair cortisol analysis (${m2} pg/mg peak) captures the intense physical, emotional, and academic strain of medical training—including long hospital clinical postings, ward duties, standing fatigue, and medical examination preparation—which never get scheduled on a Calendar.
 
 Because your stress is not caused by boardroom meetings, standard calendar rules do not apply to you. Instead, your recovery plan focuses on circadian anchoring between ward rotations and protecting restful sleep blocks during examination periods.`;
       } else {
@@ -383,14 +391,14 @@ Deep sleep is the exact biological window when your brain and body clear circula
 
 Your 3.0 cm hair sample provided an exact 90-day biological record: Month 3 (${m3} pg/mg baseline), Month 2 (${m2} pg/mg surge), and Month 1 (${m1} pg/mg delayed recovery). A quick follow-up snip at our partner salon in 8 weeks will confirm your recovery progress.`;
     } else {
-      if (isDiscordant || isMedicalStudent) {
-        responseText = `Hello ${firstName}. Based on your 90-day hair test (${m3} pg/mg baseline to ${m2} pg/mg peak to ${m1} pg/mg today), your body has experienced significant physiologic stress despite your Google Calendar having virtually no meetings (${realEventCount} events).
+      if (calendarLooksEmpty) {
+        responseText = `Hello ${firstName}. Based on your 90-day hair test (${m3} pg/mg baseline to ${m2} pg/mg peak to ${m1} pg/mg today), your body has experienced significant physiologic stress despite your calendar having virtually no meetings (${realEventCount} events).
 
 This Biomarker-Calendar Discordance is common for a ${role}: hair cortisol is capturing the invisible strain of hospital ward rotations, medical study crunch, and irregular night shifts that don't appear on a calendar.
 
 Would you like targeted recommendations for protecting sleep between clinical duties, circadian anchoring, or managing caffeine during study blocks?`;
       } else {
-        responseText = `Hello ${firstName}. Based on your 90-day hair test (${m3} pg/mg baseline to ${m2} pg/mg peak to ${m1} pg/mg today), your body is making progress but still experiencing delayed recovery.
+        responseText = `Hello ${firstName}. Based on your 90-day hair test (${m3} pg/mg baseline to ${m2} pg/mg peak to ${m1} pg/mg today), your body is making progress but still experiencing delayed recovery. Your 3-month stress score is ${scoreLine}, and your calendar shows ${totalLateCalls} meetings after 7 PM in the same 90 days.
 
 As a ${role}, the most effective change you can make today is protecting your evening wind-down time so your body can restore deep sleep.
 

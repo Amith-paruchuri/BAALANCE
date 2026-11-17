@@ -51,25 +51,19 @@ export const Pss10Card: React.FC<Pss10CardProps> = ({ result, history = [], onCo
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-6 sm:p-7 space-y-4" data-testid="pss10-card">
-      <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0D4F59] flex items-center justify-center shrink-0">
-            <ClipboardList className="w-4 h-4" />
-          </div>
-          <div>
-            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
-              Stress questionnaire (PSS-10)
-            </h3>
-            <p className="text-[11px] text-slate-500 font-medium">
-              10 questions, about 2 minutes. How stressed you felt in the last month, to read next to your hair result.
-            </p>
-          </div>
+    <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-5 sm:p-7 space-y-4" data-testid="pss10-card">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-[#BF6F4E]">How you feel</div>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">Stress questionnaire (PSS-10)</h2>
+          <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            10 questions, about 2 minutes. How stressed you felt in the last month, to read next to your hair result.
+          </p>
         </div>
         <button
           type="button"
           onClick={open}
-          className="shrink-0 px-4 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+          className="shrink-0 px-4 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-[#0B434B] text-white text-xs font-bold transition-colors cursor-pointer"
         >
           {result ? 'Retake' : 'Start'}
         </button>

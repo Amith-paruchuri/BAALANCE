@@ -43,6 +43,7 @@ import { getSupabaseClient, signOutUser, getProviderCalendarToken } from '@/lib/
 import { Pss10Card } from '@/components/Pss10Card';
 import { StressSummary } from '@/components/StressSummary';
 import { StressScoreCard } from '@/components/StressScoreCard';
+import { ProfileOverview, MedicalHistoryCard, AccountCard } from '@/components/ProfileSections';
 import { PrivacyAndActivityPanel } from '@/components/PrivacyAndActivityPanel';
 import { recordAudit } from '@/lib/auditLog';
 import type { Pss10Result } from '@/lib/pss10';
@@ -1553,6 +1554,7 @@ export default function BaalanceApp() {
               calendarEvents={savedCalendarEvents}
               calendarIcalUrl={savedCalendarIcalUrl}
               verifiedCalendarEmail={verifiedCalendarEmail}
+              stressScore={synthesis.allostaticLoadScore}
               embedded={true}
             />
           </div>
@@ -1560,420 +1562,28 @@ export default function BaalanceApp() {
           {/* TAB 5: PROFILE & LIFESTYLE SETTINGS */}
           {dashboardTab === 'profile' && (
             <div className="space-y-4 sm:space-y-5 animate-fade-in">
-              {/* 1. EXECUTIVE BIOMARKER DOSSIER HERO */}
-              <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-6 sm:p-8 space-y-6 relative overflow-hidden">
-                {/* Subtle ambient lighting */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-radial from-blue-50/50 via-indigo-50/20 to-transparent pointer-events-none" />
-
-                {/* Top Row: User Avatar + Identity + Actions */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-6 border-b border-slate-100">
-                  <div className="flex items-center gap-4">
-                    {/* Glowing Dual-Tone Monogram Avatar */}
-                    <div className="relative shrink-0">
-                      <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-3xl bg-gradient-to-tr from-[#0D4F59] via-[#16636E] to-purple-600 p-[2px] shadow-sm">
-                        <div className="w-full h-full bg-white rounded-[22px] flex items-center justify-center font-black text-2xl text-transparent bg-clip-text bg-gradient-to-tr from-[#0D4F59] to-purple-600">
-                          {(userProfile.name || 'U').charAt(0).toUpperCase()}
-                        </div>
-                      </div>
-                      <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-white shadow-xs" title="Verified Biomarker Specimen">
-                        <Check className="w-3.5 h-3.5 stroke-[3]" />
-                      </span>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none">
-                          {userProfile.name}
-                        </h2>
-                        <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-50 text-[#0D4F59] border border-blue-200">
-                          {userProfile.isDemo ? 'Sample' : 'Member'}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-500 font-medium">
-                        {userProfile.email}
-                      </p>
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 pt-0.5 flex-wrap">
-                        <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span>{userProfile.role}</span>
-                        <span className="text-slate-300">•</span>
-                        <span className="text-slate-500">{userProfile.sector}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Top Action Buttons */}
-                  <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setModalStep('questionnaire');
-                        setIsLifestyleModalOpen(true);
-                      }}
-                      className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer shrink-0"
-                    >
-                      <SlidersHorizontal className="w-3.5 h-3.5 text-[#0D4F59]" />
-                      <span>Edit Baseline</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAppStage('wizard')}
-                      className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
-                    >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>Re-run Setup</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* 4 Clinical Specimen & Biological Baseline Tiles */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                      Hair Specimen
-                    </span>
-                    <div className="text-sm font-black text-slate-900 font-mono">
-                      3.0 cm Strand
-                    </div>
-                    <span className="text-[11px] text-slate-500 font-medium block">
-                      3 Months (1 cm = 1 mo)
-                    </span>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                      Partner Lab Baseline
-                    </span>
-                    <div className="text-sm font-black text-[#0D4F59] font-mono">
-                      ~11.0 pg/mg
-                    </div>
-                    <span className="text-[11px] text-emerald-700 font-medium block">
-                      Optimal Target (&lt;14.0)
-                    </span>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                      Your Baseline
-                    </span>
-                    <div className="text-sm font-black text-slate-900 font-mono">
-                      {userProfile.age || 24}y • {userProfile.biologicalSex === 'female' ? 'Female' : 'Male'}
-                    </div>
-                    <span className="text-[11px] text-slate-500 font-medium block">
-                      Growth Rate: 1.0 cm/mo
-                    </span>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                      Connected Apps
-                    </span>
-                    <div className="text-sm font-black text-slate-900 font-mono flex items-center gap-1.5">
-                      <span className={`w-2 h-2 rounded-full ${verifiedCalendarEmail || userProfile.isDemo ? 'bg-emerald-500' : 'bg-slate-300'}`} />
-                      Calendar
-                    </div>
-                    <span className="text-[11px] text-slate-500 font-medium block truncate" title={verifiedCalendarEmail}>
-                      {verifiedCalendarEmail || (userProfile.isDemo ? 'Sample calendar' : 'Not connected yet')}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Interactive Clinical Persona Calibration Selector */}
-                <div className="pt-2 space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                      <Brain className="w-4 h-4 text-[#0D4F59]" />
-                      <span>Your lifestyle</span>
-                    </div>
-                    <span className="text-[11px] text-slate-500 font-medium">
-                      Select your role to adapt your baseline
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    {/* Persona 1: Medical / Healthcare */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updated: UserProfile = {
-                          ...userProfile,
-                          role: 'Medical Student / Clinical Scholar',
-                          sector: 'Medicine & Healthcare',
-                          weeklyHours: 60,
-                          isCustomRole: true,
-                          stressDrivers: ['hospital_ward_rotations', 'clinical_exams', 'irregular_night_shifts', 'sleep_debt'],
-                        };
-                        setUserProfile(updated);
-                        const syn = computeDynamicSynthesis(updated, segments, telemetry);
-                        setSynthesis(syn);
-                        saveUserDataToStorage(updated, segments, telemetry).catch(console.warn);
-                      }}
-                      className={`p-4 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden ${
-                        userProfile.role.includes('Medical') || userProfile.role.includes('Clinical')
-                          ? 'bg-emerald-50/70 border-emerald-500 ring-2 ring-emerald-500/20 shadow-xs'
-                          : 'bg-white hover:bg-slate-50 border-slate-200'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                          <Stethoscope className="w-4 h-4" />
-                        </div>
-                        {userProfile.role.includes('Medical') || userProfile.role.includes('Clinical') ? (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
-                            Active Calibration
-                          </span>
-                        ) : null}
-                      </div>
-                      <div className="text-xs font-extrabold text-slate-900">Medical Student / Healthcare</div>
-                      <div className="text-[11px] text-slate-500 mt-0.5 font-medium">AIIMS / Hospital Ward Rotations & Exams</div>
-                      <div className="text-[10px] text-emerald-800 font-semibold mt-2.5 pt-2 border-t border-slate-200/60">
-                        Zero desk meeting bias • Shift stress model
-                      </div>
-                    </button>
-
-                    {/* Persona 2: Tech Founder / AI Research */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updated: UserProfile = {
-                          ...userProfile,
-                          role: 'Tech Founder & AI Research Lead',
-                          sector: 'Technology & Biotech',
-                          weeklyHours: 65,
-                          isCustomRole: true,
-                          stressDrivers: ['evening_meetings', 'cross_timezone_flights', 'sleep_debt', 'stakeholder_board_pressure'],
-                        };
-                        setUserProfile(updated);
-                        const syn = computeDynamicSynthesis(updated, segments, telemetry);
-                        setSynthesis(syn);
-                        saveUserDataToStorage(updated, segments, telemetry).catch(console.warn);
-                      }}
-                      className={`p-4 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden ${
-                        userProfile.role.includes('Founder') || userProfile.role.includes('Tech')
-                          ? 'bg-blue-50/70 border-[#0D4F59] ring-2 ring-[#0D4F59]/20 shadow-xs'
-                          : 'bg-white hover:bg-slate-50 border-slate-200'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-9 h-9 rounded-xl bg-blue-100 text-[#0D4F59] flex items-center justify-center font-bold">
-                          <Zap className="w-4 h-4" />
-                        </div>
-                        {userProfile.role.includes('Founder') || userProfile.role.includes('Tech') ? (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0D4F59] text-white shadow-2xs">
-                            Active Calibration
-                          </span>
-                        ) : null}
-                      </div>
-                      <div className="text-xs font-extrabold text-slate-900">Tech Founder / AI Lead</div>
-                      <div className="text-[11px] text-slate-500 mt-0.5 font-medium">Biotech & Software • Product Crunch</div>
-                      <div className="text-[10px] text-blue-800 font-semibold mt-2.5 pt-2 border-t border-slate-200/60">
-                        Late curfew calls & board meeting pressure
-                      </div>
-                    </button>
-
-                    {/* Persona 3: Executive / Corporate */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updated: UserProfile = {
-                          ...userProfile,
-                          role: 'Executive / Corporate Professional',
-                          sector: 'Finance & Strategy',
-                          weeklyHours: 55,
-                          isCustomRole: true,
-                          stressDrivers: ['evening_meetings', 'heavy_deadlines', 'sleep_debt'],
-                        };
-                        setUserProfile(updated);
-                        const syn = computeDynamicSynthesis(updated, segments, telemetry);
-                        setSynthesis(syn);
-                        saveUserDataToStorage(updated, segments, telemetry).catch(console.warn);
-                      }}
-                      className={`p-4 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden ${
-                        userProfile.role.includes('Executive') || userProfile.role.includes('Corporate')
-                          ? 'bg-purple-50/70 border-purple-500 ring-2 ring-purple-500/20 shadow-xs'
-                          : 'bg-white hover:bg-slate-50 border-slate-200'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
-                          <Briefcase className="w-4 h-4" />
-                        </div>
-                        {userProfile.role.includes('Executive') || userProfile.role.includes('Corporate') ? (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-600 text-white shadow-2xs">
-                            Active Calibration
-                          </span>
-                        ) : null}
-                      </div>
-                      <div className="text-xs font-extrabold text-slate-900">Executive / Corporate Leader</div>
-                      <div className="text-[11px] text-slate-500 mt-0.5 font-medium">Finance & Strategy • Executive Meetings</div>
-                      <div className="text-[10px] text-purple-800 font-semibold mt-2.5 pt-2 border-t border-slate-200/60">
-                        High meeting load & timezone flight shifts
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* 2. LIFESTYLE & CIRCADIAN ARCHITECTURE GRID */}
-              <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-6 sm:p-7 space-y-5">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0D4F59] flex items-center justify-center">
-                      <SlidersHorizontal className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
-                        Your routine
-                      </h3>
-                      <p className="text-[11px] text-slate-500 font-medium">
-                        Your daily habits, wash frequency, and sleep pattern used to calibrate your score
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                    ✓ Saved to Storage
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                  {/* Weekly Workload Card */}
-                  <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#0D4F59] flex items-center justify-center">
-                        <Clock className="w-4 h-4" />
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#0D4F59]">
-                        Weekly Load
-                      </span>
-                    </div>
-                    <div>
-                      <div className="text-lg font-black text-slate-900 font-mono">
-                        {userProfile.weeklyHours || 65} <span className="text-xs text-slate-500 font-normal">hrs/wk</span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5 font-medium">
-                        {userProfile.weeklyHours > 60 ? 'High sustained workload intensity' : 'Standard professional schedule'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Chronotype Card */}
-                  <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
-                        <Sun className="w-4 h-4" />
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 capitalize">
-                        {userProfile.chronotype?.replace('_', ' ') || 'Morning Lark'}
-                      </span>
-                    </div>
-                    <div>
-                      <div className="text-lg font-black text-slate-900 capitalize">
-                        {userProfile.chronotype?.replace('_', ' ') || 'Morning Lark'}
-                      </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5 font-medium">
-                        Peak alertness: 07:00 – 14:00 • Natural morning cortisol peak
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Nightly Sleep Card */}
-                  <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center">
-                        <Moon className="w-4 h-4" />
-                      </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        (userProfile.nightlySleepHours || 6) < 7
-                          ? 'bg-rose-100 text-rose-700'
-                          : 'bg-emerald-100 text-emerald-800'
-                      }`}>
-                        {(userProfile.nightlySleepHours || 6) < 7 ? 'Sleep Deficit' : 'Optimal'}
-                      </span>
-                    </div>
-                    <div>
-                      <div className="text-lg font-black text-slate-900 font-mono">
-                        {userProfile.nightlySleepHours || 6.0} <span className="text-xs text-slate-500 font-normal">hrs/night</span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5 font-medium">
-                        Target: 7.5 – 8.5 hrs for full allostatic reset
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Work Boundary Card */}
-                  <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center">
-                        <ShieldAlert className="w-4 h-4" />
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">
-                        Evening Work
-                      </span>
-                    </div>
-                    <div>
-                      <div className="text-lg font-black text-slate-900">
-                        {userProfile.workBoundaryBleed === 'always_on_bed'
-                          ? 'Late Bedside'
-                          : userProfile.workBoundaryBleed === 'occasional_bleed'
-                          ? 'Until 9:00 PM'
-                          : 'Stop by 7 PM'}
-                      </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5 font-medium">
-                        {userProfile.workBoundaryBleed === 'always_on_bed'
-                          ? 'Bedside screen exposure inhibits melatonin'
-                          : userProfile.workBoundaryBleed === 'occasional_bleed'
-                          ? 'Moderate evening boundary bleed'
-                          : 'Healthy cutoff supporting circadian reset'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* International Travel Card */}
-                  <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="w-8 h-8 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center">
-                        <Plane className="w-4 h-4" />
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800">
-                        Travel
-                      </span>
-                    </div>
-                    <div>
-                      <div className="text-lg font-black text-slate-900">
-                        {userProfile.travelFrequency === 'none_domestic'
-                          ? 'Domestic'
-                          : userProfile.travelFrequency === 'constant_nomad'
-                          ? 'Global Nomad'
-                          : userProfile.travelFrequency === 'frequent_cross_meridian'
-                          ? 'Monthly Flights'
-                          : 'Occasional'}
-                      </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5 font-medium">
-                        {userProfile.travelFrequency === 'frequent_cross_meridian' || userProfile.travelFrequency === 'constant_nomad'
-                          ? 'Frequent timezone cross-meridian shifts'
-                          : 'Circadian phase protected from jetlag'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Primary Stress Drivers Interactive Chips */}
-                <div className="pt-2">
-                  <span className="text-xs font-extrabold text-slate-800 block mb-2">
-                    Reported Lifestyle Stress Drivers:
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {(userProfile.stressDrivers || ['evening_meetings', 'sleep_debt']).map((driver, idx) => (
-                      <span
-                        key={idx}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50/70 border border-blue-200 text-[#0D4F59] text-xs font-bold capitalize shadow-2xs"
-                      >
-                        <Flame className="w-3.5 h-3.5 text-rose-500" />
-                        <span>{driver.replace(/_/g, ' ')}</span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <ProfileOverview
+                userProfile={userProfile}
+                verifiedCalendarEmail={verifiedCalendarEmail}
+                onEditDetails={() => {
+                  setModalStep('questionnaire');
+                  setIsLifestyleModalOpen(true);
+                }}
+                onRerunSetup={() => setAppStage('wizard')}
+                onSelectPreset={(preset) => {
+                  const updated: UserProfile = {
+                    ...userProfile,
+                    role: preset.role,
+                    sector: preset.sector,
+                    weeklyHours: preset.weeklyHours,
+                    isCustomRole: true,
+                    stressDrivers: preset.stressDrivers,
+                  };
+                  setUserProfile(updated);
+                  setSynthesis(computeDynamicSynthesis(updated, segments, telemetry));
+                  saveUserDataToStorage(updated, segments, telemetry).catch(console.warn);
+                }}
+              />
 
               {/* PSS-10 validated stress questionnaire */}
               <Pss10Card
@@ -1982,56 +1592,7 @@ export default function BaalanceApp() {
                 onComplete={handlePss10Complete}
               />
 
-              {/* 3. MEDICAL HISTORY */}
-              <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-6 sm:p-7 space-y-5">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                      <ShieldCheck className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
-                        Medical history
-                      </h3>
-                      <p className="text-[11px] text-slate-500 font-medium">
-                        Conditions and medicines that can change hair cortisol, so your result is read in context
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-extrabold text-slate-900">
-                      <HeartPulse className="w-4 h-4 text-emerald-600" />
-                      <span>Pre-Existing Health Conditions</span>
-                    </div>
-                    <div className="text-xs font-semibold text-slate-800 bg-white p-3 rounded-xl border border-slate-200/70">
-                      {(userProfile.healthConditions && userProfile.healthConditions.length > 0 && userProfile.healthConditions[0] !== 'none')
-                        ? userProfile.healthConditions.map(c => c.replace(/_/g, ' ')).join(', ')
-                        : 'None (No diagnosed chronic metabolic or endocrine conditions)'}
-                    </div>
-                    <p className="text-[11px] text-slate-500 font-medium">
-                      Conditions such as Cushing&apos;s, Addison&apos;s and pregnancy change cortisol. If you report one, we flag it on your result.
-                    </p>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-extrabold text-slate-900">
-                      <Pill className="w-4 h-4 text-[#0D4F59]" />
-                      <span>Daily Prescriptions & Medications</span>
-                    </div>
-                    <div className="text-xs font-semibold text-slate-800 bg-white p-3 rounded-xl border border-slate-200/70">
-                      {(userProfile.medications && userProfile.medications.length > 0 && userProfile.medications[0] !== 'none')
-                        ? userProfile.medications.map(m => m.replace(/_/g, ' ')).join(', ')
-                        : 'None (No synthetic steroid or corticosteroid medications)'}
-                    </div>
-                    <p className="text-[11px] text-slate-500 font-medium">
-                      Steroid medicines and hair dye can affect readings. If you report them, we flag it on your result.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <MedicalHistoryCard userProfile={userProfile} />
 
               {/* Data controls and activity log */}
               <PrivacyAndActivityPanel
@@ -2041,77 +1602,14 @@ export default function BaalanceApp() {
                 onDataDeleted={handleSignOut}
               />
 
-              {/* 4. DATA CUSTODY, CLOUD STORAGE & ACCOUNT ACTIONS */}
-              <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-6 sm:p-7 space-y-5">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-                      <Database className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
-                        Cloud Storage & Patient Data Custody
-                      </h3>
-                      <p className="text-[11px] text-slate-500 font-medium">
-                        Encrypted clinical biomarker data synchronized across cloud and local storage
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#0D4F59]">
-                      <Database className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-900">Supabase Cloud Vault</span>
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                        <span className="text-[10px] text-emerald-700 font-semibold">TLS 1.3 Encrypted</span>
-                      </div>
-                      <span className="text-[11px] font-mono text-slate-500">
-                        nyxivqlpikoffdopfmei.supabase.co
-                      </span>
-                    </div>
-                  </div>
-
-                  <span className="text-xs font-mono text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200 self-start sm:self-auto">
-                    Chain of Custody: #DEL-2026-9842
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setModalStep('questionnaire');
-                        setIsLifestyleModalOpen(true);
-                      }}
-                      className="px-4 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
-                    >
-                      Update Lifestyle Questionnaire
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAppStage('wizard')}
-                      className="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
-                    >
-                      Re-run Lab Intake Wizard
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleSignOut}
-                    className="px-4 py-2.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer active:scale-95"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>Sign Out of BAALANCE</span>
-                  </button>
-                </div>
-              </div>
+              <AccountCard
+                userProfile={userProfile}
+                onEditDetails={() => {
+                  setModalStep('questionnaire');
+                  setIsLifestyleModalOpen(true);
+                }}
+                onSignOut={handleSignOut}
+              />
             </div>
           )}
         </main>
