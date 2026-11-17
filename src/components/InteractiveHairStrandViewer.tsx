@@ -166,710 +166,265 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
     },
   ];
 
+  // ---- Strand illustration geometry (viewBox 720 x 200). Tip on the left, scalp on the right:
+  // time reads left to right, July to September. Each centimetre of hair is 200 units.
+  const X0 = 40;
+  const X1 = 640;
+  const CY = 100;
+  const centerY = (x: number) => CY - 9 * Math.sin((Math.min(Math.max(x, X0), X1) - X0) / (X1 - X0) * Math.PI);
+  const halfWidth = (x: number) => 2 + 9.5 * Math.pow((Math.min(Math.max(x, X0), X1) - X0) / (X1 - X0), 0.8);
+  const strandPath = (() => {
+    const top: string[] = [];
+    const bottom: string[] = [];
+    const steps = 64;
+    for (let i = 0; i <= steps; i++) {
+      const x = X0 + ((X1 + 30 - X0) * i) / steps;
+      top.push(`${x.toFixed(1)},${(centerY(x) - halfWidth(x)).toFixed(1)}`);
+      bottom.unshift(`${x.toFixed(1)},${(centerY(x) + halfWidth(x)).toFixed(1)}`);
+    }
+    return `M${top.join(' L')} L${bottom.join(' L')} Z`;
+  })();
+  const sheenPath = (() => {
+    const pts: string[] = [];
+    for (let i = 0; i <= 48; i++) {
+      const x = X0 + 30 + ((X1 - X0 - 40) * i) / 48;
+      pts.push(`${x.toFixed(1)},${(centerY(x) - halfWidth(x) * 0.45).toFixed(1)}`);
+    }
+    return `M${pts.join(' L')}`;
+  })();
+  // Cortisol dots: more dots for a higher reading, placed the same way on every render.
+  const cortisolDots = (index: number, value: number) => {
+    const count = Math.max(3, Math.min(20, Math.round(value / 1.9)));
+    const xa = X0 + index * 200 + 26;
+    let seed = (index + 1) * 9301 + 49297;
+    const rand = () => {
+      seed = (seed * 233280 + 12345) % 2147483647;
+      return (seed % 10000) / 10000;
+    };
+    return Array.from({ length: count }, () => {
+      const x = xa + rand() * 148;
+      const above = rand() > 0.5;
+      const offset = halfWidth(x) + 6 + rand() * 16;
+      return { x, y: centerY(x) + (above ? -offset : offset), r: 2.6 + rand() * 1.8 };
+    });
+  };
+
+  const peak = segmentList.reduce((a, b) => (b.seg.cortisolPgPerMg > a.seg.cortisolPgPerMg ? b : a));
+  const peakIsHigh = peak.seg.cortisolPgPerMg > 14.0;
+  const valueColor = (val: number) => (val > 20 ? 'text-rose-600' : val > 14 ? 'text-amber-600' : 'text-emerald-700');
+
   return (
-    <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-4 sm:p-6 transition-all font-sans space-y-4">
-      {/* Top Hero Headline Banner */}
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-50/90 via-amber-50/50 to-emerald-50/40 border border-rose-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-rose-600 text-white flex items-center justify-center font-black shadow-xs shrink-0">
-            <Flame className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-700 bg-rose-100/90 px-2 py-0.5 rounded-full border border-rose-200">
-                Primary Finding
-              </span>
-              <span className="text-[11px] font-bold text-slate-500">90-Day Hair Timeline</span>
-            </div>
-            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-0.5">
-              Your stress spiked in August.
-            </h2>
-            <p className="text-xs text-slate-600 mt-0.5 font-medium">
-              Hair cortisol surged to 28.4 pg/mg (+154% above baseline) during peak late calls and travel crunch.
-            </p>
-          </div>
+    <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-5 sm:p-7 transition-all font-sans space-y-5">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+        <div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-[#BF6F4E]">Your 90-day hair timeline</div>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">
+            {peakIsHigh ? `Your stress peaked in ${peak.monthTitle}.` : 'Your three months look steady.'}
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            {peakIsHigh
+              ? `${peak.seg.cortisolPgPerMg} pg/mg in that centimetre of hair (${peak.surgePercent}). Healthy is below 14.0.`
+              : 'Every centimetre is below 14.0 pg/mg, the upper end of the healthy range.'}
+          </p>
         </div>
-
-        {/* Clear Orientation Badge */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 shadow-2xs text-xs font-bold text-slate-800 self-start sm:self-auto shrink-0">
-          <Scissors className="w-3.5 h-3.5 text-[#BF6F4E]" />
-          <span>Root = this month · Tip = 3 months ago</span>
-        </div>
-      </div>
-
-      {/* Secondary Controls Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
-        <div className="flex items-center gap-2 flex-wrap text-xs font-bold text-slate-700">
-          <span className="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200">1 cm = 30 Days</span>
-          <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">Healthy: below 14.0 pg/mg</span>
-          <span className="text-slate-400 font-normal">Click any month to inspect</span>
-        </div>
-
-        {/* Header Actions */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap shrink-0">
           <button
             type="button"
             onClick={() => setIsTrappingModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 border border-slate-200 transition-colors cursor-pointer shadow-2xs shrink-0"
-            title="Read more on Cortisol trapping in hair"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 border border-slate-200 transition-colors cursor-pointer"
           >
-            <BookOpen className="w-3.5 h-3.5 text-[#3186FF]" />
-            <span>How Hair Traps Cortisol</span>
+            <BookOpen className="w-3.5 h-3.5 text-[#BF6F4E]" />
+            <span>How hair traps cortisol</span>
           </button>
           <button
+            type="button"
             onClick={onLoadSurgeScenario}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-xs font-bold text-[#3186FF] border border-blue-200 transition-colors cursor-pointer shadow-2xs shrink-0"
-            title="Reset to 90-day workload surge benchmark"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-xs font-bold text-slate-500 border border-slate-200 transition-colors cursor-pointer"
+            title="Reset to the sample case values"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#3186FF]" />
-            <span>Reset Demo Case</span>
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Reset sample</span>
           </button>
         </div>
       </div>
 
-      {/* Phone-Optimized Layout: Authentic Logo-Style Hair Follicle on Left + Segment Cards on Right */}
-      <div className="mt-4 grid grid-cols-[80px_1fr] sm:grid-cols-[100px_1fr] gap-3 sm:gap-5 items-stretch">
-        
-        {/* LEFT COLUMN: AUTHENTIC LOGO-STYLE HAIR FOLLICLE (Reduced height & increased breadth) */}
-        <div className="relative flex flex-col items-center justify-between select-none py-1 h-full min-h-[320px] sm:min-h-[350px]">
-          <svg
-            viewBox="0 0 100 350"
-            className="w-full h-full overflow-visible"
-            preserveAspectRatio="none"
-          >
-            <defs>
-              {/* Biological Cortisol Halo Glow Filter */}
-              <filter id="strandNodeGlow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur1" />
-                <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur2" />
-                <feMerge>
-                  <feMergeNode in="blur2" />
-                  <feMergeNode in="blur1" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-
-              {/* Obsidian Keratin Gradient matching Baalance Logo */}
-              <linearGradient id="follicleShaftGrad" x1="0%" y1="100%" x2="50%" y2="0%">
-                <stop offset="0%" stopColor="#0B1320" />
-                <stop offset="35%" stopColor="#1E293B" />
-                <stop offset="70%" stopColor="#0F172A" />
-                <stop offset="100%" stopColor="#1E293B" />
-              </linearGradient>
-
-              {/* Main Dermis Warm Skin Tone Gradient */}
-              <linearGradient id="skinDermisGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#FDBFA0" />
-                <stop offset="45%" stopColor="#F8AD8C" />
-                <stop offset="100%" stopColor="#F49A76" />
-              </linearGradient>
-
-              {/* Top Epidermis Rosy Pink Layer Gradient */}
-              <linearGradient id="skinEpidermisGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#FCA5A5" />
-                <stop offset="60%" stopColor="#F87171" />
-                <stop offset="100%" stopColor="#FB7185" />
-              </linearGradient>
-
-              {/* Clip path for rounded skin block at base */}
-              <clipPath id="skinBlockClip">
-                <rect x="7" y="290" width="86" height="56" rx="8" ry="8" />
-              </clipPath>
-
-              {/* Blood Vessel Capillary Glow Filter */}
-              <filter id="vesselGlow" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="1.2" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-
-              {/* Cortisol Steroid Hormone Molecule Glow */}
-              <filter id="cortisolGlow" x="-60%" y="-60%" width="220%" height="220%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-
-            {/* 1. SKIN BLOCK (EPIDERMIS & DERMIS) SUBMERGING ONLY THE HAIR BULB & BASE */}
-            <g className="skin-block-container pointer-events-none">
-              {/* Subtle outer border for skin block */}
-              <rect
-                x="7"
-                y="290"
-                width="86"
-                height="56"
-                rx="8"
-                ry="8"
-                fill="none"
-                stroke="#F472B6"
-                strokeWidth="1.2"
-                opacity="0.35"
-              />
-
-              <g clipPath="url(#skinBlockClip)">
-                {/* Main Dermis Tissue */}
-                <rect
-                  x="7"
-                  y="290"
-                  width="86"
-                  height="56"
-                  fill="url(#skinDermisGrad)"
-                />
-
-                {/* Subtle Dermal Tissue Spots */}
-                <g fill="#EA8E6F" opacity="0.22">
-                  <circle cx="20" cy="320" r="2.5" />
-                  <circle cx="78" cy="322" r="3" />
-                  <circle cx="25" cy="340" r="3" />
-                  <circle cx="72" cy="342" r="2.5" />
-                </g>
-
-                {/* Top Epidermis Pink Layer */}
-                <path
-                  d="M 5 290 L 95 290 L 95 304 Q 87 301, 80 304 Q 72 307, 65 304 Q 57 301, 50 304 Q 42 307, 35 304 Q 27 301, 20 304 Q 12 307, 5 304 Z"
-                  fill="url(#skinEpidermisGrad)"
-                />
-
-                {/* Epidermal Stratum Corneum Highlight Line at Top Surface */}
-                <path
-                  d="M 7 290 Q 50 288, 93 290"
-                  stroke="#FFF0EB"
-                  strokeWidth="1.8"
-                  fill="none"
-                />
-
-                {/* Wavy Interpapillary Rete Ridges (Boundary between Epidermis and Dermis) */}
-                <path
-                  d="M 5 304 Q 12 307, 20 304 Q 27 301, 35 304 Q 42 307, 50 304 Q 57 301, 65 304 Q 72 307, 80 304 Q 87 301, 95 304"
-                  fill="none"
-                  stroke="#F472B6"
-                  strokeWidth="1.2"
-                  opacity="0.45"
-                />
-              </g>
-            </g>
-
-            {/* 2. THE TAPERED HAIR SHAFT (Increased breadth, natural taper to tip) */}
-            <g
-              className="hair-shaft-group cursor-pointer transition-transform duration-200 hover:scale-102"
-              onClick={() => onSelectSegment(1)}
-            >
-              <title>Hair Strand (Tapered Distal Tip • July)</title>
-              {/* Soft ambient grounding shadow */}
-              <path
-                d="M 38 318 C 36 220, 48 115, 64 16 Q 66 14, 68 16 C 56 115, 50 220, 54 318 Z"
-                fill="#0F172A"
-                opacity="0.16"
-                transform="translate(1.2, 1.2)"
-              />
-
-              {/* Main Tapered Obsidian Keratin Body (Broader breadth for clear visibility) */}
-              <path
-                d="M 38 318 C 36 220, 48 115, 64 16 Q 66 14, 68 16 C 56 115, 50 220, 54 318 Z"
-                fill="url(#follicleShaftGrad)"
-              />
-
-              {/* Natural Sheen Reflection Highlight along the Curve */}
-              <path
-                d="M 43 285 C 41 210, 52 105, 65 22"
-                fill="none"
-                stroke="rgba(255,255,255,0.35)"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-
-              {/* Organic Cuticle Texture Notches (Keratin scales along the shaft) */}
-              <g stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" strokeLinecap="round">
-                <line x1="39" y1="280" x2="47" y2="278" />
-                <line x1="38" y1="240" x2="47" y2="238" />
-                <line x1="41" y1="195" x2="50" y2="193" />
-                <line x1="45" y1="150" x2="54" y2="148" />
-                <line x1="50" y1="105" x2="58" y2="103" />
-                <line x1="56" y1="65" x2="63" y2="63" />
-                <line x1="61" y1="35" x2="66" y2="33" />
-              </g>
-
-              {/* Exact Equal 1.0 cm (30-Day) Segment Boundary Dividers on Hair Shaft */}
-              <g stroke="#38BDF8" strokeWidth="1.8" strokeLinecap="round" opacity="0.85">
-                {/* 2.0 cm divider between July and August */}
-                <line x1="46" y1="107" x2="59" y2="107" />
-                {/* 1.0 cm divider between August and September */}
-                <line x1="38" y1="198" x2="52" y2="198" />
-              </g>
-            </g>
-
-            {/* Physical 1.0 cm / 30-Day Growth Scale on Left Margin */}
-            <g className="hair-scale-ticks pointer-events-none select-none">
-              {/* Vertical guideline */}
-              <line
-                x1="16"
-                y1="16"
-                x2="16"
-                y2="290"
-                stroke="#94A3B8"
-                strokeWidth="1"
-                strokeDasharray="2 3"
-                opacity="0.45"
-              />
-
-              {/* 3 cm (Tip / 90 Days) */}
-              <line x1="12" y1="16" x2="64" y2="16" stroke="#94A3B8" strokeWidth="0.8" strokeDasharray="2 2" opacity="0.4" />
-              <text x="10" y="18.5" textAnchor="end" fontSize="6.5" fontWeight="700" fill="#64748B" fontFamily="monospace">3cm</text>
-
-              {/* 2 cm (July/Aug Boundary / 60 Days) */}
-              <line x1="12" y1="107" x2="46" y2="107" stroke="#38BDF8" strokeWidth="1" strokeDasharray="2 2" opacity="0.6" />
-              <text x="10" y="109.5" textAnchor="end" fontSize="6.5" fontWeight="700" fill="#0284C7" fontFamily="monospace">2cm</text>
-
-              {/* 1 cm (Aug/Sep Boundary / 30 Days) */}
-              <line x1="12" y1="198" x2="38" y2="198" stroke="#38BDF8" strokeWidth="1" strokeDasharray="2 2" opacity="0.6" />
-              <text x="10" y="200.5" textAnchor="end" fontSize="6.5" fontWeight="700" fill="#0284C7" fontFamily="monospace">1cm</text>
-
-              {/* 0 cm (Scalp Root Entry) */}
-              <line x1="12" y1="290" x2="37" y2="290" stroke="#94A3B8" strokeWidth="0.8" strokeDasharray="2 2" opacity="0.4" />
-              <text x="10" y="292.5" textAnchor="end" fontSize="6.5" fontWeight="700" fill="#64748B" fontFamily="monospace">0cm</text>
-            </g>
-
-            {/* Active connecting beam / directional arrow toward right card (precision aligned) */}
-            {(() => {
-              const activeItem = segmentList.find(s => s.id === activeSegmentId);
-              if (!activeItem) return null;
-              const targetY = activeItem.id === 1 ? 52 : activeItem.id === 2 ? 165 : 278;
-              return (
-                <g className="animate-fade-in pointer-events-none">
-                  <path
-                    d={`M ${activeItem.nodeX + 13} ${activeItem.nodeY} C ${activeItem.nodeX + 28} ${activeItem.nodeY}, 80 ${targetY}, 97 ${targetY}`}
-                    fill="none"
-                    stroke="#3186FF"
-                    strokeWidth="2"
-                    strokeDasharray="3 2"
-                    opacity="0.9"
-                  />
-                  <polygon
-                    points={`97,${targetY - 3.5} 97,${targetY + 3.5} 100,${targetY}`}
-                    fill="#3186FF"
-                  />
-                </g>
-              );
-            })()}
-
-            {/* 3. SUBMERGED ANATOMICAL FOLLICLE BULB AT BASE (Embedded inside dermis • September) */}
-            <g
-              className="follicle-bulb cursor-pointer transition-transform duration-200 hover:scale-105"
-              onClick={() => onSelectSegment(3)}
-            >
-              <title>Submerged Follicle Bulb (Scalp Root • 0.0 cm • September)</title>
-              {/* Outer follicle bulb envelope directly embedded in dermis */}
-              <ellipse
-                cx="46"
-                cy="320"
-                rx="13"
-                ry="16"
-                fill="#0F172A"
-                stroke="#FFFFFF"
-                strokeWidth="1.8"
-              />
-              {/* Inner dermal papilla biological core */}
-              <ellipse
-                cx="46"
-                cy="321"
-                rx="7"
-                ry="9"
-                fill="#1E293B"
-              />
-              {/* Bio-nucleus / capillary loop with cyan pulse */}
-              <circle
-                cx="46"
-                cy="318"
-                r="3"
-                fill="#38BDF8"
-                opacity="0.9"
-              />
-              <circle
-                cx="46"
-                cy="318"
-                r="5.5"
-                fill="#38BDF8"
-                opacity="0.3"
-                className="animate-pulse"
-              />
-            </g>
-
-            {/* 4. MICRO-VASCULAR CAPILLARY BLOOD VESSELS (Cupping & entering the submerged bulb) */}
-            <g
-              className="capillary-blood-vessels pointer-events-none"
-              filter="url(#vesselGlow)"
-            >
-              {/* Left feeder arteriole */}
-              <path
-                d="M 18 344 C 23 336, 30 330, 46 320"
-                fill="none"
-                stroke="#E11D48"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                opacity="0.85"
-              />
-              {/* Left branching loop */}
-              <path
-                d="M 25 338 C 29 333, 34 329, 40 327"
-                fill="none"
-                stroke="#FB7185"
-                strokeWidth="1.2"
-                strokeLinecap="round"
-                opacity="0.75"
-              />
-              {/* Right draining venule / capillary */}
-              <path
-                d="M 74 344 C 69 336, 62 330, 46 320"
-                fill="none"
-                stroke="#E11D48"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                opacity="0.85"
-              />
-              {/* Right branching loop */}
-              <path
-                d="M 67 338 C 63 333, 58 329, 52 327"
-                fill="none"
-                stroke="#FB7185"
-                strokeWidth="1.2"
-                strokeLinecap="round"
-                opacity="0.75"
-              />
-              {/* Central dermal papilla ascending loop entering bulb core */}
-              <path
-                d="M 46 346 C 46 338, 46 328, 46 320"
-                fill="none"
-                stroke="#BE123C"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                opacity="0.8"
-              />
-            </g>
-
-            {/* 5. RECURRING STREAM: SMALL CIRCULAR CORTISOL MOLECULES CONTINUOUSLY ENTERING BULB */}
-            <g className="cortisol-molecules-stream pointer-events-none">
-              {/* Molecule 1: Left arteriole stream */}
-              <g filter="url(#cortisolGlow)">
-                <circle r="2.2" fill="#F59E0B">
-                  <animateMotion
-                    path="M 18 344 C 23 336, 30 330, 46 320"
-                    dur="2.4s"
-                    repeatCount="indefinite"
-                    begin="0s"
-                  />
-                  <animate
-                    attributeName="opacity"
-                    values="0; 1; 1; 0.9; 0"
-                    keyTimes="0; 0.15; 0.75; 0.9; 1"
-                    dur="2.4s"
-                    repeatCount="indefinite"
-                    begin="0s"
-                  />
-                </circle>
-                <circle r="1" fill="#FFFFFF">
-                  <animateMotion
-                    path="M 18 344 C 23 336, 30 330, 46 320"
-                    dur="2.4s"
-                    repeatCount="indefinite"
-                    begin="0s"
-                  />
-                  <animate
-                    attributeName="opacity"
-                    values="0; 1; 1; 0"
-                    keyTimes="0; 0.2; 0.85; 1"
-                    dur="2.4s"
-                    repeatCount="indefinite"
-                    begin="0s"
-                  />
-                </circle>
-              </g>
-
-              {/* Molecule 2: Right capillary stream */}
-              <g filter="url(#cortisolGlow)">
-                <circle r="2.2" fill="#F59E0B">
-                  <animateMotion
-                    path="M 74 344 C 69 336, 62 330, 46 320"
-                    dur="2.4s"
-                    repeatCount="indefinite"
-                    begin="0.8s"
-                  />
-                  <animate
-                    attributeName="opacity"
-                    values="0; 1; 1; 0.9; 0"
-                    keyTimes="0; 0.15; 0.75; 0.9; 1"
-                    dur="2.4s"
-                    repeatCount="indefinite"
-                    begin="0.8s"
-                  />
-                </circle>
-                <circle r="1" fill="#FFFFFF">
-                  <animateMotion
-                    path="M 74 344 C 69 336, 62 330, 46 320"
-                    dur="2.4s"
-                    repeatCount="indefinite"
-                    begin="0.8s"
-                  />
-                  <animate
-                    attributeName="opacity"
-                    values="0; 1; 1; 0"
-                    keyTimes="0; 0.2; 0.85; 1"
-                    dur="2.4s"
-                    repeatCount="indefinite"
-                    begin="0.8s"
-                  />
-                </circle>
-              </g>
-
-              {/* Molecule 3: Central loop vertical stream */}
-              <g filter="url(#cortisolGlow)">
-                <circle r="2.2" fill="#38BDF8">
-                  <animateMotion
-                    path="M 46 346 C 46 338, 46 328, 46 320"
-                    dur="2.0s"
-                    repeatCount="indefinite"
-                    begin="0.3s"
-                  />
-                  <animate
-                    attributeName="opacity"
-                    values="0; 1; 1; 0"
-                    keyTimes="0; 0.2; 0.85; 1"
-                    dur="2.0s"
-                    repeatCount="indefinite"
-                    begin="0.3s"
-                  />
-                </circle>
-                <circle r="1" fill="#FFFFFF">
-                  <animateMotion
-                    path="M 46 346 C 46 338, 46 328, 46 320"
-                    dur="2.0s"
-                    repeatCount="indefinite"
-                    begin="0.3s"
-                  />
-                  <animate
-                    attributeName="opacity"
-                    values="0; 1; 1; 0"
-                    keyTimes="0; 0.2; 0.85; 1"
-                    dur="2.0s"
-                    repeatCount="indefinite"
-                    begin="0.3s"
-                  />
-                </circle>
-              </g>
-            </g>
-
-            {/* 6. BIO-FLUORESCENT HOTSPOT NODES (Jul, Aug, Sep) ALONG CURVED STRAND */}
-            {segmentList.map(({ seg, id, num, nodeX, nodeY }) => {
-              const isActive = activeSegmentId === id;
-              const badge = getStatusBadge(seg.cortisolPgPerMg);
-
-              return (
-                <g
-                  key={id}
-                  transform={`translate(${nodeX}, ${nodeY})`}
-                  onClick={() => onSelectSegment(id)}
-                  className="cursor-pointer group"
-                >
-                  <title>{`Select ${seg.title} (${seg.cortisolPgPerMg} pg/mg)`}</title>
-
-                  {/* Active halo ping ring */}
-                  {isActive && (
-                    <>
-                      <circle
-                        cx="0"
-                        cy="0"
-                        r="22"
-                        fill="#3186FF"
-                        opacity="0.18"
-                        className="animate-ping"
-                        style={{ animationDuration: '2.5s' }}
-                      />
-                      <circle
-                        cx="0"
-                        cy="0"
-                        r="17"
-                        fill="none"
-                        stroke="#3186FF"
-                        strokeWidth="3.2"
-                        opacity="0.85"
-                        className="animate-pulse"
-                      />
-                    </>
-                  )}
-
-                  {/* Bio-fluorescent glow aura */}
-                  <circle
-                    cx="0"
-                    cy="0"
-                    r={isActive ? 15 : 12}
-                    fill={badge.hex}
-                    opacity={isActive ? 0.45 : 0.25}
-                    filter="url(#strandNodeGlow)"
-                  />
-
-                  {/* Main Node Disc */}
-                  <circle
-                    cx="0"
-                    cy="0"
-                    r={isActive ? 13.5 : 11.5}
-                    fill={badge.hex}
-                    stroke="#FFFFFF"
-                    strokeWidth={isActive ? 2.5 : 2}
-                    className="transition-all duration-200 group-hover:scale-110"
-                    style={{
-                      filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.3))',
-                    }}
-                  />
-
-                  {/* Node Label Text: Jul, Aug, Sep */}
-                  <text
-                    x="0"
-                    y="0.5"
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fill="#FFFFFF"
-                    fontWeight="900"
-                    fontSize={isActive ? '9.5' : '8.5'}
-                    fontFamily="system-ui, sans-serif"
-                    className="pointer-events-none select-none tracking-tight uppercase"
-                  >
-                    {num}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
-        </div>
-
-        {/* RIGHT COLUMN: 3 ATTRIBUTED SEGMENT CARDS (JULY, AUGUST, SEPTEMBER) */}
-        <div className="flex flex-col justify-between gap-3 sm:gap-3.5 h-full">
-          {segmentList.map(({ seg, id, monthTitle, surgePercent, description, accentColor, bgActive }) => {
+      {/* Illustration: one strand, three centimetres, three months */}
+      <div className="rounded-2xl border border-[#EFE6DA] bg-gradient-to-b from-[#FBF7F2] to-white px-2 sm:px-4 pt-4 pb-3" data-testid="hair-illustration">
+        {/* Month labels, aligned with the three centimetres of the strand */}
+        <div className="grid grid-cols-3" style={{ paddingLeft: '5.55%', paddingRight: '11.1%' }}>
+          {segmentList.map(({ seg, id, monthTitle }) => {
             const isActive = activeSegmentId === id;
-            const isEditing = editingSegmentId === id;
-            const badge = getStatusBadge(seg.cortisolPgPerMg);
-
             return (
-              <div
+              <button
                 key={id}
+                type="button"
                 onClick={() => onSelectSegment(id)}
-                className={`p-3 sm:p-3.5 rounded-xl border transition-all cursor-pointer relative ${
-                  isActive
-                    ? `${bgActive} ${accentColor} shadow-xs`
-                    : 'border-[#E2E8F0] hover:border-slate-300 bg-white'
-                }`}
+                aria-pressed={isActive}
+                className={`text-center rounded-xl py-1.5 mx-0.5 transition-colors cursor-pointer ${isActive ? 'bg-white shadow-xs ring-1 ring-slate-200' : 'hover:bg-white/70'}`}
               >
-                {/* Header: Month Title, Status Badge, Edit Button on Left & Cortisol Level on Right */}
-                <div className="flex items-start sm:items-center justify-between gap-2">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-sm sm:text-base font-extrabold text-black tracking-tight">
-                        {monthTitle}
-                      </span>
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${badge.color}`}>
-                        {badge.label}
-                      </span>
-
-                      {/* Edit Button moved up to header row */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelectSegment(id);
-                          setEditingSegmentId(isEditing ? null : id);
-                        }}
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold transition-all cursor-pointer ml-0.5 ${
-                          isEditing
-                            ? 'bg-[#3186FF] text-white shadow-xs'
-                            : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200'
-                        }`}
-                        title={isEditing ? 'Done editing' : `Edit ${monthTitle} cortisol value`}
-                      >
-                        <SlidersHorizontal className="w-2.5 h-2.5" />
-                        <span>{isEditing ? 'Done' : 'Edit'}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Explicit Cortisol Level Display */}
-                  <div className="text-right shrink-0">
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5 font-mono">
-                      Cortisol Level
-                    </span>
-                    <div className="flex items-baseline gap-1 justify-end">
-                      <span className={`text-lg sm:text-xl font-black font-mono ${
-                        seg.cortisolPgPerMg > 20 ? 'text-rose-600' : seg.cortisolPgPerMg > 14 ? 'text-amber-600' : 'text-emerald-700'
-                      }`}>
-                        {seg.cortisolPgPerMg}
-                      </span>
-                      <span className="text-[10px] font-mono text-slate-400">pg/mg</span>
-                    </div>
-                    <span className="text-[9px] font-semibold text-slate-500 block">
-                      {surgePercent}
-                    </span>
-                  </div>
+                <div className="text-[11px] sm:text-xs font-bold text-slate-500">{monthTitle}</div>
+                <div className={`text-base sm:text-xl font-black font-mono leading-tight ${valueColor(seg.cortisolPgPerMg)}`}>
+                  {seg.cortisolPgPerMg}
                 </div>
-
-                {/* Friendly Brief Description Associating Findings with Calendar */}
-                <p className="text-[11px] text-slate-600 mt-1.5 leading-relaxed">
-                  {description}
-                </p>
-
-                {/* Slidable Value Editor (Only revealed when pressing the edit button) */}
-                {isEditing && (
-                  <div
-                    onClick={(e) => e.stopPropagation()}
-                    className="mt-2 p-2.5 rounded-xl bg-slate-50/90 border border-blue-200 animate-fade-in space-y-1.5"
-                  >
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-slate-600 font-semibold">
-                        Adjust {monthTitle} Cortisol Level:
-                      </span>
-                      <span className="font-mono font-bold text-black text-xs bg-white px-2 py-0.5 rounded border border-slate-200 shadow-2xs">
-                        {seg.cortisolPgPerMg} pg/mg
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="5.0"
-                      max="38.0"
-                      step="0.2"
-                      value={seg.cortisolPgPerMg}
-                      onChange={e => onUpdateSegment(id, parseFloat(e.target.value))}
-                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#3186FF]"
-                    />
-                    <div className="flex justify-between text-[8px] font-mono text-slate-400">
-                      <span>5.0 (Low)</span>
-                      <span>11.0 (Baseline)</span>
-                      <span>38.0 (Acute Peak)</span>
-                    </div>
-                  </div>
-                )}
-              </div>
+              </button>
             );
           })}
         </div>
+
+        <svg viewBox="0 36 720 152" className="w-full h-auto block" role="img" aria-label="Hair strand divided into three one-centimetre segments, one per month, with more cortisol dots where the reading is higher">
+          <defs>
+            <linearGradient id="hairKeratin" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#5A4336" />
+              <stop offset="100%" stopColor="#1F1613" />
+            </linearGradient>
+          </defs>
+
+          {/* Scalp: epidermis band and dermis, with the follicle bulb inside */}
+          <rect x="640" y="40" width="72" height="122" rx="16" fill="#E8B49C" />
+          <rect x="651" y="40" width="61" height="122" rx="14" fill="#F6DDCB" />
+          <ellipse cx="676" cy={centerY(X1)} rx="18" ry="14" fill="#3A2A22" />
+          <ellipse cx="685" cy={centerY(X1)} rx="6" ry="5" fill="#C9634C" opacity="0.85" />
+
+          {/* One capsule per centimetre, tinted by that month's reading */}
+          {segmentList.map(({ seg, id }, index) => {
+            const badge = getStatusBadge(seg.cortisolPgPerMg);
+            const isActive = activeSegmentId === id;
+            const xa = X0 + index * 200 + 5;
+            return (
+              <g key={id} onClick={() => onSelectSegment(id)} style={{ cursor: 'pointer' }}>
+                <rect
+                  x={xa}
+                  y={CY - 52}
+                  width={190}
+                  height={96}
+                  rx={48}
+                  fill={badge.hex}
+                  fillOpacity={isActive ? 0.2 : 0.1}
+                  stroke={badge.hex}
+                  strokeOpacity={isActive ? 0.95 : 0.45}
+                  strokeWidth={isActive ? 3 : 1.5}
+                  style={{ transition: 'all 200ms ease' }}
+                />
+              </g>
+            );
+          })}
+
+          {/* The strand: thin at the tip, thicker toward the scalp */}
+          <path d={strandPath} fill="url(#hairKeratin)" />
+          <path d={sheenPath} fill="none" stroke="#FFFFFF" strokeOpacity="0.28" strokeWidth="1.6" strokeLinecap="round" />
+
+          {/* Cortisol dots: more of them where the reading is higher */}
+          {segmentList.map(({ seg, id }, index) => (
+            <g key={`dots-${id}`} pointerEvents="none">
+              {cortisolDots(index, seg.cortisolPgPerMg).map((dot, i) => (
+                <circle key={i} cx={dot.x} cy={dot.y} r={dot.r} fill="#F6B73C" stroke="#D98A1B" strokeWidth="0.8" />
+              ))}
+            </g>
+          ))}
+
+          {/* Centimetre ruler */}
+          <g stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round">
+            <line x1={X0} y1="172" x2={X1} y2="172" />
+            {[0, 1, 2, 3].map(i => (
+              <line key={i} x1={X0 + i * 200} y1="165" x2={X0 + i * 200} y2="179" />
+            ))}
+            {[0, 1, 2].map(i => (
+              <line key={`h-${i}`} x1={X0 + i * 200 + 100} y1="168" x2={X0 + i * 200 + 100} y2="176" strokeWidth="1" />
+            ))}
+          </g>
+        </svg>
+
+        {/* Ruler labels */}
+        <div className="flex justify-between text-[10px] sm:text-[11px] font-semibold text-slate-500 -mt-1" style={{ paddingLeft: '3%', paddingRight: '8.6%' }}>
+          <span>3 cm · tip</span>
+          <span>2 cm</span>
+          <span>1 cm</span>
+          <span>0 cm · scalp</span>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 mt-3 text-[11px] text-slate-500">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#F6B73C] border border-[#D98A1B]" />
+            Cortisol stored in the hair
+          </span>
+          <span>1 cm of hair is about 1 month</span>
+          <span>The tip is 3 months ago, the scalp end is this month</span>
+        </div>
       </div>
 
-      {/* SLEEK BIOLOGICAL TRAPPING ACTION BANNER */}
-      <div className="mt-3.5 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <span className="w-2 h-2 rounded-full bg-[#3186FF] animate-pulse shrink-0" />
-          <span className="font-semibold text-slate-700">Daily Trapping Science:</span>
-          <span className="text-[11px] sm:text-xs">Cortisol is continuously sealed into hair keratin 24/7 as the shaft grows ~1cm/month.</span>
-        </div>
-        <button
-          type="button"
-          onClick={() => setIsTrappingModalOpen(true)}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#3186FF] text-xs font-bold border border-blue-200 transition-all cursor-pointer shadow-2xs hover:shadow-xs shrink-0"
-        >
-          <BookOpen className="w-3.5 h-3.5" />
-          <span>Read more on Cortisol trapping</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </button>
+      {/* Month cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {segmentList.map(({ seg, id, monthTitle, surgePercent, description }) => {
+          const isActive = activeSegmentId === id;
+          const isEditing = editingSegmentId === id;
+          const badge = getStatusBadge(seg.cortisolPgPerMg);
+
+          return (
+            <div
+              key={id}
+              onClick={() => onSelectSegment(id)}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                isActive ? 'bg-white shadow-card' : 'bg-slate-50/60 border-slate-200/80 hover:bg-white'
+              }`}
+              style={isActive ? { borderColor: badge.hex } : undefined}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="text-sm font-extrabold text-slate-900">{monthTitle}</div>
+                  <span className={`inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${badge.color}`}>
+                    {badge.label}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-baseline gap-1 justify-end">
+                    <span className={`text-2xl font-black font-mono ${valueColor(seg.cortisolPgPerMg)}`}>{seg.cortisolPgPerMg}</span>
+                    <span className="text-[10px] text-slate-400">pg/mg</span>
+                  </div>
+                  <div className="text-[10px] font-semibold text-slate-500">{surgePercent}</div>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-600 mt-2.5 leading-relaxed">{description}</p>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectSegment(id);
+                  setEditingSegmentId(isEditing ? null : id);
+                }}
+                className={`mt-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                  isEditing ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+                }`}
+                title={isEditing ? 'Done editing' : `Edit ${monthTitle} cortisol value`}
+              >
+                <SlidersHorizontal className="w-3 h-3" />
+                <span>{isEditing ? 'Done' : 'Edit value'}</span>
+              </button>
+
+              {isEditing && (
+                <div onClick={(e) => e.stopPropagation()} className="mt-2 p-3 rounded-xl bg-slate-50 border border-slate-200 animate-fade-in space-y-1.5">
+                  <input
+                    type="range"
+                    min="5.0"
+                    max="38.0"
+                    step="0.2"
+                    value={seg.cortisolPgPerMg}
+                    onChange={e => onUpdateSegment(id, parseFloat(e.target.value))}
+                    aria-label={`${monthTitle} cortisol in pg/mg`}
+                    className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#BF6F4E]"
+                  />
+                  <div className="flex justify-between text-[10px] text-slate-400">
+                    <span>5.0</span>
+                    <span>14.0 healthy limit</span>
+                    <span>38.0</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* ENGAGING CORTISOL TRAPPING EXPLAINER MODAL */}

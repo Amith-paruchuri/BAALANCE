@@ -65,12 +65,13 @@ export const StressSummary: React.FC<StressSummaryProps> = ({
 
   return (
     <section
-      className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-4 sm:p-6 space-y-4"
+      className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-5 sm:p-7 space-y-4"
       aria-label="Summary: hair cortisol, late meetings and questionnaire"
       data-testid="stress-summary"
     >
       <div>
-        <h2 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-[#BF6F4E]">At a glance</div>
+        <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">
           Your hair tells us when. Your calendar tells us why.
         </h2>
       </div>
