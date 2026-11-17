@@ -39,7 +39,11 @@ import {
 } from '@/lib/types';
 import { computeDynamicSynthesis } from '@/lib/gemini';
 import { saveUserDataToStorage, loadCachedUserData, loadUserDataForEmail } from '@/lib/storageService';
-import { getSupabaseClient, signOutUser } from '@/lib/supabase';
+import { getSupabaseClient, signOutUser, getProviderCalendarToken } from '@/lib/supabase';
+import { Pss10Card } from '@/components/Pss10Card';
+import { PrivacyAndActivityPanel } from '@/components/PrivacyAndActivityPanel';
+import { recordAudit } from '@/lib/auditLog';
+import type { Pss10Result } from '@/lib/pss10';
 import {
   Sparkles,
   Calendar,
@@ -75,6 +79,7 @@ import {
   Sun,
   Download,
 } from 'lucide-react';
+import { apiFetch } from '@/lib/apiFetch';
 
 export default function BaalanceApp() {
   // Navigation & Flow Stage
@@ -82,23 +87,29 @@ export default function BaalanceApp() {
   // 'wizard' = 4-step real functional user onboarding (First Login only)
   // 'dashboard' = full retrospective diagnostic platform (Shown once authenticated or demo clicked)
   // 'enterprise' = Slack-style institutional workspaces (Schools, Hospitals, Corporates)
-  const [appStage, setAppStage] = useState<'auth' | 'wizard' | 'dashboard' | 'enterprise'>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('mode') === 'enterprise' || params.get('enterprise') === 'true') {
-        return 'enterprise';
-      }
-      if (params.get('demo') === 'true' || params.get('mode') === 'demo') {
-        return 'dashboard';
-      }
-      const activeEmail = localStorage.getItem('baalance_active_user_email');
-      const cached = loadCachedUserData();
-      if (activeEmail && cached?.profile?.email && !cached?.profile?.isDemo) {
-        return 'dashboard';
-      }
+  // Always 'auth' on the server and the first client render (avoids a hydration mismatch);
+  // the real stage is resolved after mount from the URL and the Supabase session.
+  const [appStage, setAppStage] = useState<'auth' | 'wizard' | 'dashboard' | 'enterprise'>('auth');
+  const [isStageResolved, setIsStageResolved] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'enterprise' || params.get('enterprise') === 'true') {
+      setAppStage('enterprise');
+      setIsStageResolved(true);
+      return;
     }
-    return 'auth';
-  });
+    if (params.get('demo') === 'true' || params.get('mode') === 'demo') {
+      setIsStageResolved(true); // the restore effect below opens the demo
+      return;
+    }
+    // A returning user: wait briefly for the session check instead of flashing the landing page.
+    if (localStorage.getItem('baalance_active_user_email')) {
+      const timer = setTimeout(() => setIsStageResolved(true), 2500);
+      return () => clearTimeout(timer);
+    }
+    setIsStageResolved(true);
+  }, []);
 
   // Enterprise Workspace State
   const [enterpriseOrgId, setEnterpriseOrgId] = useState<string>('apollo-health');
@@ -239,8 +250,8 @@ export default function BaalanceApp() {
 
     // Background Gemini AI synthesis to calculate real-time insights from updated schedule
     try {
-      const localApiKey = typeof window !== 'undefined' ? localStorage.getItem('baalance_gemini_api_key') : null;
-      fetch('/api/gemini-synthesis', {
+      const localApiKey = typeof window !== 'undefined' ? sessionStorage.getItem('baalance_gemini_api_key') : null;
+      apiFetch('/api/gemini-synthesis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -498,19 +509,21 @@ export default function BaalanceApp() {
 
   // Helper: Background Auto-Sync with Google Calendar via Secret Link
   const autoSyncCalendarAtRoot = async (
-    icalUrl: string,
+    source: string | { provider: 'google' | 'microsoft'; accessToken: string },
     email: string,
     currentProfile?: UserProfile,
     currentSegments?: HairCortisolSegment[],
     currentTelemetry?: WeeklyTelemetry[],
     force: boolean = false
   ) => {
-    if (!icalUrl || typeof icalUrl !== 'string' || !icalUrl.trim()) return;
-    const cleanUrl = icalUrl.trim();
-    if (cleanUrl.includes('@') && !cleanUrl.startsWith('http')) return; // ignore plain email
-    if (!force && autoSyncedRootUrlRef.current === cleanUrl) return;
-
-    autoSyncedRootUrlRef.current = cleanUrl;
+    const live = typeof source === 'object' ? source : null;
+    const cleanUrl = typeof source === 'string' ? source.trim() : '';
+    if (!live) {
+      if (!cleanUrl) return;
+      if (cleanUrl.includes('@') && !cleanUrl.startsWith('http')) return; // ignore plain email
+      if (!force && autoSyncedRootUrlRef.current === cleanUrl) return;
+      autoSyncedRootUrlRef.current = cleanUrl;
+    }
     const targetEmail = (email || '').toLowerCase().trim();
     const profileToUse = currentProfile || userProfile;
     const segmentsToUse = currentSegments || segments;
@@ -518,14 +531,14 @@ export default function BaalanceApp() {
 
     try {
       setIsAutoSyncingCalendar(true);
-      const res = await fetch('/api/calendar', {
+      const res = await apiFetch('/api/calendar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          icalUrl: cleanUrl,
-          email: targetEmail,
-          haircutDate: profileToUse.haircutDate,
-        }),
+        body: JSON.stringify(
+          live
+            ? { provider: live.provider, accessToken: live.accessToken, email: targetEmail }
+            : { icalUrl: cleanUrl, email: targetEmail, haircutDate: profileToUse.haircutDate }
+        ),
       });
 
       const data = await res.json();
@@ -575,7 +588,7 @@ export default function BaalanceApp() {
         handleApplyCalendarTelemetry(
           data.weeklyTelemetry,
           data.email || targetEmail,
-          cleanUrl,
+          live ? undefined : cleanUrl,
           formattedEvents,
           profileToUse,
           segmentsToUse,
@@ -622,13 +635,36 @@ export default function BaalanceApp() {
           email: userEmail,
           isNewUser: false,
         });
+
+        // Returning from "Connect Outlook / Google": finish the live calendar sync.
+        let pending: string | null = null;
+        try {
+          pending = sessionStorage.getItem('baalance_pending_calendar_sync');
+        } catch (_) {}
+        if (pending) {
+          const access = await getProviderCalendarToken();
+          if (access) {
+            try {
+              sessionStorage.removeItem('baalance_pending_calendar_sync');
+            } catch (_) {}
+            autoSyncCalendarAtRoot(
+              { provider: access.provider === 'azure' ? 'microsoft' : 'google', accessToken: access.token },
+              userEmail
+            );
+          }
+        }
       };
 
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user?.email) {
+          restoreCachedUser(session.user.email);
           handleAuthUser(session.user);
+        } else if (typeof window !== 'undefined') {
+          // No verified session: never show a previously cached account.
+          localStorage.removeItem('baalance_active_user_email');
         }
-      }).catch(() => {});
+        setIsStageResolved(true);
+      }).catch(() => setIsStageResolved(true));
 
       const { data } = supabase.auth.onAuthStateChange((event, session) => {
         if (
@@ -643,11 +679,18 @@ export default function BaalanceApp() {
       authSubscription = data.subscription;
     }
 
-    // 3. Restore cached authenticated user from local storage
+    // 3. Restore the cached dashboard, but only for a verified Supabase session of the same user.
+    const restoreCachedUser = (sessionEmail: string) => {
     const cached = loadCachedUserData();
     const activeEmail = typeof window !== 'undefined' ? localStorage.getItem('baalance_active_user_email') : null;
 
-    if (activeEmail && cached.profile && cached.profile.email && !cached.profile.isDemo) {
+    if (
+      activeEmail &&
+      cached.profile &&
+      cached.profile.email &&
+      !cached.profile.isDemo &&
+      cached.profile.email.toLowerCase() === sessionEmail.toLowerCase()
+    ) {
       setUserProfile(cached.profile);
       if (cached.calendarIcalUrl || cached.profile.calendarIcalUrl) {
         setSavedCalendarIcalUrl(cached.calendarIcalUrl || cached.profile.calendarIcalUrl || '');
@@ -745,6 +788,7 @@ export default function BaalanceApp() {
         setCalendarRulesApplied(false);
       }
     }
+    };
 
     return () => {
       if (authSubscription) {
@@ -806,7 +850,7 @@ export default function BaalanceApp() {
     // Always query server store if local user bundle is missing, ensuring single source of truth across devices
     let serverBundle: any = null;
     try {
-      const res = await fetch(`/api/storage/user-profile?email=${encodeURIComponent(cleanEmail)}`);
+      const res = await apiFetch(`/api/storage/user-profile?email=${encodeURIComponent(cleanEmail)}`);
       if (res.ok) {
         const data = await res.json();
         if (data.found && data.profile) {
@@ -1002,8 +1046,8 @@ export default function BaalanceApp() {
       // Persist updated hair segments & telemetry once dragging settles
       saveUserDataToStorage(userProfile, updatedSegments, updatedTelemetry).catch(console.warn);
       try {
-        const localApiKey = typeof window !== 'undefined' ? localStorage.getItem('baalance_gemini_api_key') : null;
-        const res = await fetch('/api/gemini-synthesis', {
+        const localApiKey = typeof window !== 'undefined' ? sessionStorage.getItem('baalance_gemini_api_key') : null;
+        const res = await apiFetch('/api/gemini-synthesis', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1087,8 +1131,8 @@ export default function BaalanceApp() {
   const handleTriggerSynthesis = async () => {
     setIsSynthesizing(true);
     try {
-      const localApiKey = typeof window !== 'undefined' ? localStorage.getItem('baalance_gemini_api_key') : null;
-      const res = await fetch('/api/gemini-synthesis', {
+      const localApiKey = typeof window !== 'undefined' ? sessionStorage.getItem('baalance_gemini_api_key') : null;
+      const res = await apiFetch('/api/gemini-synthesis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1114,6 +1158,16 @@ export default function BaalanceApp() {
   };
 
   // Sign out handler
+  const handlePss10Complete = (result: Pss10Result) => {
+    const history = userProfile.pss10
+      ? [...(userProfile.pss10History || []), userProfile.pss10].slice(-12)
+      : userProfile.pss10History || [];
+    const updated: UserProfile = { ...userProfile, pss10: result, pss10History: history };
+    setUserProfile(updated);
+    saveUserDataToStorage(updated, segments, telemetry).catch(console.warn);
+    recordAudit('pss10_completed', { detail: { score: result.score, band: result.band } });
+  };
+
   const handleSignOut = () => {
     signOutUser().catch(console.warn);
     if (typeof window !== 'undefined') {
@@ -1140,6 +1194,15 @@ export default function BaalanceApp() {
   }
 
   // STAGE 0: ENTERPRISE & INSTITUTIONAL WORKSPACE MODE
+  if (!isStageResolved) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F0F4FA]" aria-busy="true">
+        <div className="w-8 h-8 rounded-full border-2 border-[#3186FF] border-t-transparent animate-spin" />
+        <span className="sr-only">Loading BAALANCE</span>
+      </div>
+    );
+  }
+
   if (appStage === 'enterprise') {
     return (
       <PhoneSimulatorFrame
@@ -1233,6 +1296,23 @@ export default function BaalanceApp() {
           onOpenEnterprise={() => setAppStage('enterprise')}
           onSignOut={handleSignOut}
         />
+
+        {demoMode && userProfile.isDemo && (
+          <div className="bg-amber-50 border-b border-amber-200 font-sans">
+            <div className="max-w-6xl mx-auto px-3 sm:px-6 py-2 flex items-center justify-between gap-3">
+              <p className="text-[11px] sm:text-xs text-amber-900 leading-snug">
+                <strong>Sample case.</strong> These results are illustrative, not a real patient.
+              </p>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="shrink-0 text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-900 text-white hover:bg-black cursor-pointer"
+              >
+                Create your account
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Main Tabbed Content Area with padding for the fixed bottom bar */}
         <main className="max-w-6xl mx-auto px-3 sm:px-6 pt-4 pb-28 sm:pb-32 space-y-4 sm:space-y-5 flex-1 w-full font-sans">
@@ -1354,17 +1434,17 @@ export default function BaalanceApp() {
                         {isSynthesizing ? (
                           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-[#3186FF] text-xs font-bold animate-pulse shadow-2xs">
                             <Sparkles className="w-3.5 h-3.5 animate-spin text-[#3186FF]" />
-                            <span>Gemini AI Updating...</span>
+                            <span>Updating with AI…</span>
                           </div>
                         ) : (
                           <button
                             type="button"
                             onClick={handleTriggerSynthesis}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50/70 hover:bg-blue-100 border border-blue-200 text-[#3186FF] text-xs font-bold transition-all shadow-2xs cursor-pointer"
-                            title="Recalculate burnout score using Google Gemini"
+                            title="Recalculate the stress score with AI"
                           >
                             <Sparkles className="w-3.5 h-3.5" />
-                            <span>Gemini AI Synced</span>
+                            <span>Recalculate with AI</span>
                           </button>
                         )}
 
@@ -1450,7 +1530,7 @@ export default function BaalanceApp() {
 
                         {/* Plain-English Synthesis Narrative */}
                         <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
-                          Based on your 3-month hair cortisol test and your Google Calendar workload. Hair keeps an indelible 90-day biological record of stress hormones.
+                          Based on your 3-month hair cortisol test and your calendar workload. Hair keeps a 90-day record of stress hormones.
                         </p>
                       </div>
                     </div>
@@ -1662,7 +1742,7 @@ export default function BaalanceApp() {
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 font-mono mt-0.5 truncate max-w-xs sm:max-w-md">
-                      {verifiedCalendarEmail || 'Pre-connected in demo'}
+                      {verifiedCalendarEmail || (userProfile.isDemo ? 'Sample calendar' : 'Not connected yet')}
                     </p>
                   </div>
                 </div>
@@ -1696,7 +1776,7 @@ export default function BaalanceApp() {
                     className="px-3.5 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Calendar className="w-3.5 h-3.5" />
-                    <span>Sync Google Calendar</span>
+                    <span>Connect Outlook or Google</span>
                   </button>
                 </div>
               </div>
@@ -1807,7 +1887,7 @@ export default function BaalanceApp() {
                           {userProfile.name}
                         </h2>
                         <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-50 text-[#3186FF] border border-blue-200">
-                          Member
+                          {userProfile.isDemo ? 'Sample' : 'Member'}
                         </span>
                       </div>
                       <p className="text-xs text-slate-500 font-medium">
@@ -1889,11 +1969,11 @@ export default function BaalanceApp() {
                       Connected Apps
                     </span>
                     <div className="text-sm font-black text-slate-900 font-mono flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      Google Calendar
+                      <span className={`w-2 h-2 rounded-full ${verifiedCalendarEmail || userProfile.isDemo ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                      Calendar
                     </div>
                     <span className="text-[11px] text-slate-500 font-medium block truncate" title={verifiedCalendarEmail}>
-                      {verifiedCalendarEmail || 'Pre-connected in demo'}
+                      {verifiedCalendarEmail || (userProfile.isDemo ? 'Sample calendar' : 'Not connected yet')}
                     </span>
                   </div>
                 </div>
@@ -2196,7 +2276,14 @@ export default function BaalanceApp() {
                 </div>
               </div>
 
-              {/* 3. MEDICAL HISTORY & REAGENT CROSS-REACTIVITY DOSSIER */}
+              {/* PSS-10 validated stress questionnaire */}
+              <Pss10Card
+                result={userProfile.pss10}
+                history={userProfile.pss10History}
+                onComplete={handlePss10Complete}
+              />
+
+              {/* 3. MEDICAL HISTORY */}
               <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-6 sm:p-7 space-y-5">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                   <div className="flex items-center gap-2">
@@ -2205,16 +2292,13 @@ export default function BaalanceApp() {
                     </div>
                     <div>
                       <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
-                        Medical Calibrations & Cross-Reactivity Audit
+                        Medical history
                       </h3>
                       <p className="text-[11px] text-slate-500 font-medium">
-                        Audited against partner laboratory quality standards to verify specimen purity
+                        Conditions and medicines that can change hair cortisol, so your result is read in context
                       </p>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                    ✓ Reagent Purity Verified
-                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2229,7 +2313,7 @@ export default function BaalanceApp() {
                         : 'None (No diagnosed chronic metabolic or endocrine conditions)'}
                     </div>
                     <p className="text-[11px] text-slate-500 font-medium">
-                      Baseline hair cortisol algorithm normalizes against endocrine variants (Cushing's, Addison's, Gestation).
+                      Conditions such as Cushing&apos;s, Addison&apos;s and pregnancy change cortisol. If you report one, we flag it on your result.
                     </p>
                   </div>
 
@@ -2244,11 +2328,19 @@ export default function BaalanceApp() {
                         : 'None (No synthetic steroid or corticosteroid medications)'}
                     </div>
                     <p className="text-[11px] text-slate-500 font-medium">
-                      Specimen confirmed free of hydrocortisone, prednisone, or dexamethasone cross-reactivity.
+                      Steroid medicines and hair dye can affect readings. If you report them, we flag it on your result.
                     </p>
                   </div>
                 </div>
               </div>
+
+              {/* Data controls and activity log */}
+              <PrivacyAndActivityPanel
+                userProfile={userProfile}
+                segments={segments}
+                telemetry={telemetry}
+                onDataDeleted={handleSignOut}
+              />
 
               {/* 4. DATA CUSTODY, CLOUD STORAGE & ACCOUNT ACTIONS */}
               <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-6 sm:p-7 space-y-5">
@@ -2420,7 +2512,7 @@ export default function BaalanceApp() {
                   Wearable Biometrics Integration
                 </h3>
                 <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                  Wearables capture acute minute-to-minute fluctuations in stress (HRV, heart rate spikes), while hair cortisol captures chronic cumulative stress levels over 90 days. We are integrating both so Gemini can autonomously protect your calendar.
+                  Wearables capture acute minute-to-minute fluctuations in stress (HRV, heart rate spikes), while hair cortisol captures chronic cumulative stress levels over 90 days. We are integrating both so BAALANCE AI can protect your calendar.
                 </p>
               </div>
 

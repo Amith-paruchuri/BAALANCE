@@ -1,8 +1,8 @@
 import { UserProfile, HairCortisolSegment, ChainOfCustody, WeeklyTelemetry, GeminiSynthesisResult } from './types';
 
 export const INITIAL_USER_PROFILE: UserProfile = {
-  email: 'amithparuchuri@gmail.com',
-  name: 'Amith Paruchuri',
+  email: 'demo@baalance.in',
+  name: 'Sample Case',
   role: 'Medical Student / Clinical Scholar',
   sector: 'Medicine & Healthcare',
   weeklyHours: 60,

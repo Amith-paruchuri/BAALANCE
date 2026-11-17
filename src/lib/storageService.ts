@@ -1,5 +1,6 @@
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry } from './types';
 import { getSupabaseClient, hasValidSupabaseCredentials, SUPABASE_PROJECT_URL } from './supabase';
+import { apiFetch } from '@/lib/apiFetch';
 
 const LOCAL_PROFILE_KEY = 'baalance_stored_user_profile';
 const LOCAL_SEGMENTS_KEY = 'baalance_stored_segments';
@@ -171,7 +172,7 @@ export async function saveUserDataToStorage(
 
   // 3. Sync to Next.js server storage endpoint as resilient backing store
   try {
-    const res = await fetch('/api/storage/user-profile', {
+    const res = await apiFetch('/api/storage/user-profile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ profile, segments, telemetry }),

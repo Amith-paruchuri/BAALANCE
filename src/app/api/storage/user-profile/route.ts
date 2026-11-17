@@ -1,253 +1,114 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient, hasValidSupabaseCredentials } from '@/lib/supabase';
-import { UserProfile, HairCortisolSegment, WeeklyTelemetry } from '@/lib/types';
+import { getRequestUser } from '@/lib/serverAuth';
 
-import fs from 'fs';
-import path from 'path';
-
-const STORE_FILE = path.join(process.cwd(), 'baalance_user_store.json');
-
-function loadStoreFromFile(): Map<string, {
-  profile: UserProfile;
-  segments?: HairCortisolSegment[];
-  telemetry?: WeeklyTelemetry[];
-  updatedAt: string;
-}> {
-  const map = new Map<string, any>();
-  try {
-    if (fs.existsSync(STORE_FILE)) {
-      const data = fs.readFileSync(STORE_FILE, 'utf-8');
-      const parsed = JSON.parse(data);
-      for (const [k, v] of Object.entries(parsed)) {
-        map.set(k, v);
-      }
-    }
-  } catch (e) {
-    console.warn('[BAALANCE File Storage] Read notice:', e);
-  }
-  return map;
-}
-
-function saveStoreToFile(map: Map<string, any>) {
-  try {
-    const obj: Record<string, any> = {};
-    map.forEach((v, k) => {
-      obj[k] = v;
-    });
-    fs.writeFileSync(STORE_FILE, JSON.stringify(obj, null, 2), 'utf-8');
-  } catch (e) {
-    console.warn('[BAALANCE File Storage] Write notice:', e);
-  }
-}
-
-// In-memory server cache initialized from persistent file store
-const serverProfileStore = loadStoreFromFile();
+/**
+ * Per-user storage for profile, hair cortisol segments and calendar telemetry.
+ * Requires a signed-in user. The email always comes from the verified session,
+ * never from the request, and Supabase row-level security limits each user to
+ * their own rows.
+ */
 
 export async function POST(req: NextRequest) {
+  const auth = await getRequestUser(req);
+  if (!auth) {
+    return NextResponse.json({ error: 'Sign in to save your data.' }, { status: 401 });
+  }
+
   try {
-    const body = await req.json();
-    const { profile, segments, telemetry } = body;
-
-    if (!profile || !profile.email) {
-      return NextResponse.json({ error: 'Valid profile with email is required' }, { status: 400 });
+    const { profile, segments, telemetry } = await req.json();
+    if (!profile || typeof profile !== 'object') {
+      return NextResponse.json({ error: 'Profile is required.' }, { status: 400 });
     }
 
-    const email = profile.email.toLowerCase().trim();
+    const email = auth.email;
     const now = new Date().toISOString();
+    // Never store a calendar secret link on the server.
+    const { calendarIcalUrl: _omit, ...safeProfile } = profile;
+    const cleanProfile = { ...safeProfile, email, isDemo: false };
 
-    // 1. Cache on server side and persist to file
-    serverProfileStore.set(email, {
-      profile,
-      segments,
-      telemetry,
-      updatedAt: now,
-    });
-    saveStoreToFile(serverProfileStore);
-
-    // 1b. Also update the consolidated leads ledger (JSON + Excel CSV)
-    try {
-      const { loadLeadsFromFile, saveLeadsToFile } = await import('@/lib/leadsService');
-      const { getISTDateInfo } = await import('@/lib/istTime');
-      const ist = getISTDateInfo(new Date());
-      const timestampIST = `${ist.year}-${String(ist.monthNum).padStart(2, '0')}-${String(ist.date).padStart(2, '0')} ${ist.time12h} IST`;
-      const currentLeads = loadLeadsFromFile();
-      const existingIdx = currentLeads.findIndex(l => l.email.toLowerCase() === email);
-      const leadEntry = {
-        id: existingIdx >= 0 ? currentLeads[existingIdx].id : `lead_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    const { error: profileError } = await auth.supabase.from('baalance_profiles').upsert(
+      {
         email,
-        name: profile.name || email.split('@')[0],
-        source: profile.isDemo ? 'Clinical Demo User' : 'Account Sign-Up & Intake',
-        device: existingIdx >= 0 ? currentLeads[existingIdx].device : 'All Devices (Pending Beta)',
-        role: profile.role,
-        sector: profile.sector,
-        timestampIST,
-        rawTimestamp: now,
-      };
-      if (existingIdx >= 0) {
-        currentLeads[existingIdx] = { ...currentLeads[existingIdx], ...leadEntry };
-      } else {
-        currentLeads.unshift(leadEntry);
-      }
-      saveLeadsToFile(currentLeads);
-    } catch (leadErr) {
-      console.warn('[BAALANCE Storage] Lead ledger write notice:', leadErr);
+        user_id: auth.user.id,
+        full_name: cleanProfile.name || email.split('@')[0],
+        role: cleanProfile.role,
+        sector: cleanProfile.sector,
+        is_custom_role: cleanProfile.isCustomRole || false,
+        age: cleanProfile.age ?? null,
+        biological_sex: cleanProfile.biologicalSex || null,
+        is_pregnant: cleanProfile.isPregnant || false,
+        health_conditions: cleanProfile.healthConditions || ['none'],
+        medications: cleanProfile.medications || ['none'],
+        weekly_hours: cleanProfile.weeklyHours ?? null,
+        chronotype: cleanProfile.chronotype || null,
+        nightly_sleep_hours: cleanProfile.nightlySleepHours ?? null,
+        sleep_quality: cleanProfile.sleepQuality || null,
+        work_boundary_bleed: cleanProfile.workBoundaryBleed || null,
+        stress_drivers: cleanProfile.stressDrivers || [],
+        is_demo: false,
+        bundle: { profile: cleanProfile, segments: segments || null, telemetry: telemetry || null },
+        updated_at: now,
+      },
+      { onConflict: 'email' }
+    );
+
+    if (profileError) {
+      console.error('[BAALANCE Storage] Profile write failed:', profileError.message);
+      return NextResponse.json({ success: false, error: 'Could not save your data. Please try again.' }, { status: 500 });
     }
 
-    let supabasePersisted = false;
-    let supabaseError: string | null = null;
-
-    // 2. Persist to Supabase if valid credentials are configured
-    if (hasValidSupabaseCredentials()) {
-      const supabase = getSupabaseClient();
-      if (supabase) {
-        try {
-          const { error: profileError } = await supabase
-            .from('baalance_profiles')
-            .upsert({
-              email,
-              full_name: profile.name || 'User',
-              role: profile.role,
-              sector: profile.sector,
-              is_custom_role: profile.isCustomRole || false,
-              age: profile.age || 32,
-              biological_sex: profile.biologicalSex || 'male',
-              is_pregnant: profile.isPregnant || false,
-              health_conditions: profile.healthConditions || ['none'],
-              medications: profile.medications || ['none'],
-              weekly_hours: profile.weeklyHours || 65,
-              chronotype: profile.chronotype || 'morning_lark',
-              nightly_sleep_hours: profile.nightlySleepHours || 6.0,
-              sleep_quality: profile.sleepQuality || 'middle_night_awakenings',
-              work_boundary_bleed: profile.workBoundaryBleed || 'always_on_bed',
-              stress_drivers: profile.stressDrivers || ['evening_meetings', 'sleep_debt'],
-              is_demo: profile.isDemo || false,
-              updated_at: now,
-            }, { onConflict: 'email' });
-
-          if (profileError) {
-            supabaseError = profileError.message;
-          } else {
-            supabasePersisted = true;
-
-            // Upsert hair cortisol segments to Supabase
-            if (segments && segments.length >= 3) {
-              const seg1 = segments.find((s: any) => s.id === 1);
-              const seg2 = segments.find((s: any) => s.id === 2);
-              const seg3 = segments.find((s: any) => s.id === 3);
-              await supabase
-                .from('baalance_hair_cortisol')
-                .upsert({
-                  user_email: email,
-                  month1_root_pg_mg: seg1?.cortisolPgPerMg || 15.6,
-                  month2_mid_shaft_pg_mg: seg2?.cortisolPgPerMg || 28.4,
-                  month3_tip_pg_mg: seg3?.cortisolPgPerMg || 11.2,
-                  reference_baseline_pg_mg: 11.0,
-                }, { onConflict: 'user_email' });
-            }
-
-            // Upsert calendar telemetry to Supabase
-            if (telemetry && telemetry.length > 0) {
-              const totalMeetings = telemetry.reduce((sum: number, item: any) => sum + item.meetingHours, 0);
-              const totalCalls = telemetry.reduce((sum: number, item: any) => sum + item.eveningCalls, 0);
-              const totalFlights = telemetry.reduce((sum: number, item: any) => sum + item.flightShifts, 0);
-              await supabase
-                .from('baalance_telemetry_sync')
-                .upsert({
-                  user_email: email,
-                  calendar_email: email,
-                  is_calendar_verified: true,
-                  total_meeting_hours: totalMeetings,
-                  evening_calls_count: totalCalls,
-                  cross_timezone_flights: totalFlights,
-                  updated_at: now,
-                }, { onConflict: 'user_email' });
-            }
-          }
-        } catch (dbErr: any) {
-          supabaseError = dbErr?.message || 'Database write exception';
-        }
-      }
-    }
-
-    return NextResponse.json({
-      success: true,
-      email,
-      storedAt: now,
-      supabasePersisted,
-      supabaseStatus: supabasePersisted
-        ? 'Connected & Synchronized'
-        : hasValidSupabaseCredentials()
-        ? `Supabase write pending: ${supabaseError}`
-        : 'Active (Local & Next.js Store)',
-    });
+    return NextResponse.json({ success: true, email, storedAt: now, supabasePersisted: true });
   } catch (err: any) {
-    console.error('[BAALANCE Storage API] Error:', err);
-    return NextResponse.json({ error: err.message || 'Internal error' }, { status: 500 });
+    console.error('[BAALANCE Storage] Error:', err?.message);
+    return NextResponse.json({ error: 'Could not save your data.' }, { status: 500 });
   }
 }
 
 export async function GET(req: NextRequest) {
+  const auth = await getRequestUser(req);
+  if (!auth) {
+    return NextResponse.json({ error: 'Sign in to load your data.' }, { status: 401 });
+  }
+
   try {
-    const { searchParams } = new URL(req.url);
-    const email = searchParams.get('email')?.toLowerCase().trim();
+    const { data, error } = await auth.supabase
+      .from('baalance_profiles')
+      .select('*')
+      .eq('email', auth.email)
+      .maybeSingle();
 
-    if (!email) {
-      return NextResponse.json({ error: 'Email parameter required' }, { status: 400 });
-    }
+    if (error || !data) return NextResponse.json({ found: false });
 
-    // Try Supabase first if credentials exist
-    if (hasValidSupabaseCredentials()) {
-      const supabase = getSupabaseClient();
-      if (supabase) {
-        const { data, error } = await supabase
-          .from('baalance_profiles')
-          .select('*')
-          .eq('email', email)
-          .maybeSingle();
+    const bundle = data.bundle || {};
+    const profile = bundle.profile || {
+      name: data.full_name,
+      email: data.email,
+      role: data.role,
+      sector: data.sector,
+      isCustomRole: data.is_custom_role,
+      age: data.age,
+      biologicalSex: data.biological_sex,
+      isPregnant: data.is_pregnant,
+      healthConditions: data.health_conditions,
+      medications: data.medications,
+      weeklyHours: data.weekly_hours,
+      chronotype: data.chronotype,
+      nightlySleepHours: data.nightly_sleep_hours,
+      sleepQuality: data.sleep_quality,
+      workBoundaryBleed: data.work_boundary_bleed,
+      stressDrivers: data.stress_drivers,
+      isDemo: false,
+    };
 
-        if (data && !error) {
-          return NextResponse.json({
-            found: true,
-            source: 'supabase',
-            profile: {
-              name: data.full_name,
-              email: data.email,
-              role: data.role,
-              sector: data.sector,
-              isCustomRole: data.is_custom_role,
-              age: data.age,
-              biologicalSex: data.biological_sex,
-              isPregnant: data.is_pregnant,
-              healthConditions: data.health_conditions,
-              medications: data.medications,
-              weeklyHours: data.weekly_hours,
-              chronotype: data.chronotype,
-              nightlySleepHours: data.nightly_sleep_hours,
-              sleepQuality: data.sleep_quality,
-              workBoundaryBleed: data.work_boundary_bleed,
-              stressDrivers: data.stress_drivers,
-              isDemo: data.is_demo,
-            },
-          });
-        }
-      }
-    }
-
-    // Fallback to server cache
-    if (serverProfileStore.has(email)) {
-      const cached = serverProfileStore.get(email)!;
-      return NextResponse.json({
-        found: true,
-        source: 'server_cache',
-        profile: cached.profile,
-        segments: cached.segments,
-        telemetry: cached.telemetry,
-        updatedAt: cached.updatedAt,
-      });
-    }
-
-    return NextResponse.json({ found: false });
+    return NextResponse.json({
+      found: true,
+      source: 'supabase',
+      profile: { ...profile, email: auth.email },
+      segments: bundle.segments || undefined,
+      telemetry: bundle.telemetry || undefined,
+      updatedAt: data.updated_at,
+    });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Could not load your data.' }, { status: 500 });
   }
 }

@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { synthesizeBiomarkerData } from '@/lib/gemini';
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry } from '@/lib/types';
+import { userOrDemoQuota } from '@/lib/serverAuth';
 import { INITIAL_USER_PROFILE, CLINICAL_SURGE_SEGMENTS, WEEKLY_12_WEEK_TELEMETRY } from '@/lib/mockData';
 
 export async function POST(req: NextRequest) {
+  const access = await userOrDemoQuota(req, 'synthesis', 20);
+  if (access === 'limited') {
+    return NextResponse.json({ success: false, error: 'Too many requests. Please try again in a while.' }, { status: 429 });
+  }
   try {
     const body = await req.json().catch(() => ({}));
     const profile: UserProfile = body.profile || INITIAL_USER_PROFILE;

@@ -1,19 +1,8 @@
-import { GoogleGenAI } from '@google/genai';
+import { generateText, getAIStatus, parseJsonObject } from './ai';
 import { CLINICAL_FALLBACK_SYNTHESIS } from './mockData';
+import { describePss10 } from './pss10';
 import { GeminiSynthesisResult, UserProfile, HairCortisolSegment, WeeklyTelemetry } from './types';
 
-let genAIClient: GoogleGenAI | null = null;
-
-export function getGeminiClient(customApiKey?: string): GoogleGenAI | null {
-  const apiKey =
-    customApiKey ||
-    process.env.GEMINI_API_KEY ||
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-  if (!apiKey || apiKey.trim().length < 10) {
-    return null;
-  }
-  return new GoogleGenAI({ apiKey: apiKey.trim() });
-}
 
 export async function synthesizeBiomarkerData(
   profile: UserProfile,
@@ -21,10 +10,8 @@ export async function synthesizeBiomarkerData(
   telemetry: WeeklyTelemetry[],
   customApiKey?: string
 ): Promise<GeminiSynthesisResult> {
-  const client = getGeminiClient(customApiKey);
-
-  // If no API key is set, immediately return high-fidelity dynamic clinical synthesis
-  if (!client) {
+  // If no AI model is configured, return the deterministic synthesis
+  if (!getAIStatus().configured && !(customApiKey && customApiKey.trim().length > 10)) {
     console.log('[BAALANCE Gemini Engine] Using deterministic clinical biomedical model (Evaluation / Offline mode).');
     return computeDynamicSynthesis(profile, segments, telemetry);
   }
@@ -54,7 +41,8 @@ PATIENT PROFILE:
 - Caffeine Habits: ${profile.caffeineHabit === 'no_coffee' ? 'No Coffee / Zero Caffeine consumption' : profile.caffeineHabit === 'delayed_morning' ? 'Delayed 90–120m after waking' : profile.caffeineHabit === 'afternoon_excess' ? 'Afternoon / Evening cups' : 'Within 30m of waking'}
 - Evening Work / Curfew Boundary: ${profile.workBoundaryBleed || 'occasional_bleed'}
 - International Travel Frequency: ${profile.travelFrequency || 'occasional'}
-- Clinical Perceived Stress Scale (PSS-4): ${profile.perceivedStressRating || 7}/10
+- Self-rated stress (1 to 10, not a validated scale): ${profile.perceivedStressRating || 7}/10
+- ${describePss10(profile.pss10)}
 - Active Somatic Stress Manifestations: ${profile.somaticSymptoms && profile.somaticSymptoms.length > 0 ? profile.somaticSymptoms.join(', ') : 'None reported'}
 - Reported Stress Drivers: ${profile.stressDrivers && profile.stressDrivers.length > 0 ? profile.stressDrivers.join(', ') : 'None reported'}
 - Pre-Existing Health Conditions: ${profile.healthConditions && profile.healthConditions.length > 0 ? profile.healthConditions.join(', ') : 'None reported'}
@@ -135,46 +123,15 @@ Return ONLY a valid JSON object matching this schema without markdown code fence
 }
 `;
 
-    // Try candidate models in order of capability
-    const candidateModels = [
-      'gemini-3.6-flash',
-      'gemini-3.8-flash',
-      'gemini-3-flash-preview',
-      'gemini-2.0-flash',
-      'gemini-1.5-flash',
-    ];
-
-    let rawText = '';
-    for (const modelName of candidateModels) {
-      try {
-        if (client.interactions && typeof client.interactions.create === 'function') {
-          const interaction = await client.interactions.create({
-            model: modelName,
-            input: prompt,
-          });
-          if (interaction && interaction.output_text) {
-            rawText = interaction.output_text;
-            break;
-          }
-        } else if (client.models && typeof client.models.generateContent === 'function') {
-          const response = await client.models.generateContent({
-            model: modelName,
-            contents: prompt,
-          });
-          if (response && response.text) {
-            rawText = response.text;
-            break;
-          }
-        }
-      } catch (mErr) {
-        // Try next candidate model
-        continue;
-      }
-    }
+    const result = await generateText({
+      messages: [{ role: 'user', text: prompt }],
+      json: true,
+      geminiApiKey: customApiKey,
+    });
+    const rawText = result?.text || '';
 
     if (rawText) {
-      const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleanJson);
+      const parsed = parseJsonObject<GeminiSynthesisResult>(rawText);
       if (parsed && typeof parsed.allostaticLoadScore === 'number') {
         // Clean out any rogue asterisks
         if (parsed.rootCauseCulprit) {

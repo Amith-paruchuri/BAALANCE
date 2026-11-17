@@ -84,25 +84,8 @@ create table if not exists public.baalance_telemetry_sync (
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Row-level security policies (public insert/read for app demo & live onboarding)
+-- Row-level security: see supabase/migrations/20261107_lock_down_rls.sql.
+-- Each signed-in user can only reach rows tied to their own email.
 alter table public.baalance_profiles enable row level security;
 alter table public.baalance_hair_cortisol enable row level security;
 alter table public.baalance_telemetry_sync enable row level security;
-
-create policy "Allow anonymous and authenticated read profiles"
-  on public.baalance_profiles for select using (true);
-
-create policy "Allow anonymous and authenticated insert/update profiles"
-  on public.baalance_profiles for all using (true);
-
-create policy "Allow anonymous and authenticated read biomarkers"
-  on public.baalance_hair_cortisol for select using (true);
-
-create policy "Allow anonymous and authenticated insert biomarkers"
-  on public.baalance_hair_cortisol for all using (true);
-
-create policy "Allow anonymous and authenticated read telemetry"
-  on public.baalance_telemetry_sync for select using (true);
-
-create policy "Allow anonymous and authenticated insert telemetry"
-  on public.baalance_telemetry_sync for all using (true);

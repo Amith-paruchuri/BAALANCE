@@ -40,14 +40,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Right: Controls (How It Works Guide for Judges/Users + Profile) */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0">
           {/* Switch to Enterprise Workspaces */}
           {onOpenEnterprise && (
             <button
               type="button"
               onClick={onOpenEnterprise}
-              className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 transition-all cursor-pointer shadow-2xs"
-              title="Switch to Enterprise & Institutional Workspaces (Hospitals, Schools, Corporates)"
+              className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 transition-all cursor-pointer shadow-2xs"
+              title="Workspaces for hospitals, colleges and companies"
             >
               <Building2 className="w-3.5 h-3.5 text-emerald-600" />
               <span className="hidden sm:inline">Enterprise</span>
@@ -60,11 +60,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={onOpenAppGuide}
-              className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-black text-white shadow-2xs transition-all cursor-pointer"
-              title="60-Second Product Walkthrough for Judges"
+              className="flex items-center gap-1.5 text-xs font-bold px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-black text-white shadow-2xs transition-all cursor-pointer"
+              title="60-second product tour"
+              aria-label="60-second product tour"
             >
               <Compass className="w-3.5 h-3.5 text-blue-400" />
-              <span>60s Tour</span>
+              <span>Tour</span>
             </button>
           )}
 
@@ -77,7 +78,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ? 'bg-blue-50 border border-blue-200 ring-1 ring-blue-300'
                 : 'hover:bg-slate-100 border border-transparent'
             }`}
-            title="View Profile & Settings"
+            title="Profile and settings"
+            aria-label="Profile and settings"
           >
             <div className="w-7 h-7 rounded-full bg-[#3186FF] text-white flex items-center justify-center font-bold text-xs shadow-2xs">
               {initial}
@@ -98,7 +100,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               type="button"
               onClick={onSignOut}
               className="p-2 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
-              title="Sign Out"
+              title="Sign out"
+              aria-label="Sign out"
             >
               <LogOut className="w-4 h-4" />
             </button>

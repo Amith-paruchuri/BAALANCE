@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
+import { generateText } from '@/lib/ai';
+import { userOrDemoQuota } from '@/lib/serverAuth';
+import { screenText, CRISIS_REPLY, CRISIS_RESOURCES, BLOCKED_INPUT_REPLY, BLOCKED_OUTPUT_REPLY } from '@/lib/contentSafety';
+import { writeAudit } from '@/lib/auditServer';
+import { describePss10 } from '@/lib/pss10';
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry } from '@/lib/types';
 
 export async function POST(req: NextRequest) {
+  const access = await userOrDemoQuota(req, 'chat', 30);
+  if (access === 'limited') {
+    return NextResponse.json({ reply: 'You have sent a lot of messages. Please try again in a little while.', source: 'rate_limited' }, { status: 429 });
+  }
   try {
     const {
       message,
@@ -15,6 +23,24 @@ export async function POST(req: NextRequest) {
       verifiedCalendarEmail,
       apiKey: clientApiKey,
     } = await req.json();
+
+    // Safety first: screen what the user wrote before it reaches the coach model.
+    // Crisis language gets help and emergency guidance, never a coaching answer.
+    const inputVerdict = await screenText(String(message || ''), 'input');
+    if (inputVerdict.crisis || inputVerdict.blocked) {
+      const action = inputVerdict.crisis ? 'crisis_escalation' : 'content_blocked';
+      // The message itself is never stored: only that the safety check acted.
+      if (access) await writeAudit(access, action, { detail: { checkedBy: inputVerdict.checkedBy.join('+') } });
+      return NextResponse.json({
+        reply: inputVerdict.crisis ? CRISIS_REPLY : BLOCKED_INPUT_REPLY,
+        source: 'safety',
+        safety: {
+          action: inputVerdict.crisis ? 'crisis' : 'blocked',
+          checkedBy: inputVerdict.checkedBy,
+          resources: inputVerdict.crisis ? CRISIS_RESOURCES : [],
+        },
+      });
+    }
 
     const userProfile: UserProfile = profile || {};
     const july = segments?.find((s: HairCortisolSegment) => s.id === 1)?.cortisolPgPerMg || 11.2;
@@ -128,7 +154,7 @@ export async function POST(req: NextRequest) {
     // but the linked calendar shows 0 or very few meetings (<= 10 hours), this is classic Discordance!
     const isDiscordant = (august > 16 || september > 14) && (hasLinkedCalendar && realMeetingHours <= 10 && realLateCalls <= 2);
 
-    const systemPrompt = `You are Tricha, the intelligent, friendly, and practical AI health guide for BAALANCE, powered by Google Gemini.
+    const systemPrompt = `You are Tricha, the intelligent, friendly, and practical AI health guide for BAALANCE.
 You have the complete diagnostic, lifestyle, calendar, and sleep context for ${userProfile.name || firstName}:
 
 DASHBOARD SUMMARY (ALWAYS QUOTE THESE EXACT FIGURES):
@@ -147,6 +173,7 @@ PATIENT PROFILE & LIFESTYLE:
 - Caffeine Habits: ${caffeineHabit === 'no_coffee' ? 'No coffee / Zero caffeine' : caffeineHabit}
 - Evening Work: ${workBoundaryBleed}
 - Primary Stress Drivers: ${stressDrivers}
+- Self-reported stress: ${describePss10(userProfile.pss10)}
 
 90-DAY HAIR CORTISOL LAB TEST (3.0 cm sample, 1 cm = 30 days):
 - July (60-90 days ago / Hair Tip): ${july} pg/mg (Healthy Baseline)
@@ -183,87 +210,38 @@ COMMUNICATION RULES:
 1. Speak in warm, plain, conversational English that any common person easily understands. Avoid engineering or medical jargon.
 2. Format your answers with short bullets and bold numbers, not long walls of text. Keep answers crisp and fast to read (2-3 short bulleted sections max).
 3. Address the user's EXACT question directly first.
-4. When discussing recovery, recommend 8-week horizon for re-testing. Never claim short-term 14 or 21 day permanent changes.`;
+4. When discussing recovery, recommend 8-week horizon for re-testing. Never claim short-term 14 or 21 day permanent changes.
+5. If a PSS-10 score is available, read it next to the hair cortisol result and say when the two agree or disagree. Hair cortisol and self-reported stress are only modestly linked.
+6. You are an AI coach, not a doctor. This is a research-stage tool, not a diagnosis. For very high values, worrying symptoms or medicine questions, tell the user to see a doctor.
+7. If the user sounds hopeless or in distress, respond with care and tell them to contact a doctor, Tele-MANAS (14416 in India) or their local emergency number.
+8. If asked what AI you are, say you are BAALANCE AI.`;
 
-    // Check for API key (Client-provided, Header, or Environment)
-    const apiKey =
-      clientApiKey ||
-      req.headers.get('x-gemini-api-key') ||
-      process.env.GEMINI_API_KEY ||
-      process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    const chatHistory = (Array.isArray(history) ? history.slice(-6) : [])
+      .filter((h: any) => h && typeof h.text === 'string' && h.text.trim())
+      .map((h: any) => ({ role: h.role === 'user' ? ('user' as const) : ('assistant' as const), text: h.text }));
 
-    if (apiKey && apiKey.trim().length > 10) {
-      const cleanKey = apiKey.trim();
-      const ai = new GoogleGenAI({ apiKey: cleanKey });
+    const aiResult = await generateText({
+      system: systemPrompt,
+      messages: [...chatHistory, { role: 'user', text: String(message || '') }],
+      geminiApiKey: clientApiKey || req.headers.get('x-gemini-api-key') || undefined,
+    });
 
-      // Active supported models in Google Gemini API
-      const candidateModels = [
-        'gemini-3.6-flash',
-        'gemini-3.8-flash',
-        'gemini-3-flash-preview',
-        'gemini-2.0-flash',
-      ];
-
-      for (const modelName of candidateModels) {
-        try {
-          // 1. Try Interactions API first (recommended for newer models)
-          if (ai.interactions && typeof ai.interactions.create === 'function') {
-            try {
-              const convHistory = (Array.isArray(history) && history.length > 0)
-                ? history.slice(-6).map((h: any) => `${h.role === 'user' ? 'User' : 'Tricha'}: ${h.text}`).join('\n')
-                : '';
-
-              const interaction = await ai.interactions.create({
-                model: modelName,
-                input: `${systemPrompt}\n\n${convHistory ? `RECENT CONVERSATION:\n${convHistory}\n\n` : ''}User Question: ${message}`,
-              });
-              const raw = interaction.output_text || '';
-              if (raw && raw.trim()) {
-                return NextResponse.json({
-                  reply: raw.replace(/\*/g, ''),
-                  source: modelName,
-                });
-              }
-            } catch (intErr: any) {
-              console.log(`[Interactions API ${modelName}] fallback to generateContent:`, intErr?.message);
-            }
-          }
-
-          // 2. Try generateContent with multi-turn history
-          const contents: any[] = [];
-          if (Array.isArray(history) && history.length > 0) {
-            for (const h of history.slice(-6)) {
-              if (!h.text) continue;
-              contents.push({
-                role: h.role === 'user' ? 'user' : 'model',
-                parts: [{ text: h.text }],
-              });
-            }
-          }
-          contents.push({
-            role: 'user',
-            parts: [{ text: message }],
-          });
-
-          const response = await ai.models.generateContent({
-            model: modelName,
-            contents,
-            config: {
-              systemInstruction: systemPrompt,
-            },
-          });
-
-          const rawReply = response.text || '';
-          if (rawReply && rawReply.trim()) {
-            return NextResponse.json({
-              reply: rawReply.replace(/\*/g, ''),
-              source: modelName,
-            });
-          }
-        } catch (modelErr: any) {
-          console.warn(`[Tricha ${modelName}] Call error:`, modelErr?.message || modelErr);
-        }
+    if (aiResult) {
+      // Second check: screen the coach's answer before it is shown.
+      const outputVerdict = await screenText(aiResult.text, 'output');
+      if (outputVerdict.blocked) {
+        if (access) await writeAudit(access, 'content_blocked', { detail: { stage: 'reply', checkedBy: outputVerdict.checkedBy.join('+') } });
+        return NextResponse.json({
+          reply: BLOCKED_OUTPUT_REPLY,
+          source: 'safety',
+          safety: { action: 'blocked', checkedBy: outputVerdict.checkedBy, resources: [] },
+        });
       }
+      return NextResponse.json({
+        reply: aiResult.text.replace(/\*/g, ''),
+        source: `${aiResult.provider}:${aiResult.model}`,
+        safety: { action: 'passed', checkedBy: outputVerdict.checkedBy },
+      });
     }
 
     // Dynamic Contextual Reasoning Fallback Engine (No asterisks, no buzzwords, highly tailored)
@@ -422,6 +400,7 @@ Would you like specific recommendations for structuring your schedule, improving
     return NextResponse.json({
       reply: cleanResponse,
       source: 'clinical-engine',
+      safety: { action: 'passed', checkedBy: inputVerdict.checkedBy },
     });
   } catch (error: any) {
     return NextResponse.json(

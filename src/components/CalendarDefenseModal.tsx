@@ -29,6 +29,9 @@ import {
   CalendarDays,
 } from 'lucide-react';
 import { CalendarEventItem } from './CalendarSnippetWidget';
+import { apiFetch } from '@/lib/apiFetch';
+import { recordAudit } from '@/lib/auditLog';
+import { getProviderCalendarToken } from '@/lib/supabase';
 import {
   getISTDateInfo,
   getTodayISTKey,
@@ -218,6 +221,8 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
     organizerEmail?: string;
     organizerName?: string;
     actionType: 'rescheduled_host' | 'proposed_invitee';
+    eventId?: string;
+    movedInCalendar?: boolean;
   }>>([]);
 
   // Generate upcoming 28 dynamic days in IST
@@ -533,6 +538,14 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
 
   if (!isOpen) return null;
 
+  // Closing without approving is a decline: nothing moves, and the decision is logged.
+  const handleDismiss = () => {
+    if (!successState && proposals.length > 0) {
+      recordAudit('reschedule_declined', { detail: { count: proposals.length } });
+    }
+    onClose();
+  };
+
   // Filtered proposals based on active rule pill
   const filteredProposals = proposals.filter(p => {
     if (activeRuleFilter === 'all') return true;
@@ -615,8 +628,10 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
   // Confirmation Handler: Reschedules meetings, dispatches emails, and prepares Google Calendar links
   const handleConfirm = async () => {
     setIsProcessing(true);
+    // The user pressed Approve: log the decision before anything is changed.
+    recordAudit('reschedule_approved', { detail: { count: proposals.length } });
 
-    const emailPayloadItems: any[] = [];
+    const liveMoves: Array<{ eventId: string; newStartIso: string; newEndIso: string }> = [];
     const confirmedSummaries: any[] = [];
 
     const results = proposals.map(p => {
@@ -688,16 +703,17 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
         emailBody
       );
 
-      emailPayloadItems.push({
-        eventTitle: cleanTitle,
-        oldTime: `${p.currentDayFormatted} at ${p.currentTimeRange} IST`,
-        newTime: `${chosenSlotData.day}, ${chosenSlotData.dayDate} at ${chosenSlotData.startTime} – ${chosenSlotData.endTime} IST`,
-        dayFormatted: `${chosenSlotData.day} ${chosenSlotData.dayDate}`,
-        invitees: p.isUserOrganizer ? p.invitees : (p.organizerEmail ? [p.organizerEmail] : p.invitees),
-        subject: emailSubject,
-        body: emailBody,
-        organizer: p.organizerEmail || userEmail,
-      });
+      // Meetings the user organises, read from a live calendar, can be moved for real.
+      if (p.isUserOrganizer && (p.event as any).startIso && p.event.id) {
+        const startMs =
+          new Date(`${chosenSlotData.dateKey}T00:00:00+05:30`).getTime() + chosenSlotData.startHour * 3600000;
+        const durationMs = (p.event.durationHours || 1) * 3600000;
+        liveMoves.push({
+          eventId: p.event.id,
+          newStartIso: new Date(startMs).toISOString(),
+          newEndIso: new Date(startMs + durationMs).toISOString(),
+        });
+      }
 
       confirmedSummaries.push({
         title: cleanTitle,
@@ -711,6 +727,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
         organizerEmail: p.organizerEmail,
         organizerName: p.organizerName,
         actionType: p.isUserOrganizer ? 'rescheduled_host' : 'proposed_invitee',
+        eventId: p.event.id,
       });
 
       return {
@@ -723,15 +740,32 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
       };
     });
 
-    // 1. Dispatch actual reschedule emails via server API
-    try {
-      await fetch('/api/send-reschedule-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: emailPayloadItems }),
-      });
-    } catch (err) {
-      console.warn('API send-reschedule-email non-fatal notification:', err);
+    // 1. Move the user's own meetings in their real calendar (Google or Outlook).
+    //    The calendar provider emails the updated invite to attendees.
+    let movedIds = new Set<string>();
+    if (liveMoves.length > 0) {
+      try {
+        const calendarAccess = await getProviderCalendarToken();
+        if (calendarAccess) {
+          const res = await apiFetch('/api/calendar/reschedule', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              provider: calendarAccess.provider === 'azure' ? 'microsoft' : 'google',
+              accessToken: calendarAccess.token,
+              items: liveMoves,
+              approvedByUser: true,
+            }),
+          });
+          const data = await res.json().catch(() => ({}));
+          movedIds = new Set((data.results || []).filter((r: any) => r.status === 'moved').map((r: any) => r.eventId));
+        }
+      } catch (err) {
+        console.warn('[BAALANCE] Live reschedule failed:', err);
+      }
+    }
+    for (const summary of confirmedSummaries) {
+      summary.movedInCalendar = summary.eventId ? movedIds.has(summary.eventId) : false;
     }
 
     // 2. Commit real-time changes to BAALANCE calendar
@@ -772,7 +806,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleDismiss}
             className="w-8 h-8 rounded-full text-slate-400 hover:text-black hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
@@ -893,15 +927,21 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                           {item.title} → {item.newTime}
                         </h4>
                         <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
-                          {item.isUserOrganizer
-                            ? `Click below to open Google Calendar with this daytime slot (anchored in IST). When you click save in Google Calendar, Google officially updates all guests: ${item.invitees.join(', ')}.`
+                          {item.movedInCalendar
+                            ? `Moved in your calendar. Your calendar has sent the updated invite to ${item.invitees.length ? item.invitees.join(', ') : 'attendees'}.`
+                            : item.isUserOrganizer
+                            ? `Open Google Calendar with this daytime slot (in IST) and save it. Google then updates all guests: ${item.invitees.join(', ')}.`
                             : `A reschedule proposal notice has been prepared for the organizer (${item.organizerEmail || 'host'}). You can also open the meeting directly in Google Calendar to propose this new time, or hold this preferred slot on your personal calendar.`}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap pt-1">
-                      {item.isUserOrganizer ? (
+                      {item.movedInCalendar ? (
+                        <span className="px-3.5 py-2 rounded-xl bg-emerald-100 text-emerald-900 text-xs font-bold border border-emerald-300">
+                          ✓ Updated in your calendar
+                        </span>
+                      ) : item.isUserOrganizer ? (
                         <a
                           href={item.gcalUrl}
                           target="_blank"
@@ -1336,10 +1376,10 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
           <div className="flex items-center gap-2 justify-end">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleDismiss}
               className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
             >
-              {successState ? 'Close' : 'Cancel'}
+              {successState ? 'Close' : 'Decline'}
             </button>
 
             {!successState && proposals.length > 0 && (
@@ -1352,12 +1392,12 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                 {isProcessing ? (
                   <>
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Enforcing Rules & Updating Calendar...</span>
+                    <span>Updating your calendar...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Enforce All Rules & Reschedule Meetings</span>
+                    <span>Approve and move meetings</span>
                   </>
                 )}
               </button>

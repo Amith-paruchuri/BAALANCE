@@ -117,13 +117,13 @@ export const HairJourneyCard = React.memo<HairJourneyCardProps>(({
     {
       step: 4,
       stepCode: '04',
-      title: 'Gemini finds the cause',
+      title: 'AI finds the cause',
       phase: 'Calendar Correlation',
-      location: 'Powered by Google Gemini • BAALANCE',
+      location: 'BAALANCE AI',
       date: 'Sep 18, 2026',
       time: '10:00 AM IST',
       description:
-        '90-day hair cortisol timeline mapped against Google Calendar meeting hours to isolate late evening calls behind biological strain.',
+        '90-day hair cortisol timeline mapped against calendar meeting hours to isolate late evening calls behind biological strain.',
       detailNote:
         'Cross-correlation isolated 57 late calls past 7:00 PM and heavy August meetings as the primary stress drivers.',
       icon: Sparkles,
@@ -137,7 +137,7 @@ export const HairJourneyCard = React.memo<HairJourneyCardProps>(({
       isCurrent: true,
       tags: [],
       custodyDetails: [
-        { label: 'Intelligence', value: 'Powered by Google Gemini' },
+        { label: 'Intelligence', value: 'BAALANCE AI (Azure OpenAI)' },
         { label: 'Inputs', value: 'Hair Biomarkers + Google Calendar' },
         { label: 'Stress Score', value: '78 / 100 (High stress)' },
       ],
@@ -170,7 +170,7 @@ export const HairJourneyCard = React.memo<HairJourneyCardProps>(({
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5 font-medium">
-              From salon haircut to partner lab test and Gemini insight
+              From salon haircut to partner lab test and AI insight
             </p>
           </div>
         </div>
