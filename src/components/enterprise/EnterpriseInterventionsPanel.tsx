@@ -65,7 +65,7 @@ export const EnterpriseInterventionsPanel: React.FC<EnterpriseInterventionsPanel
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-[#BF6F4E] uppercase tracking-wider">
               Recommended Interventions
             </span>
           </div>

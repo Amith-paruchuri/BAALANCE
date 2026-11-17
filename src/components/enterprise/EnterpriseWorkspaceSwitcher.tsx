@@ -45,7 +45,7 @@ export const EnterpriseWorkspaceSwitcher: React.FC<EnterpriseWorkspaceSwitcherPr
   };
 
   return (
-    <div className="bg-white border-b border-slate-200 px-4 sm:px-8 py-3.5 sticky top-0 z-40 shadow-xs">
+    <div className="bg-[#FBF7F2]/95 backdrop-blur-md border-b border-[#E7E1D8] px-4 sm:px-8 py-3.5 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
         {/* Left: Organization dropdown + Back button */}
         <div className="flex items-center gap-3">
@@ -55,7 +55,7 @@ export const EnterpriseWorkspaceSwitcher: React.FC<EnterpriseWorkspaceSwitcherPr
             title="Switch back to Individual Biomarkers & Calendar Curfew"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Individual Portal</span>
+            <span className="hidden sm:inline">Back to my results</span>
           </button>
 
           <div className="h-5 w-px bg-slate-200 hidden sm:block" />
@@ -66,7 +66,7 @@ export const EnterpriseWorkspaceSwitcher: React.FC<EnterpriseWorkspaceSwitcherPr
               onClick={() => setIsOpen(!isOpen)}
               className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50/70 hover:bg-slate-100/70 transition-all text-left cursor-pointer active:scale-98"
             >
-              <span className="text-xl shrink-0">{currentOrg.logoEmoji}</span>
+              <Building2 className="w-5 h-5 text-[#0D4F59] shrink-0" />
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight leading-tight">
@@ -87,7 +87,7 @@ export const EnterpriseWorkspaceSwitcher: React.FC<EnterpriseWorkspaceSwitcherPr
               <div className="absolute left-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
                 <div className="px-4 py-2 border-b border-slate-100">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Institutional Workspaces (Slack Style)
+                    Sample organisations
                   </p>
                 </div>
 
@@ -106,7 +106,7 @@ export const EnterpriseWorkspaceSwitcher: React.FC<EnterpriseWorkspaceSwitcherPr
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl">{org.logoEmoji}</span>
+                          <Building2 className="w-5 h-5 text-slate-500" />
                           <div>
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs font-bold text-slate-900">{org.name}</span>
@@ -133,7 +133,7 @@ export const EnterpriseWorkspaceSwitcher: React.FC<EnterpriseWorkspaceSwitcherPr
                       className="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      <span>Join with Institutional Email</span>
+                      <span>Join with your work email</span>
                     </button>
                   </div>
                 )}

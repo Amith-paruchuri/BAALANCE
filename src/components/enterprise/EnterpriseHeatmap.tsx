@@ -69,12 +69,12 @@ export const EnterpriseHeatmap: React.FC<EnterpriseHeatmapProps> = ({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
-            <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
-              Cohort Surveillance Matrix
+            <span className="text-[11px] font-bold text-[#BF6F4E] uppercase tracking-wider">
+              Team by team
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Stress & Burnout Heatmap
+            Stress by team
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
             Click any unit or subgroup to view biological risk drivers and deploy tailored interventions.

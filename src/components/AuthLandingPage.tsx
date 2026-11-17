@@ -201,7 +201,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
               <button
                 type="button"
                 onClick={onStartDemo}
-                className="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                className="px-4 py-1.5 rounded-full bg-[#0D4F59] hover:bg-[#0B434B] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
               >
                 <Play className="w-3 h-3 fill-white" />
                 <span>Try the demo</span>
@@ -220,10 +220,10 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
               <button
                 type="button"
                 onClick={() => onOpenEnterprise?.('apollo-health')}
-                className="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                className="px-4 py-1.5 rounded-full bg-[#0D4F59] hover:bg-[#0B434B] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
               >
                 <Play className="w-3 h-3 fill-white" />
-                <span>Launch Hospital Demo</span>
+                <span>Open hospital sample</span>
               </button>
             </>
           )}
@@ -245,7 +245,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
               <button
                 type="button"
                 onClick={onStartDemo}
-                className="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-md flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+                className="px-5 py-3 rounded-xl bg-[#0D4F59] hover:bg-[#0B434B] text-white font-extrabold text-sm shadow-md flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-white" />
                 <span>Try the demo</span>
@@ -324,11 +324,11 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
             onClick={() => setPortalMode('enterprise')}
             className={`px-5 sm:px-7 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer ${
               portalMode === 'enterprise'
-                ? 'bg-slate-900 text-white shadow-xs'
+                ? 'bg-[#0D4F59] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Building2 className={`w-3.5 h-3.5 ${portalMode === 'enterprise' ? 'text-emerald-400' : 'text-slate-400'}`} />
+            <Building2 className={`w-3.5 h-3.5 ${portalMode === 'enterprise' ? 'text-white' : 'text-slate-400'}`} />
             <span>For teams</span>
           </button>
         </div>
@@ -356,7 +356,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                         : 'text-slate-600 hover:text-black'
                     }`}
                   >
-                    Sign In
+                    Sign in
                   </button>
                   <button
                     type="button"
@@ -372,17 +372,17 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                         : 'text-slate-600 hover:text-black'
                     }`}
                   >
-                    Sign Up
+                    Create account
                   </button>
                 </div>
 
                 <h3 className="text-base font-bold text-[#000000]">
-                  {activeTab === 'signin' ? 'Welcome Back' : 'Create New Account'}
+                  {activeTab === 'signin' ? 'Welcome back' : 'Create your account'}
                 </h3>
                 <p className="text-xs text-[#5F6368] mt-0.5">
                   {activeTab === 'signin'
-                    ? 'Access your hair cortisol lab history and calendar analysis'
-                    : 'Track biological stress with zero-friction salon collection'}
+                    ? 'See your hair results and calendar analysis.'
+                    : 'Save your results and connect your calendar.'}
                 </p>
               </div>
 
@@ -533,30 +533,21 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
         {/* VIEW 2: ENTERPRISE & INSTITUTIONS WORKSPACES             */}
         {/* ======================================================== */}
         {portalMode === 'enterprise' && (
-          <div className="max-w-3xl mx-auto text-left space-y-6 animate-in fade-in duration-150">
-            {/* Top Enterprise Value Banner */}
-            <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-
-              <div className="flex items-center gap-2 mb-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                  Workplace Stress Intelligence
-                </span>
-              </div>
-
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                See which teams are burning out, before people quit
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-xl">
-                Periodic hair tests measure long-term team stress without intrusive surveys. Objective biological data, calibrated for individual hair wash frequency and medications.
+          <div className="max-w-3xl mx-auto text-left space-y-5 animate-in fade-in duration-150">
+            <div className="bg-[#0D4F59] text-white rounded-3xl p-6 sm:p-8 shadow-card">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-[#F0C9B5]">For hospitals, colleges and companies</div>
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight mt-1">See burnout coming, team by team.</h2>
+              <p className="text-sm text-white/80 mt-2 max-w-xl">
+                An anonymous stress map of your organisation, built from hair cortisol. Employers see team averages only, never an
+                individual result.
               </p>
 
-              {/* Instant Domain Join Input */}
-              <form onSubmit={handleEnterpriseDomainSubmit} className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-lg">
+              <form onSubmit={handleEnterpriseDomainSubmit} className="mt-5 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-lg">
+                <label htmlFor="team-email" className="sr-only">Work or university email</label>
                 <div className="relative flex-1">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <Mail className="w-4 h-4 text-white/60 absolute left-3.5 top-3" />
                   <input
+                    id="team-email"
                     type="email"
                     required
                     value={institutionEmail}
@@ -564,121 +555,59 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                       setInstitutionEmail(e.target.value);
                       setEnterpriseError(null);
                     }}
-                    placeholder="Enter work/school email (e.g. dr@aiims.edu)"
-                    className="w-full pl-10 pr-3 py-2.5 text-xs rounded-xl border border-slate-700 bg-slate-800 text-white placeholder-slate-400 focus:ring-2 focus:ring-[#0D4F59] focus:outline-none"
+                    placeholder="name@yourhospital.org"
+                    className="w-full pl-10 pr-3 py-2.5 text-sm rounded-xl border border-white/25 bg-white/10 text-white placeholder-white/50 focus:ring-2 focus:ring-white/60 focus:outline-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-2"
+                  className="px-5 py-2.5 rounded-xl bg-white hover:bg-[#FBF7F2] text-[#0D4F59] text-xs font-bold transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1.5"
                 >
-                  <span>Open Workspace</span>
+                  <span>Open your workspace</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </form>
-              {enterpriseError && (
-                <p className="text-xs text-rose-400 mt-1 font-medium">{enterpriseError}</p>
-              )}
+              {enterpriseError && <p className="text-xs text-rose-200 mt-1.5 font-medium">{enterpriseError}</p>}
 
-              <div className="mt-4 flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] text-slate-400 font-medium">
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Privacy-first: groups of 5+ only</span>
-                </div>
-                <span>•</span>
-                <span>Tested at partner laboratories</span>
-                <span>•</span>
-                <span>Zero individual scores visible to leadership</span>
+              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/75">
+                <span className="inline-flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Groups of 5 or more only
+                </span>
+                <span>No individual scores shown to leadership</span>
               </div>
             </div>
 
-            {/* 3 Sector Demos */}
             <div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-1">
-                Explore Sector-Specific Live Workspaces
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Sector 1: Hospital */}
-                <button
-                  type="button"
-                  onClick={() => onOpenEnterprise?.('apollo-health')}
-                  className="bg-white rounded-2xl border border-rose-200/90 p-5 text-left shadow-card hover:shadow-cardHover hover:border-rose-400 transition-all flex flex-col justify-between group cursor-pointer"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-3xl">🏥</span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">
-                        Healthcare
-                      </span>
+              <p className="text-xs font-semibold text-slate-500 mb-2.5 px-1">Or explore a sample organisation</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { id: 'apollo-health', icon: Stethoscope, tag: 'Hospital', name: 'Sunrise Multispeciality Hospital', text: 'ICU, emergency medicine, surgery and resident shifts.' },
+                  { id: 'st-jude-academy', icon: GraduationCap, tag: 'School', name: 'Greenfield Public School', text: 'Grades 9 to 12, exam pressure. Parent consent required.' },
+                  { id: 'nexus-tech', icon: Building2, tag: 'Company', name: 'Nimbus Tech', text: 'Engineering on-call load and late meetings across three cities.' },
+                ].map(org => (
+                  <button
+                    key={org.id}
+                    type="button"
+                    onClick={() => onOpenEnterprise?.(org.id)}
+                    className="bg-white rounded-2xl border border-[#E2E8F0] p-5 text-left shadow-card hover:shadow-cardHover hover:border-[#0D4F59] transition-all flex flex-col justify-between group cursor-pointer"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-9 h-9 rounded-xl bg-[#0D4F59]/10 text-[#0D4F59] flex items-center justify-center">
+                          <org.icon className="w-4 h-4" />
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">{org.tag}</span>
+                      </div>
+                      <h3 className="text-sm font-extrabold text-slate-900">{org.name}</h3>
+                      <p className="text-xs text-slate-500 mt-1">{org.text}</p>
                     </div>
-                    <h3 className="text-sm font-extrabold text-slate-900 group-hover:text-rose-600 transition-colors">
-                      Sunrise Multispeciality Hospital
-                    </h3>
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      ICU, Emergency Medicine, Surgery & resident 36h shift pacing.
-                    </p>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-rose-600">
-                    <span>Enter Hospital Demo</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </button>
-
-                {/* Sector 2: School */}
-                <button
-                  type="button"
-                  onClick={() => onOpenEnterprise?.('st-jude-academy')}
-                  className="bg-white rounded-2xl border border-amber-200/90 p-5 text-left shadow-card hover:shadow-cardHover hover:border-amber-400 transition-all flex flex-col justify-between group cursor-pointer"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-3xl">🎓</span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
-                        Education
-                      </span>
+                    <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#0D4F59]">
+                      <span>Open sample</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                     </div>
-                    <h3 className="text-sm font-extrabold text-slate-900 group-hover:text-amber-600 transition-colors">
-                      Greenfield Public School
-                    </h3>
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      Grades 9–12, Section B exam pressure & 10 PM homework curfew. (Parent consent required)
-                    </p>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-amber-600">
-                    <span>Enter School Demo</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </button>
-
-                {/* Sector 3: Corporate */}
-                <button
-                  type="button"
-                  onClick={() => onOpenEnterprise?.('nexus-tech')}
-                  className="bg-white rounded-2xl border border-blue-200/90 p-5 text-left shadow-card hover:shadow-cardHover hover:border-blue-400 transition-all flex flex-col justify-between group cursor-pointer"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-3xl">🏢</span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
-                        Corporate
-                      </span>
-                    </div>
-                    <h3 className="text-sm font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors">
-                      Nimbus Tech
-                    </h3>
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      Bengaluru, Gurugram & Pune Hubs · Engineering on-call pager stress & evening curfews.
-                    </p>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-600">
-                    <span>Enter Company Demo</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </button>
+                  </button>
+                ))}
               </div>
             </div>
           </div>

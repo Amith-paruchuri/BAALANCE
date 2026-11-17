@@ -55,12 +55,12 @@ export const DepartmentBurnoutGraph: React.FC<DepartmentBurnoutGraphProps> = ({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <BarChart3 className="w-4 h-4 text-[#0D4F59]" />
-            <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
-              Department Comparison Chart
+            <span className="text-[11px] font-bold text-[#BF6F4E] uppercase tracking-wider">
+              Department by department
             </span>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Burnout Score by Department
+            Stress score by department
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
             Interactive column graph. Click any department bar to jump straight into its monitored teams.

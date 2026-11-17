@@ -4,11 +4,19 @@ import React, { useState } from 'react';
 import { MOCK_ORGANIZATIONS } from '@/lib/enterpriseMockData';
 import { Organization, SubUnit, CohortGroup } from '@/lib/enterpriseTypes';
 import { EnterpriseWorkspaceSwitcher } from './EnterpriseWorkspaceSwitcher';
-import { BurnoutGradientBar } from './BurnoutGradientBar';
 import { DepartmentBurnoutGraph } from './DepartmentBurnoutGraph';
 import { EnterpriseHeatmap } from './EnterpriseHeatmap';
 import { EnterpriseInterventionsPanel } from './EnterpriseInterventionsPanel';
-import { Building2, GraduationCap, Stethoscope, Flame, ShieldCheck, Activity } from 'lucide-react';
+import { Building2, GraduationCap, Stethoscope } from 'lucide-react';
+
+// The four zones of the team stress map, lowest to highest.
+const STRESS_ZONES = [
+  { above: -1, label: 'Balanced', tile: 'bg-emerald-600 text-white', swatch: 'bg-emerald-600' },
+  { above: 35, label: 'Busy', tile: 'bg-amber-300 text-amber-950', swatch: 'bg-amber-300' },
+  { above: 60, label: 'Stretched', tile: 'bg-orange-500 text-white', swatch: 'bg-orange-500' },
+  { above: 80, label: 'Burning out', tile: 'bg-rose-600 text-white', swatch: 'bg-rose-600' },
+];
+const stressZone = (score: number) => [...STRESS_ZONES].reverse().find(z => score > z.above) || STRESS_ZONES[0];
 
 interface EnterpriseDashboardProps {
   initialOrgId?: string;
@@ -79,7 +87,7 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans selection:bg-[#0D4F59] selection:text-white pb-16">
+    <div className="min-h-screen bg-[#F6F2EC] text-slate-900 flex flex-col font-sans selection:bg-[#0D4F59] selection:text-white pb-16">
       {/* Top Slack-style Workspace Header */}
       <EnterpriseWorkspaceSwitcher
         currentOrg={currentOrg}
@@ -96,144 +104,117 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
       />
 
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-8 py-6 space-y-6">
-        {/* Sector Quick Switcher Tabs */}
-        <div className="flex items-center justify-between flex-wrap gap-3 bg-white p-2.5 rounded-2xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2">
-              Explore Institutional Sector:
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={() => {
-                setSelectedOrgId('apollo-health');
-                setSelectedUnit(null);
-                setSelectedCohort(null);
-                setFocusedCohortId(null);
-              }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all cursor-pointer ${
-                selectedOrgId === 'apollo-health'
-                  ? 'bg-rose-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              <Stethoscope className="w-3.5 h-3.5" />
-              <span>Sunrise Hospital (9 Depts)</span>
-            </button>
-
-            <button
-              onClick={() => {
-                setSelectedOrgId('st-jude-academy');
-                setSelectedUnit(null);
-                setSelectedCohort(null);
-                setFocusedCohortId(null);
-              }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all cursor-pointer ${
-                selectedOrgId === 'st-jude-academy'
-                  ? 'bg-amber-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              <GraduationCap className="w-3.5 h-3.5" />
-              <span>Greenfield School (8 Grades)</span>
-            </button>
-
-            <button
-              onClick={() => {
-                setSelectedOrgId('nexus-tech');
-                setSelectedUnit(null);
-                setSelectedCohort(null);
-                setFocusedCohortId(null);
-              }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all cursor-pointer ${
-                selectedOrgId === 'nexus-tech'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5" />
-              <span>Nimbus Tech (8 Divisions)</span>
-            </button>
+        {/* Sample organisations */}
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <span className="text-xs font-semibold text-slate-500">Sample organisations</span>
+          <div className="flex items-center gap-2 flex-wrap" role="group" aria-label="Sample organisation">
+            {[
+              { id: 'apollo-health', label: 'Hospital', icon: Stethoscope },
+              { id: 'st-jude-academy', label: 'School', icon: GraduationCap },
+              { id: 'nexus-tech', label: 'Company', icon: Building2 },
+            ].map(option => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => {
+                  setSelectedOrgId(option.id);
+                  setSelectedUnit(null);
+                  setSelectedCohort(null);
+                  setFocusedCohortId(null);
+                }}
+                aria-pressed={selectedOrgId === option.id}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border ${
+                  selectedOrgId === option.id
+                    ? 'bg-[#0D4F59] border-[#0D4F59] text-white'
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <option.icon className="w-3.5 h-3.5" />
+                <span>{option.label}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* 3 BIG KPI TILES IN ONE ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Tile 1: Organisation Stress Score */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex items-center justify-between">
+        {/* Team stress map: one tile per department, coloured by zone */}
+        <section className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-5 sm:p-7 space-y-5" aria-label="Team stress map" data-testid="team-stress-map">
+          <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
             <div>
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                Organisation stress score
-              </span>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-3xl font-black text-slate-900">{meanBurnoutScore}</span>
-                <span className="text-sm font-bold text-slate-400">/ 100</span>
-              </div>
-              <p className="text-xs text-slate-500 mt-1">90-day biological cortisol baseline</p>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-[#BF6F4E]">Anonymous · team level only</div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">Team stress map</h2>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl">
+                {currentOrg.name}. Each tile is a department&apos;s average over the last 90 days. No individual result is ever shown.
+              </p>
             </div>
-            <div className={`px-3 py-1.5 rounded-xl text-xs font-black border ${
-              meanBurnoutScore > 80 ? 'bg-rose-50 text-rose-700 border-rose-200' :
-              meanBurnoutScore > 60 ? 'bg-amber-50 text-amber-700 border-amber-200' :
-              meanBurnoutScore > 35 ? 'bg-blue-50 text-blue-700 border-blue-200' :
-              'bg-emerald-50 text-emerald-700 border-emerald-200'
-            }`}>
-              {meanBurnoutScore > 80 ? '🔴 Burnout risk' :
-               meanBurnoutScore > 60 ? '🟠 High stress' :
-               meanBurnoutScore > 35 ? '🔵 Manageable' : '🟢 Healthy'}
+            <div className="grid grid-cols-3 gap-2 shrink-0">
+              <div className="px-4 py-3 rounded-2xl bg-slate-50/70 border border-slate-200/80">
+                <div className="text-[11px] font-bold text-slate-500">Organisation score</div>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <span className="text-2xl font-black font-mono text-slate-900">{meanBurnoutScore}</span>
+                  <span className="text-[11px] font-semibold text-slate-400">/ 100</span>
+                </div>
+              </div>
+              <div className="px-4 py-3 rounded-2xl bg-slate-50/70 border border-slate-200/80">
+                <div className="text-[11px] font-bold text-slate-500">Teams burning out</div>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <span className="text-2xl font-black font-mono text-rose-600">{criticalUnitsCount}</span>
+                  <span className="text-[11px] font-semibold text-slate-400">of {totalSubUnits}</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => document.getElementById('interventions-panel')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-4 py-3 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-left hover:bg-emerald-50 transition-colors cursor-pointer"
+              >
+                <div className="text-[11px] font-bold text-emerald-800">Best next step</div>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <span className="text-2xl font-black font-mono text-emerald-700">
+                    -{currentOrg.interventions[0]?.projectedReductionPercent || 0}%
+                  </span>
+                  <span className="text-[11px] font-semibold text-emerald-700">see plan</span>
+                </div>
+              </button>
             </div>
           </div>
 
-          {/* Tile 2: Teams in Burnout Zone */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex items-center justify-between">
-            <div>
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                Teams in burnout zone
-              </span>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-3xl font-black text-rose-600">{criticalUnitsCount}</span>
-                <span className="text-sm font-bold text-slate-400">of {totalSubUnits} teams</span>
-              </div>
-              <p className="text-xs text-slate-500 mt-1">Requiring immediate schedule relief</p>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center text-rose-600 shrink-0">
-              <Flame className="w-5 h-5" />
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {[...currentOrg.cohorts]
+              .sort((x, y) => (y.averageBurnoutScore || 0) - (x.averageBurnoutScore || 0))
+              .map(cohort => {
+                const score = Math.round(cohort.averageBurnoutScore || cohort.averageBsi || 0);
+                const zone = stressZone(score);
+                return (
+                  <button
+                    key={cohort.id}
+                    type="button"
+                    onClick={() => handleSelectCohortFromGraph(cohort.id)}
+                    className={`p-4 rounded-2xl text-left transition-transform hover:-translate-y-0.5 cursor-pointer ${zone.tile}`}
+                    title={`${cohort.name}: ${score} of 100, ${zone.label.toLowerCase()}`}
+                  >
+                    <div className="text-sm font-extrabold leading-tight">{cohort.name}</div>
+                    <div className="flex items-baseline justify-between gap-2 mt-3">
+                      <span className="text-xs font-semibold opacity-90">{zone.label}</span>
+                      <span className="text-lg font-black font-mono">{score}</span>
+                    </div>
+                  </button>
+                );
+              })}
           </div>
 
-          {/* Tile 3: Top Recommended Action */}
-          <div 
-            onClick={() => {
-              const el = document.getElementById('interventions-panel');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="bg-white rounded-2xl border border-emerald-200 p-5 shadow-xs flex items-center justify-between cursor-pointer hover:border-emerald-400 hover:shadow-sm transition-all group"
-          >
-            <div className="pr-2">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider block">
-                  1 Action could lower it most
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-semibold text-slate-600">
+              {STRESS_ZONES.map(zone => (
+                <span key={zone.label} className="inline-flex items-center gap-1.5">
+                  <span className={`w-3 h-3 rounded ${zone.swatch}`} />
+                  {zone.label}
                 </span>
-                <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-emerald-100 text-emerald-800">
-                  -{currentOrg.interventions[0]?.projectedReductionPercent || 24}%
-                </span>
-              </div>
-              <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-1 mt-1">
-                {currentOrg.interventions[0]?.title || 'Evening Digital Curfew'}
-              </h4>
-              <p className="text-xs text-slate-500 mt-0.5">Click to view 8-week impact plan ↓</p>
+              ))}
             </div>
-            <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 group-hover:scale-105 transition-transform">
-              <Activity className="w-5 h-5" />
-            </div>
+            <p className="text-xs sm:text-sm font-bold text-slate-900">
+              Burnout stops being a surprise. <span className="text-[#BF6F4E]">It becomes a warning.</span>
+            </p>
           </div>
-        </div>
-
-        {/* 1. TOP GRADIENT BAR WITH 4-COLOR GRADATION & CLINICAL INFERENCES */}
-        <BurnoutGradientBar
-          meanScore={meanBurnoutScore}
-          organizationName={currentOrg.name}
-        />
+        </section>
 
         {/* 2. INTERACTIVE DEPARTMENT COMPARISON BAR GRAPH */}
         <DepartmentBurnoutGraph
