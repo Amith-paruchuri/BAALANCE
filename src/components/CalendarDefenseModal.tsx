@@ -206,6 +206,9 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [successState, setSuccessState] = useState(false);
+  // One decision per suggested change. Nothing is moved unless the user approves it.
+  const [decisions, setDecisions] = useState<Record<string, 'approved' | 'declined'>>({});
+  const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
   const [activeRuleFilter, setActiveRuleFilter] = useState<'all' | DefenseRuleType>('all');
   const [previewEmailId, setPreviewEmailId] = useState<string | null>(null);
   const [newInviteeInputs, setNewInviteeInputs] = useState<Record<string, string>>({});
@@ -543,8 +546,12 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
     if (!successState && proposals.length > 0) {
       recordAudit('reschedule_declined', { detail: { count: proposals.length } });
     }
+    setDecisions({});
+    setExpandedIds({});
     onClose();
   };
+
+  const approvedCount = proposals.filter(p => decisions[p.id] === 'approved').length;
 
   // Filtered proposals based on active rule pill
   const filteredProposals = proposals.filter(p => {
@@ -629,12 +636,19 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
   const handleConfirm = async () => {
     setIsProcessing(true);
     // The user pressed Approve: log the decision before anything is changed.
-    recordAudit('reschedule_approved', { detail: { count: proposals.length } });
+    const approvedProposals = proposals.filter(p => decisions[p.id] === 'approved');
+    if (approvedProposals.length === 0) {
+      setIsProcessing(false);
+      return;
+    }
+    recordAudit('reschedule_approved', { detail: { count: approvedProposals.length } });
+    const declinedCount = proposals.length - approvedProposals.length;
+    if (declinedCount > 0) recordAudit('reschedule_declined', { detail: { count: declinedCount } });
 
     const liveMoves: Array<{ eventId: string; newStartIso: string; newEndIso: string }> = [];
     const confirmedSummaries: any[] = [];
 
-    const results = proposals.map(p => {
+    const results = approvedProposals.map(p => {
       let chosenSlotData: {
         dateKey: string;
         day: string;
@@ -787,7 +801,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                  Calendar Defense • All-Rules AI Rescheduler
+                  Suggested calendar changes
                 </h2>
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
@@ -799,7 +813,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                 </div>
               </div>
               <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                Evaluates upcoming 4 weeks across all 5 calendar rules: 7 PM Curfew, Tue/Thu Focus Blocks, Weekend Rest, Buffers, & Daily Load. Choose recommended slots or pick custom timing.
+                Meetings in the next 4 weeks that run late, cut into focus time or overload a day. Approve or decline each suggestion. Nothing moves until you approve.
               </p>
             </div>
           </div>
@@ -862,10 +876,10 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                   <Check className="w-8 h-8 stroke-[3]" />
                 </div>
                 <h3 className="text-lg font-black text-slate-900">
-                  Calendar Mutated & Reschedule Notices Dispatched!
+                  Your approved changes are saved
                 </h3>
                 <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-                  Your BAALANCE schedule has been updated in real time. All 5 rules have been enforced: evening curfew protected, Tue/Thu focus blocks shielded, and attendee emails sent.
+                  Only the changes you approved were applied. Declined suggestions were left as they are.
                 </p>
               </div>
 
@@ -875,10 +889,10 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                   <div className="space-y-0.5">
                     <span className="text-xs font-bold text-emerald-950 block">
-                      BAALANCE Live Grid Mutated in Real-Time
+                      Your BAALANCE calendar view is updated
                     </span>
                     <p className="text-[11px] text-emerald-800 leading-snug">
-                      Overridden and saved in browser storage. Auto-sync will permanently respect these conflict-free slots.
+                      Meetings you organise are moved in your connected Outlook or Google calendar when you are signed in. In the guest demo, changes stay in this browser.
                     </p>
                   </div>
                 </div>
@@ -887,10 +901,10 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                   <Mail className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                   <div className="space-y-0.5">
                     <span className="text-xs font-bold text-blue-950 block">
-                      Attendee Notification Mails Sent
+                      How attendees find out
                     </span>
                     <p className="text-[11px] text-blue-800 leading-snug">
-                      Reschedule notifications dispatched via BAALANCE email dispatch service to all invitees.
+                      Your calendar provider notifies attendees of meetings you moved. For meetings someone else organises, a request is prepared for you to send.
                     </p>
                   </div>
                 </div>
@@ -1018,8 +1032,79 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
               return (
                 <div
                   key={prop.id}
-                  className="bg-slate-50/70 rounded-2xl border border-slate-200/90 p-4 sm:p-5 space-y-4 shadow-2xs hover:border-blue-200 transition-all"
+                  className={`rounded-2xl border p-4 sm:p-5 space-y-4 shadow-2xs transition-all ${
+                    decisions[prop.id] === 'approved'
+                      ? 'bg-emerald-50/50 border-emerald-300'
+                      : decisions[prop.id] === 'declined'
+                      ? 'bg-slate-50/50 border-slate-200 opacity-70'
+                      : 'bg-white border-slate-200/90'
+                  }`}
+                  data-testid="approval-card"
                 >
+                  {/* Simple approval card: one meeting, old time to new time, Approve or Decline */}
+                  {(() => {
+                    const chosen = isCustom
+                      ? prop.customSlot
+                      : prop.options.find(o => o.id === prop.selectedOptionId) || prop.options[0];
+                    const decision = decisions[prop.id];
+                    return (
+                      <div className="space-y-2.5">
+                        <div className="text-[11px] font-bold uppercase tracking-wide text-[#BF6F4E]">BAALANCE AI suggests</div>
+                        <h4 className="text-base font-extrabold text-slate-900">Move &ldquo;{cleanTitle}&rdquo;</h4>
+                        <div className="flex flex-wrap items-center gap-2 text-sm font-bold">
+                          <span className="text-rose-600">{prop.currentDayFormatted}, {prop.currentTimeRange}</span>
+                          <ArrowRight className="w-4 h-4 text-slate-400" />
+                          <span className="text-emerald-700">{chosen.dayName} {chosen.dayDate}, {chosen.startTime}</span>
+                        </div>
+                        <p className="text-xs text-slate-600">
+                          {prop.breaches[0]?.badgeLabel ? `${prop.breaches[0].badgeLabel}. ` : ''}
+                          {prop.isUserOrganizer
+                            ? prop.invitees.length > 0
+                              ? `You organise this meeting. ${prop.invitees.length} attendee${prop.invitees.length === 1 ? '' : 's'} will be notified by your calendar.`
+                              : 'You organise this meeting.'
+                            : `${prop.organizerName || prop.organizerEmail || 'Someone else'} organises this meeting. Approving prepares a request to them. Their calendar is not changed.`}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setDecisions(prev => ({ ...prev, [prop.id]: 'approved' }))}
+                            aria-pressed={decision === 'approved'}
+                            className={`px-5 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+                              decision === 'approved'
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-slate-900 hover:bg-slate-700 text-white'
+                            }`}
+                          >
+                            {decision === 'approved' && <Check className="w-3.5 h-3.5" />}
+                            <span>{decision === 'approved' ? 'Approved' : 'Approve'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDecisions(prev => ({ ...prev, [prop.id]: 'declined' }))}
+                            aria-pressed={decision === 'declined'}
+                            className={`px-5 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
+                              decision === 'declined'
+                                ? 'bg-slate-200 border-slate-300 text-slate-800'
+                                : 'bg-white border-slate-300 hover:bg-slate-50 text-slate-800'
+                            }`}
+                          >
+                            {decision === 'declined' ? 'Declined' : 'Decline'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setExpandedIds(prev => ({ ...prev, [prop.id]: !prev[prop.id] }))}
+                            aria-expanded={!!expandedIds[prop.id]}
+                            className="px-3 py-2 rounded-xl text-xs font-bold text-[#3186FF] hover:bg-blue-50 cursor-pointer"
+                          >
+                            {expandedIds[prop.id] ? 'Hide options' : 'Choose another time'}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {expandedIds[prop.id] && (
+                  <div className="space-y-4 pt-3 border-t border-slate-200">
                   {/* VIOLATION ITEM HEADER */}
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 pb-3 border-b border-slate-200">
                     <div className="space-y-1">
@@ -1360,6 +1445,8 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                       </div>
                     )}
                   </div>
+                  </div>
+                  )}
                 </div>
               );
             })
@@ -1370,7 +1457,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
         <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>5 Calendar Defense Rules Active • Real-time iCal override & Google Calendar sync</span>
+            <span>Nothing moves without your approval. Every change is logged.</span>
           </div>
 
           <div className="flex items-center gap-2 justify-end">
@@ -1379,13 +1466,13 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
               onClick={handleDismiss}
               className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
             >
-              {successState ? 'Close' : 'Decline'}
+              {successState ? 'Close' : 'Decline all'}
             </button>
 
             {!successState && proposals.length > 0 && (
               <button
                 type="button"
-                disabled={isProcessing}
+                disabled={isProcessing || approvedCount === 0}
                 onClick={handleConfirm}
                 className="px-5 py-2.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold text-xs shadow-md shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-60"
               >
@@ -1397,7 +1484,7 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                 ) : (
                   <>
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Approve and move meetings</span>
+                    <span>{approvedCount === 0 ? 'Approve a change to continue' : `Move ${approvedCount} approved meeting${approvedCount === 1 ? '' : 's'}`}</span>
                   </>
                 )}
               </button>

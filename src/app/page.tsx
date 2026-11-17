@@ -14,6 +14,7 @@ import { GeminiProtocolCards } from '@/components/GeminiProtocolCards';
 import { GeminiChatDrawer } from '@/components/GeminiChatDrawer';
 import { TrichaChatWidget } from '@/components/TrichaChatWidget';
 import { CalendarSnippetWidget, DEFAULT_EVENTS, CalendarEventItem } from '@/components/CalendarSnippetWidget';
+import { getUpcomingISTDays } from '@/lib/istTime';
 import { WearablesInsightWidget } from '@/components/WearablesInsightWidget';
 import { GoogleCalendarPluginModal } from '@/components/GoogleCalendarPluginModal';
 import { CalendarDefenseModal } from '@/components/CalendarDefenseModal';
@@ -41,6 +42,7 @@ import { computeDynamicSynthesis } from '@/lib/gemini';
 import { saveUserDataToStorage, loadCachedUserData, loadUserDataForEmail } from '@/lib/storageService';
 import { getSupabaseClient, signOutUser, getProviderCalendarToken } from '@/lib/supabase';
 import { Pss10Card } from '@/components/Pss10Card';
+import { StressSummary } from '@/components/StressSummary';
 import { PrivacyAndActivityPanel } from '@/components/PrivacyAndActivityPanel';
 import { recordAudit } from '@/lib/auditLog';
 import type { Pss10Result } from '@/lib/pss10';
@@ -180,11 +182,29 @@ export default function BaalanceApp() {
         }
       }
     }
-    // 3. Fall back to clinical benchmark DEFAULT_EVENTS only for unintegrated demo/guest mode
+    // 3. Fall back to the sample events for unintegrated demo/guest mode
     return DEFAULT_EVENTS;
   }, [savedCalendarEvents, verifiedCalendarEmail, userProfile?.email, userProfile?.isDemo]);
 
   // Handler: Apply Verified Google Calendar Telemetry directly to Dashboard
+  // Guest demo: present the most recent sample week as the coming week, so the
+  // approval window always has upcoming meetings whatever today's date is.
+  const upcomingDemoEvents = React.useMemo(() => {
+    const dated = defenseEvents.filter((e: CalendarEventItem) => !e.isAllDay && e.dateKey && e.day);
+    if (dated.length === 0) return defenseEvents;
+    const lastKey = dated.reduce((max: string, e: CalendarEventItem) => (e.dateKey! > max ? e.dateKey! : max), '');
+    const weekStart = new Date(new Date(`${lastKey}T00:00:00Z`).getTime() - 6 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    const upcomingDays = new Map(getUpcomingISTDays(8).slice(1).map(d => [d.day, d]));
+    return dated
+      .filter((e: CalendarEventItem) => e.dateKey! >= weekStart)
+      .map((e: CalendarEventItem) => {
+        const d = upcomingDays.get(e.day);
+        return d ? { ...e, dateKey: d.dateKey, dayDate: d.dayDate, startDate: undefined } : e;
+      });
+  }, [defenseEvents]);
+
   const handleApplyCalendarTelemetry = (
     weeklyCalendar: any[],
     providerEmail?: string,
@@ -1168,8 +1188,16 @@ export default function BaalanceApp() {
     recordAudit('pss10_completed', { detail: { score: result.score, band: result.band } });
   };
 
+  // Signing out makes Supabase emit SIGNED_OUT, which calls this again: guard against the loop.
+  const signingOutRef = useRef(false);
   const handleSignOut = () => {
-    signOutUser().catch(console.warn);
+    if (signingOutRef.current) return;
+    signingOutRef.current = true;
+    signOutUser()
+      .catch(console.warn)
+      .finally(() => {
+        signingOutRef.current = false;
+      });
     if (typeof window !== 'undefined') {
       localStorage.removeItem('baalance_active_user_email');
       localStorage.removeItem('baalance_calendar_rules_applied');
@@ -1340,9 +1368,24 @@ export default function BaalanceApp() {
               {isAutoSyncingCalendar && !importSuccessMessage && (
                 <div className="p-3 rounded-2xl bg-blue-50/80 border border-blue-200 text-blue-900 text-xs font-semibold flex items-center gap-2 shadow-xs animate-pulse">
                   <RefreshCw className="w-4 h-4 text-[#3186FF] animate-spin shrink-0" />
-                  <span>Syncing live Google Calendar telemetry in background...</span>
+                  <span>Syncing your calendar in the background...</span>
                 </div>
               )}
+
+              <StressSummary
+                segments={segments}
+                telemetry={telemetry}
+                pss10={userProfile.pss10}
+                onSeeLateMeetings={() => setDashboardTab('calendar')}
+                onSeeScoreBreakdown={() => {
+                  setShowScoreDerivation(true);
+                  setTimeout(() => document.getElementById('score-breakdown')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+                }}
+                onTakeQuestionnaire={() => {
+                  setDashboardTab('profile');
+                  setTimeout(() => document.querySelector('[data-testid="pss10-card"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 120);
+                }}
+              />
 
               {/* 1. HERO OF STRESS TAB: 3-MONTH HAIR STRAND TIMELINE */}
               <InteractiveHairStrandViewer
@@ -1658,7 +1701,7 @@ export default function BaalanceApp() {
 
                     {/* Collapsible Content */}
                     {showScoreDerivation && (
-                      <div className="space-y-3 pt-2 animate-fade-in">
+                      <div id="score-breakdown" className="space-y-3 pt-2 animate-fade-in">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                           <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
                             <div className="flex items-center gap-1.5 font-bold text-black">
@@ -2480,7 +2523,7 @@ export default function BaalanceApp() {
         <CalendarDefenseModal
           isOpen={isDefenseModalOpen}
           onClose={() => setIsDefenseModalOpen(false)}
-          events={defenseEvents}
+          events={userProfile.isDemo ? upcomingDemoEvents : defenseEvents}
           userEmail={verifiedCalendarEmail || userProfile?.email || 'user@example.com'}
           userName={userProfile?.name || 'User'}
           onConfirmReschedules={handleConfirmDefenseReschedules}

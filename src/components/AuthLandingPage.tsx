@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Sparkles,
   ArrowRight,
@@ -18,6 +18,9 @@ import {
   Stethoscope,
   ShieldCheck,
   Layers,
+  Scissors,
+  FlaskConical,
+  CalendarClock,
 } from 'lucide-react';
 import { BaalanceLogo } from './BaalanceLogo';
 import {
@@ -40,6 +43,20 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
   onOpenEnterprise,
 }) => {
   const [portalMode, setPortalMode] = useState<'individual' | 'enterprise'>('individual');
+
+  // Only say the AI runs on Azure when the server is actually configured that way.
+  const [aiOnAzure, setAiOnAzure] = useState(false);
+  useEffect(() => {
+    fetch('/api/settings/gemini-key')
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => setAiOnAzure(d?.provider === 'azure'))
+      .catch(() => {});
+  }, []);
+
+  const scrollToSignIn = () => {
+    setPortalMode('individual');
+    setTimeout(() => document.getElementById('sign-in')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+  };
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
 
   // Enterprise domain input
@@ -176,6 +193,13 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
               </button>
               <button
                 type="button"
+                onClick={scrollToSignIn}
+                className="hidden sm:block px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
+              >
+                Sign in
+              </button>
+              <button
+                type="button"
                 onClick={onStartDemo}
                 className="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
               >
@@ -208,30 +232,77 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
 
       {/* Main Section */}
       <div className="max-w-4xl mx-auto w-full py-6 sm:py-10 space-y-6 text-center">
-        {/* Animated Brand Hero */}
-        <div className="flex flex-col items-center space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#E2E8F0] text-xs font-bold text-slate-800 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#BF6F4E]" />
-            <span>One snip of hair. Three months of stress, measured.</span>
+        {/* Hero: one message, one main button */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 md:gap-8 items-center text-left max-w-3xl mx-auto">
+          <div className="md:col-span-3 space-y-4">
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+              Your next stress test is <span className="text-[#BF6F4E]">a haircut.</span>
+            </h1>
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+              3 cm of hair holds 3 months of cortisol. Your calendar shows what caused it.
+            </p>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={onStartDemo}
+                className="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-md flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+              >
+                <Play className="w-3.5 h-3.5 fill-white" />
+                <span>Try the demo</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleOAuth('azure')}
+                disabled={oauthPending !== null}
+                className="px-4 py-3 rounded-xl border border-[#E2E8F0] bg-white hover:bg-slate-50 text-slate-900 font-bold text-sm flex items-center gap-2.5 transition-all cursor-pointer disabled:opacity-60"
+              >
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>
+                <span>{oauthPending === 'azure' ? 'Opening Microsoft…' : 'Continue with Microsoft'}</span>
+              </button>
+            </div>
+            <p className="text-xs text-slate-500">No account needed for the demo. Research stage, not a diagnosis.</p>
           </div>
 
-          <BaalanceLogo size="xl" showTagline={true} animated={true} />
-
-          {/* 3-Step Visual Strip */}
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs font-semibold text-slate-700 bg-white/80 backdrop-blur-xs py-2 px-4 rounded-full border border-slate-200/90 shadow-2xs max-w-xl mx-auto mt-1">
-            <span className="flex items-center gap-1.5">
-              <span>✂️</span> <span>Snip at a salon or at home</span>
-            </span>
-            <span className="text-slate-300 font-normal">→</span>
-            <span className="flex items-center gap-1.5">
-              <span>🧪</span> <span>Lab reads your cortisol</span>
-            </span>
-            <span className="text-slate-300 font-normal">→</span>
-            <span className="flex items-center gap-1.5">
-              <span className="text-[#3186FF] font-bold">✨</span> <span>AI finds what caused it</span>
-            </span>
+          <div className="md:col-span-2 bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-card" aria-label="Sample case: hair cortisol by month">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-bold text-slate-500">Sample case · pg/mg</span>
+              <span className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">Peak in August</span>
+            </div>
+            <div className="grid grid-cols-3 gap-3 items-end h-28">
+              <div className="rounded-t-lg bg-emerald-400" style={{ height: '39%' }} />
+              <div className="rounded-t-lg bg-rose-500" style={{ height: '100%' }} />
+              <div className="rounded-t-lg bg-amber-400" style={{ height: '55%' }} />
+            </div>
+            <div className="grid grid-cols-3 gap-3 text-center mt-1.5">
+              <div className="text-[11px] text-slate-600"><span className="font-bold text-slate-900">11.2</span><br />July</div>
+              <div className="text-[11px] text-slate-600"><span className="font-bold text-slate-900">28.4</span><br />August</div>
+              <div className="text-[11px] text-slate-600"><span className="font-bold text-slate-900">15.6</span><br />September</div>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-3 pt-3 border-t border-slate-100">
+              57 meetings after 7 PM in the same 90 days.
+            </p>
           </div>
         </div>
+
+        {/* How it works */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto text-left">
+          {[
+            { icon: Scissors, title: '1. Haircut, 3 cm lock', text: 'At a partner salon or at home.' },
+            { icon: FlaskConical, title: '2. Lab reads each month', text: '1 cm of hair is about 1 month.' },
+            { icon: CalendarClock, title: '3. Calendar shows why', text: 'You approve every change.' },
+          ].map(step => (
+            <div key={step.title} className="bg-white rounded-2xl border border-[#E2E8F0] p-4 shadow-2xs">
+              <step.icon className="w-4 h-4 text-[#BF6F4E]" />
+              <div className="text-sm font-extrabold text-slate-900 mt-2">{step.title}</div>
+              <div className="text-xs text-slate-600 mt-0.5">{step.text}</div>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-xs font-medium text-slate-500">
+          Pilot planned with 150 resident doctors at AIIMS New Delhi · Works with Outlook, Teams and Google Calendar
+          {aiOnAzure ? ' · AI on Microsoft Azure' : ''}
+        </p>
 
         {/* PRIMARY PORTAL SELECTOR: INDIVIDUAL VS ENTERPRISE */}
         <div className="inline-flex p-1.5 bg-slate-200/80 rounded-2xl border border-slate-300 shadow-2xs max-w-xl mx-auto">
@@ -266,70 +337,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
         {/* VIEW 1: INDIVIDUAL PORTAL                                */}
         {/* ======================================================== */}
         {portalMode === 'individual' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-2xl mx-auto text-left animate-in fade-in duration-150">
-            {/* Option 1: Instant Demo */}
-            <div className="bg-white rounded-2xl border-2 border-emerald-500/80 p-6 shadow-md hover:shadow-lg transition-all flex flex-col justify-between relative overflow-hidden ring-4 ring-emerald-500/10">
-              <div className="absolute top-0 right-0 w-28 h-28 bg-emerald-100/60 rounded-full blur-2xl pointer-events-none" />
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase tracking-wider">
-                    Interactive 90-Day Demo
-                  </div>
-                  <span className="text-[11px] font-bold text-slate-500">No login required</span>
-                </div>
-                <h3 className="text-lg font-black text-slate-900">
-                  See what your hair reveals
-                </h3>
-                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Sample 3-month hair cortisol case matched against 57 calls after 7 PM. Explore it without signing up.
-                </p>
-
-                {/* Hair Timeline & Score Preview Mini-Widget */}
-                <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="font-bold text-slate-700">3-Month Cortisol (pg/mg)</span>
-                    <span className="font-extrabold text-[#E05252] bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
-                      Score: 78 · High stress
-                    </span>
-                  </div>
-
-                  {/* 3 Monthly segments */}
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="bg-white p-1.5 rounded-lg border border-emerald-200 shadow-2xs">
-                      <div className="text-[10px] text-slate-500 font-medium">July (Tip)</div>
-                      <div className="text-xs font-black text-emerald-700">11.2</div>
-                      <div className="text-[9px] text-emerald-600 font-semibold">Healthy</div>
-                    </div>
-                    <div className="bg-white p-1.5 rounded-lg border border-rose-300 shadow-2xs ring-2 ring-rose-400/20">
-                      <div className="text-[10px] text-slate-500 font-medium">August</div>
-                      <div className="text-xs font-black text-[#E05252]">28.4 ⚠️</div>
-                      <div className="text-[9px] text-rose-600 font-semibold">Peak stress</div>
-                    </div>
-                    <div className="bg-white p-1.5 rounded-lg border border-amber-200 shadow-2xs">
-                      <div className="text-[10px] text-slate-500 font-medium">Sept (Root)</div>
-                      <div className="text-xs font-black text-amber-700">15.6</div>
-                      <div className="text-[9px] text-amber-600 font-semibold">Recovering</div>
-                    </div>
-                  </div>
-
-                  <div className="text-[10px] text-slate-500 flex items-center justify-between pt-1">
-                    <span>📅 57 calls past 7 PM</span>
-                    <span>✈️ 11 flights</span>
-                    <span>✨ AI action plan</span>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={onStartDemo}
-                className="mt-5 w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
-              >
-                <Play className="w-3.5 h-3.5 fill-white" />
-                <span>See a 90-day demo (no login)</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
+          <div id="sign-in" className="max-w-md mx-auto text-left animate-in fade-in duration-150">
             {/* Option 2: Authentication Card (Sign In / Sign Up) */}
             <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-card hover:shadow-cardHover transition-all flex flex-col justify-between">
               <div>
