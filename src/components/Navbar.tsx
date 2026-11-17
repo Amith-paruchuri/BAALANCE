@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { LogOut, Sparkles, User, Play, Compass, HelpCircle, Building2 } from 'lucide-react';
+import { LogOut, Sparkles, User, Play, HelpCircle, Building2 } from 'lucide-react';
 import { UserProfile } from '@/lib/types';
 import { BaalanceLogo } from './BaalanceLogo';
 import { DashboardTab } from './BottomNavigationBar';
@@ -10,7 +10,6 @@ interface NavbarProps {
   userProfile: UserProfile;
   activeTab: DashboardTab;
   onSelectTab: (tab: DashboardTab) => void;
-  onOpenAppGuide?: () => void;
   onOpenEnterprise?: () => void;
   onSignOut?: () => void;
 }
@@ -19,7 +18,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   userProfile,
   activeTab,
   onSelectTab,
-  onOpenAppGuide,
   onOpenEnterprise,
   onSignOut,
 }) => {
@@ -54,20 +52,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-
-          {/* How It Works Feature Guide Button */}
-          {onOpenAppGuide && (
-            <button
-              type="button"
-              onClick={onOpenAppGuide}
-              className="flex items-center gap-1.5 text-xs font-bold px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-black text-white shadow-2xs transition-all cursor-pointer"
-              title="60-second product tour"
-              aria-label="60-second product tour"
-            >
-              <Compass className="w-3.5 h-3.5 text-blue-400" />
-              <span>Tour</span>
-            </button>
-          )}
 
           {/* User Avatar Initial (Click switches to Profile tab) */}
           <button

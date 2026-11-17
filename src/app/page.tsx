@@ -19,7 +19,6 @@ import { WearablesInsightWidget } from '@/components/WearablesInsightWidget';
 import { GoogleCalendarPluginModal } from '@/components/GoogleCalendarPluginModal';
 import { CalendarDefenseModal } from '@/components/CalendarDefenseModal';
 import { ImportLabReportModal } from '@/components/ImportLabReportModal';
-import { AppGuideModal } from '@/components/AppGuideModal';
 import { PhoneSimulatorFrame } from '@/components/PhoneSimulatorFrame';
 import { PitchModeView } from '@/components/PitchModeView';
 import { EnterpriseDashboard } from '@/components/enterprise/EnterpriseDashboard';
@@ -155,7 +154,6 @@ export default function BaalanceApp() {
   const [importSuccessMessage, setImportSuccessMessage] = useState<string | null>(null);
   const [modalStep, setModalStep] = useState<'auth' | 'questionnaire'>('questionnaire');
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
-  const [isAppGuideOpen, setIsAppGuideOpen] = useState(false);
   const [isWearableModalOpen, setIsWearableModalOpen] = useState(false);
   const [isDefenseModalOpen, setIsDefenseModalOpen] = useState(false);
   const [isAutoSyncingCalendar, setIsAutoSyncingCalendar] = useState<boolean>(false);
@@ -1320,7 +1318,6 @@ export default function BaalanceApp() {
           userProfile={userProfile}
           activeTab={dashboardTab}
           onSelectTab={setDashboardTab}
-          onOpenAppGuide={() => setIsAppGuideOpen(true)}
           onOpenEnterprise={() => setAppStage('enterprise')}
           onSignOut={handleSignOut}
         />
@@ -2472,13 +2469,6 @@ export default function BaalanceApp() {
           onClose={() => setIsCalendarModalOpen(false)}
           userEmail={verifiedCalendarEmail}
           onApplyTelemetry={handleApplyCalendarTelemetry}
-        />
-
-        {/* App Guide & Feature Walkthrough Modal for Judges & Users */}
-        <AppGuideModal
-          isOpen={isAppGuideOpen}
-          onClose={() => setIsAppGuideOpen(false)}
-          onNavigateTab={(tab) => setDashboardTab(tab)}
         />
 
         {/* Import Hair Cortisol Lab Report Modal with Auto-Refresh */}
