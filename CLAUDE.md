@@ -26,6 +26,18 @@ or "BAALANCE AI". Prefer Microsoft features (Outlook/Teams via Graph, Azure Open
 - Data controls: `/api/storage/user-data` (GET export, DELETE), UI in `src/components/PrivacyAndActivityPanel.tsx`.
 - Demo data: `src/lib/mockData.ts` (fictional "Sample Case"; July 11.2, August 28.4, September 15.6 pg/mg).
 
+## Design system (set in November 2026)
+- Palette from the logo: teal `#0D4F59` (primary buttons, active states), terracotta `#BF6F4E` (eyebrows, accents),
+  cream canvas `#F6F2EC`, warm panels `#FBF7F2` with border `#EFE6DA`. `tailwind.config.ts` maps the `blue` and
+  `indigo` scales to teal, so do not reintroduce a separate blue.
+- Card pattern: `bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-5 sm:p-7`, then an uppercase terracotta
+  eyebrow (11px), a `text-xl sm:text-2xl font-black` title and a one-line subtitle. Secondary buttons are white with a
+  slate border.
+- Sentence case, plain words, no emoji in the interface, no em dashes. No invented clinical or lab claims; label sample
+  data as sample. Numbers shown to the user are computed from their data, never fixed text.
+- Stress tab components: `StressSummary`, `InteractiveHairStrandViewer`, `StressScoreCard`, `ChronoCorrelationChart`,
+  `GeminiProtocolCards` (the 3-step plan), `HairJourneyCard`. Profile tab: `ProfileSections.tsx`.
+
 ## Rules
 - Never commit `.env.local`, user data or the pitch deck (the repo is public and the owner does not want the idea copied).
 - Never store a calendar secret iCal URL on the server.
@@ -33,9 +45,8 @@ or "BAALANCE AI". Prefer Microsoft features (Outlook/Teams via Graph, Azure Open
 - Owner's writing preference for any submission text: no em dashes.
 
 ## Branches
-- `security-microsoft-ux` (PR #1): security fixes, Microsoft sign-in, Outlook/Teams, Azure OpenAI layer.
-- `ux-pass` (PR #2, built on #1): hydration fix, mobile navbar, sample-case banner, Gemini removed from visible UI.
-- Merge #1 then #2 into `main`; Vercel then deploys.
+- Work on a branch, open a PR against `main`, merge when the Vercel preview check passes; Vercel deploys `main` to baalance.in.
+- The live site runs on Azure OpenAI (`gpt-4.1-mini`) and Azure AI Content Safety (env vars set in Vercel).
 
 ## One-time setup still owed by the owner
 1. Reset the Google Calendar secret iCal address (it leaked in old commits).
