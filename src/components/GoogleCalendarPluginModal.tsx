@@ -210,8 +210,8 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
               <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-black">Google Calendar</h3>
-              <p className="text-[11px] text-slate-500">Sync meeting load & curfew calls</p>
+              <h3 className="text-sm font-bold text-black">Connect your calendar</h3>
+              <p className="text-[11px] text-slate-500">See your meeting load and late meetings</p>
             </div>
           </div>
 
@@ -237,7 +237,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                 >
                   <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
                     <svg aria-hidden="true" width="14" height="14" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>
-                    Connect Outlook / Teams
+                    Connect Outlook and Teams
                   </div>
                   <div className="text-[11px] text-slate-500 mt-1">Microsoft 365 work, school or personal account</div>
                 </button>
@@ -278,9 +278,9 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                   <Upload className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-black">Upload .ics Calendar File</div>
+                  <div className="text-xs font-bold text-black">Upload a calendar file (.ics)</div>
                   <div className="text-[11px] text-slate-500 mt-0.5">
-                    Click to browse or drop file here (works with all accounts including @aiims.edu)
+                    Choose a file or drop it here. Works with any calendar account.
                   </div>
                 </div>
                 <input
@@ -296,7 +296,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
               <div className="relative flex items-center justify-center my-1">
                 <div className="border-t border-[#E2E8F0] w-full" />
                 <span className="bg-white px-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  or sync live link
+                  or paste a private link
                 </span>
                 <div className="border-t border-[#E2E8F0] w-full" />
               </div>
@@ -305,9 +305,9 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs flex-wrap">
                     <Lock className="w-3.5 h-3.5 text-[#0D4F59]" />
-                    <span>Secret address in iCal format:</span>
+                    <span>Private calendar link</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-bold">
-                      💻 Desktop / Laptop Only
+                      Desktop only
                     </span>
                   </div>
 
@@ -317,7 +317,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                     className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#0D4F59] to-[#1D4ED8] hover:from-[#2563EB] hover:to-[#1E40AF] text-white text-[11px] font-bold shadow-xs hover:shadow transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer ring-2 ring-blue-400/30"
                   >
                     <Search className="w-3.5 h-3.5 text-white" />
-                    <span>{showSecretHelp ? '✕ HIDE GUIDE' : 'FIND MY SECRET LINK'}</span>
+                    <span>{showSecretHelp ? 'Hide guide' : 'Where do I find it?'}</span>
                   </button>
                 </div>
 
@@ -326,22 +326,22 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                     {/* Prominent Desktop Browser Notice */}
                     <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50/60 border-2 border-amber-300 flex items-start gap-2.5 text-left">
                       <div className="w-7 h-7 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-900 shrink-0 font-bold text-xs mt-0.5">
-                        💻
+                        
                       </div>
                       <div className="space-y-1 text-left">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs font-black text-amber-950 uppercase tracking-wide">
-                            Desktop / Laptop Browser Required
+                            Needs a desktop browser
                           </span>
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900">
-                            Not Visible on Mobile App
+                            Not shown in the mobile app
                           </span>
                         </div>
                         <p className="text-[11px] text-amber-900 leading-relaxed">
                           Google Calendar <strong>only reveals</strong> the <em>&ldquo;Integrate calendar&rdquo;</em> and <em>&ldquo;Secret address in iCal format&rdquo;</em> section when viewed on a <strong>Desktop / Laptop computer browser</strong>. The Google Calendar mobile phone app and mobile web browsers hide this link.
                         </p>
                         <p className="text-[10px] text-amber-800 font-medium">
-                          📱 <strong>On a phone right now?</strong> Open <em>calendar.google.com</em> on a computer (or switch your mobile browser to &ldquo;Desktop site&rdquo;), or use the <strong>Upload .ics Calendar File</strong> button above!
+                          <strong>On a phone right now?</strong> Open <em>calendar.google.com</em> on a computer (or switch your mobile browser to &ldquo;Desktop site&rdquo;), or use the <strong>Upload a calendar file (.ics)</strong> button above!
                         </p>
                       </div>
                     </div>
@@ -351,7 +351,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                       <div className="space-y-0.5">
                         <div className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
                           <Sparkles className="w-4 h-4 text-[#0D4F59]" />
-                          <span>Direct Google Calendar Shortcut (Opens Desktop Settings)</span>
+                          <span>Open your Google Calendar settings</span>
                         </div>
                         <p className="text-[11px] text-slate-600">
                           Click to open your Google Calendar Settings directly in a new tab:
@@ -407,7 +407,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                         <span className="font-mono text-[10px] text-slate-700 truncate">https://calendar.google.com/calendar/ical/.../basic.ics</span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-[10px] font-bold text-amber-700">⚠️ Do not copy Public URL</span>
+                        <span className="text-[10px] font-bold text-amber-700">Do not copy the public address</span>
                         <span className="text-slate-300">•</span>
                         <span className="text-[10px] text-emerald-700 font-semibold flex items-center gap-0.5">
                           <Lock className="w-3 h-3 inline" /> 256-bit Encrypted
@@ -430,7 +430,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                     disabled={!icalUrlInput.trim()}
                     className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-black disabled:opacity-50 text-white text-xs font-bold transition-all shrink-0 cursor-pointer"
                   >
-                    Sync Live
+                    Connect
                   </button>
                 </form>
 
@@ -445,7 +445,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
               <div className="p-3 rounded-2xl border border-[#E2E8F0] bg-slate-50/50 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-amber-500" />
-                  <span className="text-xs font-semibold text-slate-700">Preview with Demo Data</span>
+                  <span className="text-xs font-semibold text-slate-700">Or explore with the sample calendar</span>
                 </div>
 
                 <button
@@ -453,7 +453,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                   onClick={handleLoadDemoTelemetry}
                   className="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-white text-slate-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
                 >
-                  Load Demo
+                  Use sample
                 </button>
               </div>
             </div>
@@ -463,7 +463,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
           {stage === 'verifying' && (
             <div className="py-8 space-y-3 text-center">
               <RefreshCw className="w-8 h-8 text-[#0D4F59] animate-spin mx-auto" />
-              <p className="text-xs font-bold text-black">Parsing calendar telemetry...</p>
+              <p className="text-xs font-bold text-black">Reading your calendar...</p>
             </div>
           )}
 
@@ -473,17 +473,17 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
               <div className="flex items-center justify-between p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 font-bold">
                 <span className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Demo Calendar Telemetry Ingested</span>
+                  <span>Sample calendar loaded</span>
                 </span>
               </div>
 
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                  <div className="text-[10px] text-slate-500">Total Load</div>
+                  <div className="text-[10px] text-slate-500">Meeting hours</div>
                   <div className="text-base font-bold text-black font-mono mt-0.5">{verifiedData.totalMeetingHours} hrs</div>
                 </div>
                 <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl">
-                  <div className="text-[10px] text-rose-700">Post-7 PM</div>
+                  <div className="text-[10px] text-rose-700">After 7 PM</div>
                   <div className="text-base font-bold text-rose-700 font-mono mt-0.5">{verifiedData.eveningCalls} calls</div>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
@@ -497,7 +497,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                 onClick={onClose}
                 className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>View Dashboard</span>
+                <span>See my results</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -518,11 +518,11 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
 
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                  <div className="text-[10px] text-slate-500">Total Load</div>
+                  <div className="text-[10px] text-slate-500">Meeting hours</div>
                   <div className="text-base font-bold text-black font-mono mt-0.5">{verifiedData.totalMeetingHours} hrs</div>
                 </div>
                 <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl">
-                  <div className="text-[10px] text-rose-700">Post-7 PM</div>
+                  <div className="text-[10px] text-rose-700">After 7 PM</div>
                   <div className="text-base font-bold text-rose-700 font-mono mt-0.5">{verifiedData.eveningCalls} calls</div>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
@@ -553,7 +553,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                   onClick={handleApplyToDashboard}
                   className="flex-1 py-2 px-4 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <span>Apply Telemetry to Dashboard</span>
+                  <span>Use this calendar</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -578,7 +578,7 @@ export const GoogleCalendarPluginModal: React.FC<GoogleCalendarPluginModalProps>
                   onClick={handleLoadDemoTelemetry}
                   className="py-2 px-4 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold cursor-pointer"
                 >
-                  Load Demo Data
+                  Use sample Data
                 </button>
               </div>
             </div>

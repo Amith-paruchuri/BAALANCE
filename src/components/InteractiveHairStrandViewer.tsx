@@ -537,15 +537,15 @@ export const InteractiveHairStrandViewer = React.memo<InteractiveHairStrandViewe
                   </div>
                   <ul className="space-y-1.5 text-slate-600 text-[11.5px] mt-2">
                     <li className="flex items-start gap-1.5">
-                      <span className="text-rose-500 font-bold">✕</span>
+                      <span className="text-rose-500 font-bold"></span>
                       <span>Only captures a 15-minute point in time.</span>
                     </li>
                     <li className="flex items-start gap-1.5">
-                      <span className="text-rose-500 font-bold">✕</span>
+                      <span className="text-rose-500 font-bold"></span>
                       <span>Distorted by coffee, exercise, commute, or needle anxiety.</span>
                     </li>
                     <li className="flex items-start gap-1.5">
-                      <span className="text-rose-500 font-bold">✕</span>
+                      <span className="text-rose-500 font-bold"></span>
                       <span>Cannot distinguish temporary stress from 3-month burnout.</span>
                     </li>
                   </ul>

@@ -1702,9 +1702,9 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                               title={evt.isCurfewBreach ? `${evt.title} (${evt.startTime} - ${evt.endTime}) • Click to apply Calendar Defense & Reschedule` : `${evt.title} (${evt.startTime} - ${evt.endTime}) • Click to inspect Calendar Defense`}
                             >
                               <div className="font-bold text-[10px] leading-tight truncate flex items-center gap-1">
-                                {evt.category === 'birthday' && <span className="shrink-0">🎂</span>}
-                                {evt.category === 'personal' && <span className="shrink-0">💍</span>}
-                                {evt.category === 'festival' && <span className="shrink-0">🪔</span>}
+                                {evt.category === 'birthday' && <span className="shrink-0"></span>}
+                                {evt.category === 'personal' && <span className="shrink-0"></span>}
+                                {evt.category === 'festival' && <span className="shrink-0"></span>}
                                 <span className="truncate">{evt.title}</span>
                               </div>
                               <div className="text-[9px] opacity-90 mt-0.5 flex items-center justify-between flex-wrap gap-1">
@@ -1801,15 +1801,15 @@ export const CalendarSnippetWidget = React.memo<CalendarSnippetWidgetProps>(({
                   </span>
                 ) : evt.category === 'birthday' ? (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0 flex items-center gap-1">
-                    🎂 Birthday
+                    Birthday
                   </span>
                 ) : evt.category === 'personal' ? (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 shrink-0 flex items-center gap-1">
-                    🎉 Personal Milestone
+                    Personal Milestone
                   </span>
                 ) : evt.category === 'festival' ? (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 shrink-0 flex items-center gap-1">
-                    🇮🇳 Indian Festival
+                    Indian Festival
                   </span>
                 ) : (
                   <span className="text-[10px] text-slate-400 font-mono shrink-0">Day Window</span>

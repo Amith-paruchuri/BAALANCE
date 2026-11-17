@@ -149,7 +149,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
   const [customHealthCondition, setCustomHealthCondition] = useState('');
   const [showCustomHealthInput, setShowCustomHealthInput] = useState(false);
 
-  // Current Medications
+  // Medicines you take
   const [medications, setMedications] = useState<string[]>(userProfile.medications || ['none']);
   const [customMedication, setCustomMedication] = useState('');
   const [showCustomMedInput, setShowCustomMedInput] = useState(false);
@@ -332,19 +332,19 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
             <X className="w-4 h-4" />
           </button>
 
-          <BaalanceLogo size="md" showTagline={true} animated={true} />
+          <BaalanceLogo size="sm" showTagline={false} animated={true} />
 
           <div className="flex items-center gap-3 mt-2">
             <span className="text-xs text-[#5F6368]">
               {step === 'auth'
                 ? 'Clinical Specimen Authentication'
-                : 'Profile & Lifestyle Baseline Settings'}
+                : 'Your details and routine'}
             </span>
 
             {step === 'questionnaire' && (
               <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#0D4F59] border border-blue-200">
                 <Activity className="w-3 h-3" />
-                Est. Strain: {liveEstimatedStrain}/100
+                Estimated load: {liveEstimatedStrain}/100
               </span>
             )}
           </div>
@@ -354,15 +354,15 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
         <div className="p-5 sm:p-6 overflow-y-auto space-y-6 flex-1 text-xs">
           {step === 'auth' ? (
             <div className="space-y-4">
-              {/* Quick Demo Mode Pill Button */}
+              {/* Open sample Pill Button */}
               <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-1.5 text-xs font-semibold text-[#0D4F59]">
                     <Zap className="w-3.5 h-3.5" />
-                    <span>Evaluation Bypass Available</span>
+                    <span>Just looking?</span>
                   </div>
                   <p className="text-[11px] text-[#5F6368]">
-                    Auto-load sample profile (Dr. Elena Rostova, 68h/wk, Surge Case)
+                    Open the sample case without signing in.
                   </p>
                 </div>
                 <button
@@ -370,7 +370,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                   onClick={handleQuickDemoBypass}
                   className="px-3 py-1.5 rounded-lg bg-[#0D4F59] text-white text-xs font-semibold hover:bg-blue-600 transition-colors shadow-sm"
                 >
-                  Quick Demo Mode
+                  Open sample
                 </button>
               </div>
 
@@ -378,7 +378,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
               {/* Form */}
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#000000] mb-1">Clinic / Researcher Email</label>
+                  <label className="block text-xs font-semibold text-[#000000] mb-1">Email</label>
                   <div className="relative">
                     <Mail className="w-4 h-4 text-[#5F6368] absolute left-3 top-2.5" />
                     <input
@@ -418,7 +418,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                   onClick={() => setStep('questionnaire')}
                   className="w-full py-2.5 rounded-xl bg-[#0D4F59] text-white text-xs font-semibold hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center gap-2"
                 >
-                  <span>Sign In & Calibrate</span>
+                  <span>Continue</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -431,10 +431,10 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                   <div>
                     <h3 className="text-xs font-bold text-black flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5 text-[#0D4F59]" />
-                      <span>Demographic Baseline & Identity</span>
+                      <span>About you</span>
                     </h3>
                     <p className="text-[10px] text-[#5F6368] mt-0.5">
-                      Calibrates reference cortisol baselines and healthy recovery thresholds.
+                      Used to read your result in context.
                     </p>
                   </div>
                 </div>
@@ -442,7 +442,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 {/* 1. Full Legal Name (Top Priority before Age & Sex) */}
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Full Legal Name <span className="text-rose-500">*</span>
+                    Your name <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative max-w-md">
                     <User className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
@@ -483,7 +483,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                         biologicalSex === 'male' ? 'bg-white font-bold text-black shadow-xs' : 'text-slate-600 hover:text-black'
                       }`}
                     >
-                      Male ♂
+                      Male 
                     </button>
                     <button
                       type="button"
@@ -492,7 +492,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                         biologicalSex === 'female' ? 'bg-white font-bold text-black shadow-xs' : 'text-slate-600 hover:text-black'
                       }`}
                     >
-                      Female ♀
+                      Female 
                     </button>
                     <button
                       type="button"
@@ -547,7 +547,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-[#000000] flex items-center gap-1.5">
                     <Briefcase className="w-4 h-4 text-[#0D4F59]" />
-                    <span>Job Role & Sector Specialization</span>
+                    <span>Your work</span>
                   </label>
                 </div>
 
@@ -585,7 +585,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                   >
                     <span className="flex items-center gap-2">
                       <PlusCircle className="w-4 h-4" />
-                      <span>{isCustomRole ? 'Custom Role Mode Active' : '+ Enter Custom Job / Other Sector'}</span>
+                      <span>{isCustomRole ? 'Using your own job title' : '+ Enter a different job'}</span>
                     </span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">
                       {isCustomRole ? 'Active' : 'Custom'}
@@ -596,7 +596,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                     <div className="mt-2.5 p-3 rounded-xl bg-blue-50/30 border border-blue-200 grid grid-cols-1 sm:grid-cols-2 gap-2.5 animate-fade-in">
                       <div>
                         <label className="block text-[11px] font-semibold text-[#000000] mb-1">
-                          Custom Job Title / Profession
+                          Your job title
                         </label>
                         <input
                           type="text"
@@ -608,7 +608,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                       </div>
                       <div>
                         <label className="block text-[11px] font-semibold text-[#000000] mb-1">
-                          Industry / Domain Focus
+                          Your field
                         </label>
                         <input
                           type="text"
@@ -629,7 +629,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs font-bold text-[#000000] flex items-center gap-1.5">
                       <Clock className="w-3.5 h-3.5 text-[#0D4F59]" />
-                      <span>Weekly Working Hours</span>
+                      <span>Hours worked per week</span>
                     </label>
                     <span className="font-bold text-[#0D4F59] bg-white px-2 py-0.5 rounded-md border border-[#E2E8F0]">
                       {weeklyHours} hrs
@@ -645,9 +645,9 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                     className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0D4F59]"
                   />
                   <div className="flex justify-between text-[10px] text-[#5F6368] mt-1">
-                    <span>35h (Standard)</span>
-                    <span>65h (Surge)</span>
-                    <span>95h (Extreme)</span>
+                    <span>35 h</span>
+                    <span>65 h</span>
+                    <span>95 h</span>
                   </div>
                 </div>
 
@@ -655,33 +655,33 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                   <div>
                     <label className="text-xs font-bold text-[#000000] mb-1.5 flex items-center gap-1.5">
                       <Layers className="w-3.5 h-3.5 text-[#0D4F59]" />
-                      <span>Evening Work & Late Calls</span>
+                      <span>Evening work</span>
                     </label>
                     <select
                       value={workBoundaryBleed}
                       onChange={e => setWorkBoundaryBleed(e.target.value as WorkBoundaryBleed)}
                       className="w-full p-2 text-xs rounded-lg border border-[#E2E8F0] bg-white text-[#000000] focus:ring-2 focus:ring-[#0D4F59]"
                     >
-                      <option value="strict_boundaries">🌅 Stop by 7:00 PM (No late work)</option>
-                      <option value="occasional_bleed">🌗 Work until 9:00 PM sometimes</option>
-                      <option value="always_on_bed">🌑 Work late into the night / from bed</option>
+                      <option value="strict_boundaries">I stop by 7 PM</option>
+                      <option value="occasional_bleed">Sometimes until 9 PM</option>
+                      <option value="always_on_bed">Late into the night</option>
                     </select>
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-[#000000] mb-1.5 flex items-center gap-1.5">
                       <Plane className="w-3.5 h-3.5 text-sky-600" />
-                      <span>International Travel & Timezones</span>
+                      <span>Travel</span>
                     </label>
                     <select
                       value={travelFrequency}
                       onChange={e => setTravelFrequency(e.target.value as TravelFrequency)}
                       className="w-full p-2 text-xs rounded-lg border border-[#E2E8F0] bg-white text-[#000000] focus:ring-2 focus:ring-[#0D4F59]"
                     >
-                      <option value="none_domestic">✈️ None / Domestic travel only</option>
-                      <option value="occasional">🌍 Occasional (1–2 trips/year)</option>
-                      <option value="frequent_cross_meridian">🛫 Frequent (Monthly flights)</option>
-                      <option value="constant_nomad">🌐 Constant / Global nomad</option>
+                      <option value="none_domestic">Rarely</option>
+                      <option value="occasional">A trip or two a year</option>
+                      <option value="frequent_cross_meridian">Monthly flights</option>
+                      <option value="constant_nomad">Constantly</option>
                     </select>
                   </div>
                 </div>
@@ -692,7 +692,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-950">
                     <Bed className="w-4 h-4 text-indigo-600" />
-                    <span>Sleep Architecture & Nocturnal Recovery</span>
+                    <span>Sleep</span>
                   </div>
                   <span className="text-[11px] font-semibold text-indigo-600 font-mono">
                     Avg: {nightlySleepHours} hrs/night
@@ -702,7 +702,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[11px] font-semibold text-[#000000] mb-1">
-                      Average Nightly Sleep Duration
+                      Hours of sleep per night
                     </label>
                     <input
                       type="range"
@@ -714,25 +714,25 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                       className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                     />
                     <div className="flex justify-between text-[10px] text-[#5F6368] mt-1">
-                      <span>4h (Severe debt)</span>
+                      <span>4 h</span>
                       <span>6.5h</span>
-                      <span>9.5h (Surplus)</span>
+                      <span>9.5 h</span>
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-[11px] font-semibold text-[#000000] mb-1">
-                      Morning Awakening Sensation
+                      How you feel on waking
                     </label>
                     <select
                       value={sleepQuality}
                       onChange={e => setSleepQuality(e.target.value as SleepQuality)}
                       className="w-full p-2 text-xs rounded-lg border border-[#E2E8F0] bg-white text-[#000000] focus:ring-2 focus:ring-indigo-600"
                     >
-                      <option value="middle_night_awakenings">Frequent 3:00 AM Awakenings (Adrenal Spike)</option>
-                      <option value="exhausted_wired">Wake Up "Exhausted & Wired" (High Cortisol)</option>
-                      <option value="moderate">Moderate / Fragmented Light Sleep</option>
-                      <option value="fully_restored">Deeply Restored & Clear-Headed (NREM 3)</option>
+                      <option value="middle_night_awakenings">I often wake in the night</option>
+                      <option value="exhausted_wired">I wake up tired</option>
+                      <option value="moderate">Fair, a bit broken</option>
+                      <option value="fully_restored">I wake up rested</option>
                     </select>
                   </div>
                 </div>
@@ -740,10 +740,10 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
 
               {/* SECTION 4: CHRONOTYPE & CAFFEINE HABITS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Chronotype Affinity */}
+                {/* Your body clock */}
                 <div>
                   <label className="block text-xs font-bold text-[#000000] mb-1.5">
-                    Chronotype Affinity
+                    Your body clock
                   </label>
                   <div className="grid grid-cols-3 gap-1.5">
                     <button
@@ -756,8 +756,8 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                       }`}
                     >
                       <Sun className="w-4 h-4 mx-auto mb-1 text-amber-500" />
-                      <div className="font-semibold text-[11px]">Morning Lark</div>
-                      <div className="text-[9px] text-[#5F6368]">06:00–11:00 Peak</div>
+                      <div className="font-semibold text-[11px]">Morning person</div>
+                      <div className="text-[9px] text-[#5F6368]">Best 6 to 11 AM</div>
                     </button>
 
                     <button
@@ -771,7 +771,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                     >
                       <Moon className="w-4 h-4 mx-auto mb-1 text-indigo-500" />
                       <div className="font-semibold text-[11px]">Night Owl</div>
-                      <div className="text-[9px] text-[#5F6368]">18:00–23:00 Peak</div>
+                      <div className="text-[9px] text-[#5F6368]">Best 6 to 11 PM</div>
                     </button>
 
                     <button
@@ -785,7 +785,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                     >
                       <Activity className="w-4 h-4 mx-auto mb-1 text-purple-600" />
                       <div className="font-semibold text-[11px]">Shift Worker</div>
-                      <div className="text-[9px] text-[#5F6368]">Biphasic / Varied</div>
+                      <div className="text-[9px] text-[#5F6368]">Varies with shifts</div>
                     </button>
                   </div>
                 </div>
@@ -794,17 +794,17 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 <div>
                   <label className="block text-xs font-bold text-[#000000] mb-1.5 flex items-center gap-1.5">
                     <Coffee className="w-3.5 h-3.5 text-amber-600" />
-                    <span>First Caffeine Ingestion Timing</span>
+                    <span>First coffee or tea of the day</span>
                   </label>
                   <select
                     value={caffeineHabit}
                     onChange={e => setCaffeineHabit(e.target.value as CaffeineHabit)}
                     className="w-full p-2.5 text-xs rounded-xl border border-[#E2E8F0] bg-white text-[#000000] focus:ring-2 focus:ring-amber-500"
                   >
-                    <option value="no_coffee">No coffee / Zero caffeine consumption</option>
-                    <option value="immediate_waking">Within 30m of waking (Blunts adenosine clearance)</option>
-                    <option value="delayed_morning">Delayed 90–120m (Protects natural cortisol curve)</option>
-                    <option value="afternoon_excess">Afternoon / Evening cups (Blocks NREM deep sleep)</option>
+                    <option value="no_coffee">I do not have caffeine</option>
+                    <option value="immediate_waking">Within 30 minutes of waking</option>
+                    <option value="delayed_morning">90 minutes or more after waking</option>
+                    <option value="afternoon_excess">In the afternoon or evening</option>
                   </select>
                 </div>
               </div>
@@ -831,15 +831,15 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                   className="w-full h-2 bg-rose-200 rounded-lg appearance-none cursor-pointer accent-rose-600"
                 />
                 <div className="flex justify-between text-[10px] text-rose-800">
-                  <span>1: Centered & in control</span>
-                  <span>5: Moderate baseline strain</span>
-                  <span>10: Approaching functional exhaustion</span>
+                  <span>1: calm</span>
+                  <span>5: under strain</span>
+                  <span>10: exhausted</span>
                 </div>
 
                 {/* Somatic Manifestations */}
                 <div className="pt-2">
                   <span className="block text-[11px] font-semibold text-[#000000] mb-1.5">
-                    Active Somatic Stress Manifestations (Select all that apply):
+                    Physical signs of stress you notice (select all that apply)
                   </span>
                   <div className="grid grid-cols-2 gap-2">
                     {SOMATIC_OPTIONS.map(som => {
@@ -878,7 +878,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-bold text-[#000000] flex items-center gap-1.5">
                     <AlertTriangle className="w-4 h-4 text-amber-500" />
-                    <span>Chronic Stress Drivers</span>
+                    <span>What adds to your stress</span>
                   </label>
                   <span className="text-[11px] text-[#5F6368]">{stressDrivers.length} selected</span>
                 </div>
@@ -918,7 +918,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-bold text-[#000000] flex items-center gap-1.5">
                     <HeartPulse className="w-4 h-4 text-rose-500" />
-                    <span>Pre-Existing Health Conditions</span>
+                    <span>Health conditions</span>
                   </label>
                 </div>
 
@@ -964,7 +964,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                         onClick={() => setHealthConditions(prev => prev.filter(c => c !== custom))}
                         className="text-rose-600 hover:text-rose-800 text-xs px-1"
                       >
-                        ✕
+                        
                       </button>
                     </div>
                   ))}
@@ -1019,7 +1019,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-bold text-[#000000] flex items-center gap-1.5">
                     <Pill className="w-4 h-4 text-purple-600" />
-                    <span>Current Medications</span>
+                    <span>Medicines you take</span>
                   </label>
                 </div>
 
@@ -1065,7 +1065,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                         onClick={() => setMedications(prev => prev.filter(m => m !== custom))}
                         className="text-purple-600 hover:text-purple-800 text-xs px-1"
                       >
-                        ✕
+                        
                       </button>
                     </div>
                   ))}
@@ -1130,7 +1130,7 @@ export const AuthAndOnboardingModal: React.FC<AuthAndOnboardingModalProps> = ({
                   className="px-6 py-2.5 rounded-xl bg-[#0D4F59] text-white text-xs font-bold hover:bg-blue-600 transition-colors shadow-sm flex items-center gap-2 active:scale-95"
                 >
                   <Check className="w-3.5 h-3.5" />
-                  <span>Save Profile & Recalibrate</span>
+                  <span>Save changes</span>
                 </button>
               </div>
             </div>

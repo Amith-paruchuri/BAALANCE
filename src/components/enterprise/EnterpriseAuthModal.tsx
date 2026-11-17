@@ -130,7 +130,7 @@ export const EnterpriseAuthModal: React.FC<EnterpriseAuthModalProps> = ({
             className="w-full p-3 rounded-2xl border border-rose-200/80 bg-rose-50/50 hover:bg-rose-100/60 transition-all flex items-center justify-between text-left cursor-pointer group"
           >
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🏥</span>
+              <span className="text-2xl"></span>
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-black text-slate-900">Apollo & AIIMS Hospital Network</span>
@@ -151,7 +151,7 @@ export const EnterpriseAuthModal: React.FC<EnterpriseAuthModalProps> = ({
             className="w-full p-3 rounded-2xl border border-amber-200/80 bg-amber-50/50 hover:bg-amber-100/60 transition-all flex items-center justify-between text-left cursor-pointer group"
           >
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🎓</span>
+              <span className="text-2xl"></span>
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-black text-slate-900">St. Jude International Academy</span>
@@ -172,7 +172,7 @@ export const EnterpriseAuthModal: React.FC<EnterpriseAuthModalProps> = ({
             className="w-full p-3 rounded-2xl border border-blue-200/80 bg-blue-50/50 hover:bg-blue-100/60 transition-all flex items-center justify-between text-left cursor-pointer group"
           >
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🏢</span>
+              <span className="text-2xl"></span>
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-black text-slate-900">Nexus Technologies & Stripe Global</span>
