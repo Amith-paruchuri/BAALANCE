@@ -208,7 +208,7 @@ export const BaalanceLogo: React.FC<BaalanceLogoProps> = ({
       {showTagline && (
         <div className="mt-1 flex items-center justify-center">
           <span
-            className="font-sans text-[11px] sm:text-xs font-semibold tracking-[0.24em] text-[#0D4F59] uppercase transition-colors group-hover:text-[#3186FF]"
+            className="font-sans text-[11px] sm:text-xs font-semibold tracking-[0.24em] text-[#0D4F59] uppercase transition-colors group-hover:text-[#0D4F59]"
           >
             Your hair keeps the receipts.
           </span>

@@ -1,16 +1,19 @@
 import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#F0F4FA',
+  themeColor: '#F6F2EC',
 };
 
 export const metadata: Metadata = {
-  title: 'BAALANCE | "Your hair keeps the receipts." — 90-Day Hair Cortisol Diagnostics',
-  description: 'Clinical-grade 90-day hair cortisol analysis correlating segmented ELISA lab values with Google Calendar workloads and chronobiology. Your hair keeps the receipts.',
+  title: 'BAALANCE | Your next stress test is a haircut',
+  description: 'BAALANCE measures three months of stress from a small lock of hair, then uses your calendar to explain what caused it. Hair keeps the receipts. Research stage, not a diagnosis.',
   icons: {
     icon: '/favicon.ico',
   },
@@ -22,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-[#F0F4FA] text-[#000000] antialiased selection:bg-[#3186FF] selection:text-white">
+    <html lang="en" className={inter.variable}>
+      <body className="min-h-screen bg-[#F6F2EC] text-slate-900 font-sans antialiased selection:bg-[#0D4F59] selection:text-white">
         {children}
       </body>
     </html>

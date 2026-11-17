@@ -48,7 +48,7 @@ export const HairCortisolInput: React.FC<HairCortisolInputProps> = ({
     <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-card p-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
         <div className="flex items-center gap-2">
-          <FlaskConical className="w-5 h-5 text-[#3186FF]" />
+          <FlaskConical className="w-5 h-5 text-[#0D4F59]" />
           <h3 className="text-sm font-bold text-black">Hair Cortisol Telemetry (ELISA)</h3>
           <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 font-mono text-slate-600">
             pg/mg dry hair
@@ -57,9 +57,9 @@ export const HairCortisolInput: React.FC<HairCortisolInputProps> = ({
 
         <button
           onClick={onLoadSurgeScenario}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0F4FA] hover:bg-blue-50 text-xs font-semibold text-[#3186FF] border border-[#E2E8F0] transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F6F2EC] hover:bg-blue-50 text-xs font-semibold text-[#0D4F59] border border-[#E2E8F0] transition-colors"
         >
-          <Sparkles className="w-3.5 h-3.5 text-[#3186FF]" />
+          <Sparkles className="w-3.5 h-3.5 text-[#0D4F59]" />
           <span>Surge Scenario</span>
         </button>
       </div>
@@ -76,7 +76,7 @@ export const HairCortisolInput: React.FC<HairCortisolInputProps> = ({
               onClick={() => onSelectSegment(segment.id)}
               className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
                 isSelected
-                  ? 'border-[#3186FF] bg-blue-50/40 ring-1 ring-[#3186FF]/30 shadow-xs'
+                  ? 'border-[#0D4F59] bg-blue-50/40 ring-1 ring-[#0D4F59]/30 shadow-xs'
                   : 'border-[#E2E8F0] bg-white hover:border-slate-300 hover:bg-slate-50/50'
               }`}
             >
@@ -123,7 +123,7 @@ export const HairCortisolInput: React.FC<HairCortisolInputProps> = ({
                   onUpdateSegment(segment.id, parseFloat(e.target.value));
                 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#3186FF]"
+                className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0D4F59]"
               />
             </div>
           );

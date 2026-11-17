@@ -63,7 +63,7 @@ export const ConfounderNormalizationCard: React.FC<ConfounderNormalizationCardPr
 
         {activeUnitName && (
           <div className="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold self-start sm:self-auto">
-            Active Focus: <span className="text-[#3186FF]">{activeUnitName}</span>
+            Active Focus: <span className="text-[#0D4F59]">{activeUnitName}</span>
           </div>
         )}
       </div>

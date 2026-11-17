@@ -60,7 +60,7 @@ export const AuthVerificationModal: React.FC<AuthVerificationModalProps> = ({
         </button>
 
         {/* Top Animated Shield */}
-        <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#3186FF] to-[#6366F1] text-white flex items-center justify-center shadow-md mb-4">
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#0D4F59] to-[#16636E] text-white flex items-center justify-center shadow-md mb-4">
           {isSuccess ? (
             <CheckCircle2 className="w-7 h-7 text-white animate-bounce" />
           ) : isVerifying ? (
@@ -83,7 +83,7 @@ export const AuthVerificationModal: React.FC<AuthVerificationModalProps> = ({
 
         {/* User Card */}
         <div className="mt-4 p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-left flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[#3186FF] text-white flex items-center justify-center font-bold text-sm shrink-0">
+          <div className="w-9 h-9 rounded-full bg-[#0D4F59] text-white flex items-center justify-center font-bold text-sm shrink-0">
             {name.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
@@ -127,7 +127,7 @@ export const AuthVerificationModal: React.FC<AuthVerificationModalProps> = ({
         <button
           onClick={handleComplete}
           disabled={isVerifying}
-          className="mt-6 w-full py-2.5 px-4 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition-all active:scale-95"
+          className="mt-6 w-full py-2.5 px-4 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition-all active:scale-95"
         >
           <span>{isNewUser ? 'Continue to Demographic & Lifestyle Profile' : 'Enter Dashboard'}</span>
           <ArrowRight className="w-4 h-4" />

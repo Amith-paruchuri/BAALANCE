@@ -54,7 +54,7 @@ export const Pss10Card: React.FC<Pss10CardProps> = ({ result, history = [], onCo
     <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-6 sm:p-7 space-y-4" data-testid="pss10-card">
       <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#3186FF] flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0D4F59] flex items-center justify-center shrink-0">
             <ClipboardList className="w-4 h-4" />
           </div>
           <div>
@@ -69,7 +69,7 @@ export const Pss10Card: React.FC<Pss10CardProps> = ({ result, history = [], onCo
         <button
           type="button"
           onClick={open}
-          className="shrink-0 px-4 py-2.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+          className="shrink-0 px-4 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
         >
           {result ? 'Retake' : 'Start'}
         </button>
@@ -144,7 +144,7 @@ export const Pss10Card: React.FC<Pss10CardProps> = ({ result, history = [], onCo
                           key={option.value}
                           className={`text-[11px] sm:text-xs font-semibold text-center px-2 py-2 rounded-xl border cursor-pointer transition-colors ${
                             selected
-                              ? 'bg-[#3186FF] border-[#3186FF] text-white'
+                              ? 'bg-[#0D4F59] border-[#0D4F59] text-white'
                               : 'bg-white border-slate-200 text-slate-700 hover:bg-blue-50 hover:border-blue-200'
                           }`}
                         >
@@ -173,7 +173,7 @@ export const Pss10Card: React.FC<Pss10CardProps> = ({ result, history = [], onCo
                 type="button"
                 onClick={submit}
                 disabled={answered < PSS10_ITEMS.length}
-                className="px-5 py-2.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5"
+                className="px-5 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>See my score</span>

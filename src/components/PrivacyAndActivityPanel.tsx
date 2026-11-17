@@ -218,7 +218,7 @@ export const PrivacyAndActivityPanel: React.FC<PrivacyAndActivityPanelProps> = (
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs font-extrabold text-slate-800">
-            <History className="w-4 h-4 text-[#3186FF]" />
+            <History className="w-4 h-4 text-[#0D4F59]" />
             <span>Activity log</span>
           </div>
           <span className="text-[10px] font-semibold text-slate-500">

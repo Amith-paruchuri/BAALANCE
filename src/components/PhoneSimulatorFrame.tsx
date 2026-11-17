@@ -42,7 +42,7 @@ export const PhoneSimulatorFrame: React.FC<PhoneSimulatorFrameProps> = ({
       </div>
 
       {/* Realistic Mobile Device Mockup */}
-      <div className="relative w-[390px] h-[844px] max-h-[90vh] bg-[#F0F4FA] rounded-[50px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7),0_0_0_12px_#0F172A,0_0_0_14px_#334155] overflow-hidden flex flex-col border-[4px] border-slate-900 select-none">
+      <div className="relative w-[390px] h-[844px] max-h-[90vh] bg-[#F6F2EC] rounded-[50px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7),0_0_0_12px_#0F172A,0_0_0_14px_#334155] overflow-hidden flex flex-col border-[4px] border-slate-900 select-none">
         {/* Top Phone Chrome / Dynamic Island & Status Bar */}
         <div className="h-11 bg-white/95 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-7 shrink-0 z-40 relative">
           <span className="text-[12px] font-bold text-black font-sans tracking-tight">9:41</span>
@@ -61,7 +61,7 @@ export const PhoneSimulatorFrame: React.FC<PhoneSimulatorFrameProps> = ({
         </div>
 
         {/* Scrollable Device Screen Content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden relative bg-[#F0F4FA] no-scrollbar">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden relative bg-[#F6F2EC] no-scrollbar">
           {children}
         </div>
 

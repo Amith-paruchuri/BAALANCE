@@ -54,7 +54,7 @@ export const DepartmentBurnoutGraph: React.FC<DepartmentBurnoutGraphProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <BarChart3 className="w-4 h-4 text-[#3186FF]" />
+            <BarChart3 className="w-4 h-4 text-[#0D4F59]" />
             <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
               Department Comparison Chart
             </span>

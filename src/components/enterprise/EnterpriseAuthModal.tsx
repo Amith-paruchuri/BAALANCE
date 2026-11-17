@@ -61,7 +61,7 @@ export const EnterpriseAuthModal: React.FC<EnterpriseAuthModalProps> = ({
         </button>
 
         <div className="flex items-center gap-2 mb-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#3186FF] animate-pulse" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#0D4F59] animate-pulse" />
           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
             Institutional Access
           </span>
@@ -91,7 +91,7 @@ export const EnterpriseAuthModal: React.FC<EnterpriseAuthModalProps> = ({
                   setStatusMessage(null);
                 }}
                 placeholder="e.g. dr.malhotra@aiims.edu or sarah@stripe.com"
-                className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#3186FF] focus:outline-none bg-white text-black font-medium"
+                className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0D4F59] focus:outline-none bg-white text-black font-medium"
               />
             </div>
             {statusMessage && (

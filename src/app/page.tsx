@@ -388,7 +388,7 @@ export default function BaalanceApp() {
           category: evt.category === 'personal' ? 'personal' : 'strategy',
           colorBg: evt.category === 'personal'
             ? 'bg-[#6772E5] text-white border-indigo-700 shadow-xs ring-2 ring-emerald-400/50'
-            : 'bg-[#3186FF] text-white border-blue-600 shadow-xs ring-2 ring-emerald-400/50',
+            : 'bg-[#0D4F59] text-white border-blue-600 shadow-xs ring-2 ring-emerald-400/50',
           title: `${cleanTitle} (Defense Protected)`,
         };
 
@@ -563,7 +563,7 @@ export default function BaalanceApp() {
       const data = await res.json();
       if (data.success && data.weeklyTelemetry) {
         const colors = [
-          'bg-[#3186FF] text-white border-blue-600',
+          'bg-[#0D4F59] text-white border-blue-600',
           'bg-emerald-600 text-white border-emerald-700',
           'bg-purple-600 text-white border-purple-700',
           'bg-amber-600 text-white border-amber-700',
@@ -1223,8 +1223,8 @@ export default function BaalanceApp() {
   // STAGE 0: ENTERPRISE & INSTITUTIONAL WORKSPACE MODE
   if (!isStageResolved) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F0F4FA]" aria-busy="true">
-        <div className="w-8 h-8 rounded-full border-2 border-[#3186FF] border-t-transparent animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#F6F2EC]" aria-busy="true">
+        <div className="w-8 h-8 rounded-full border-2 border-[#0D4F59] border-t-transparent animate-spin" />
         <span className="sr-only">Loading BAALANCE</span>
       </div>
     );
@@ -1313,7 +1313,7 @@ export default function BaalanceApp() {
       isPhoneMode={isPhoneMode}
       onTogglePhoneMode={() => setIsPhoneMode(!isPhoneMode)}
     >
-      <div className="min-h-screen bg-[#F0F4FA] flex flex-col justify-between">
+      <div className="min-h-screen bg-[#F6F2EC] flex flex-col justify-between">
         {/* Decluttered Top Navigation Bar */}
         <Navbar
           userProfile={userProfile}
@@ -1324,15 +1324,15 @@ export default function BaalanceApp() {
         />
 
         {demoMode && userProfile.isDemo && (
-          <div className="bg-amber-50 border-b border-amber-200 font-sans">
+          <div className="bg-[#F3E4D7] border-b border-[#E6CDB8] font-sans">
             <div className="max-w-6xl mx-auto px-3 sm:px-6 py-2 flex items-center justify-between gap-3">
-              <p className="text-[11px] sm:text-xs text-amber-900 leading-snug">
+              <p className="text-[11px] sm:text-xs text-[#6B3A25] leading-snug">
                 <strong>Sample case.</strong> These results are illustrative, not a real patient.
               </p>
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="shrink-0 text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-900 text-white hover:bg-black cursor-pointer"
+                className="shrink-0 text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-lg bg-[#0D4F59] text-white hover:bg-[#0B434B] cursor-pointer"
               >
                 Create your account
               </button>
@@ -1365,7 +1365,7 @@ export default function BaalanceApp() {
               {/* Live Calendar Background Auto-Sync Indicator */}
               {isAutoSyncingCalendar && !importSuccessMessage && (
                 <div className="p-3 rounded-2xl bg-blue-50/80 border border-blue-200 text-blue-900 text-xs font-semibold flex items-center gap-2 shadow-xs animate-pulse">
-                  <RefreshCw className="w-4 h-4 text-[#3186FF] animate-spin shrink-0" />
+                  <RefreshCw className="w-4 h-4 text-[#0D4F59] animate-spin shrink-0" />
                   <span>Syncing your calendar in the background...</span>
                 </div>
               )}
@@ -1414,7 +1414,7 @@ export default function BaalanceApp() {
                 telemetry={telemetry}
                 activeSegmentId={activeSegmentId}
                 onSelectSegment={(id) => setActiveSegmentId(id)}
-                isCalendarConnected={!!savedCalendarIcalUrl || (savedCalendarEvents && savedCalendarEvents.length > 0)}
+                isCalendarConnected={!userProfile.isDemo && (!!savedCalendarIcalUrl || (savedCalendarEvents && savedCalendarEvents.length > 0))}
                 calendarEmail={verifiedCalendarEmail}
                 userRole={userProfile.role}
               />
@@ -1437,95 +1437,84 @@ export default function BaalanceApp() {
           {/* TAB 2: GOOGLE CALENDAR & TELEMETRY INSIGHTS */}
           {dashboardTab === 'calendar' && (
             <div className="space-y-4 sm:space-y-5 animate-fade-in">
-              {/* Calendar Overview & Sync Bar */}
-              <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#3186FF]">
-                    <Calendar className="w-5 h-5" />
-                  </div>
+              {/* Calendar header: status, actions and the three numbers that matter */}
+              <section className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-5 sm:p-7 space-y-5" aria-label="Your calendar load">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-black">Your calendar</h3>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-bold border border-emerald-200 flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                        <span>Connected</span>
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-[#BF6F4E]">Calendar tells us why</div>
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">Your calendar load</h2>
+                    <p className="text-xs sm:text-sm text-slate-600 mt-1 flex items-center gap-1.5 flex-wrap">
+                      <span
+                        className={`w-2 h-2 rounded-full ${verifiedCalendarEmail ? 'bg-emerald-500' : userProfile.isDemo ? 'bg-amber-400' : 'bg-slate-300'}`}
+                      />
+                      <span className="truncate max-w-[16rem] sm:max-w-md">
+                        {verifiedCalendarEmail
+                          ? `Connected: ${verifiedCalendarEmail}`
+                          : userProfile.isDemo
+                          ? 'Sample calendar, last 90 days'
+                          : 'Not connected yet'}
                       </span>
-                    </div>
-                    <p className="text-xs text-slate-500 font-mono mt-0.5 truncate max-w-xs sm:max-w-md">
-                      {verifiedCalendarEmail || (userProfile.isDemo ? 'Sample calendar' : 'Not connected yet')}
                     </p>
                   </div>
+
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleApplyCalendarRules}
+                      className="px-4 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-[#0B434B] text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {calendarRulesApplied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                      <span>{calendarRulesApplied ? 'Review changes again' : 'Review suggested changes'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsCalendarModalOpen(true)}
+                      className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                      <span>Connect Outlook or Google</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleApplyCalendarRules}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer ${
-                      calendarRulesApplied
-                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200'
-                        : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                    }`}
-                  >
-                    {calendarRulesApplied ? (
-                      <>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                        <span>✓ Rules Enforced</span>
-                      </>
-                    ) : (
-                      <>
-                        <ShieldCheck className="w-3.5 h-3.5" />
-                        <span>Apply Calendar Rules</span>
-                      </>
-                    )}
-                  </button>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-4 rounded-2xl bg-rose-50/60 border border-rose-200/80">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-rose-700">
+                      <Moon className="w-3.5 h-3.5" />
+                      <span>Meetings after 7 PM</span>
+                    </div>
+                    <div className="mt-1.5 flex items-baseline gap-1.5">
+                      <span className="text-2xl font-extrabold text-slate-900 font-mono">{totalEveningCalls}</span>
+                      <span className="text-xs font-semibold text-slate-500">in 90 days</span>
+                    </div>
+                    <div className="text-[11px] text-rose-700 font-semibold mt-1">The first thing to change</div>
+                  </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setIsCalendarModalOpen(true)}
-                    className="px-3.5 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span>Connect Outlook or Google</span>
-                  </button>
-                </div>
-              </div>
+                  <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>Meeting hours</span>
+                    </div>
+                    <div className="mt-1.5 flex items-baseline gap-1.5">
+                      <span className="text-2xl font-extrabold text-slate-900 font-mono">{Math.round(totalMeetingHours / 12)}</span>
+                      <span className="text-xs font-semibold text-slate-500">per week</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-1">{Math.round(totalMeetingHours)} hours in 90 days</div>
+                  </div>
 
-              {/* Metric Summary Grid (Cleaned: Meeting hours, Calls after 7 PM, Flights) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center font-sans">
-                <div className="p-4 bg-white rounded-2xl border border-[#E2E8F0] shadow-2xs">
-                  <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 mb-1">
-                    <Clock className="w-4 h-4 text-[#3186FF]" />
-                    <span>Meeting Hours</span>
+                  <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+                      <Plane className="w-3.5 h-3.5" />
+                      <span>Flights</span>
+                    </div>
+                    <div className="mt-1.5 flex items-baseline gap-1.5">
+                      <span className="text-2xl font-extrabold text-slate-900 font-mono">{totalFlights}</span>
+                      <span className="text-xs font-semibold text-slate-500">in 90 days</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-1">Travel across time zones disrupts sleep</div>
                   </div>
-                  <div className="text-2xl font-bold text-black font-mono">
-                    {Math.round(totalMeetingHours / 12)} <span className="text-xs text-slate-500 font-normal">hrs / wk</span>
-                  </div>
-                  <div className="text-[11px] text-slate-400 mt-1">{Math.round(totalMeetingHours)} total hours (90 days)</div>
                 </div>
-
-                <div className="p-4 bg-rose-50/50 rounded-2xl border border-rose-200 shadow-2xs">
-                  <div className="flex items-center justify-center gap-1.5 text-xs text-rose-700 mb-1">
-                    <Moon className="w-4 h-4 text-rose-600" />
-                    <span>Calls after 7 PM</span>
-                  </div>
-                  <div className="text-2xl font-bold text-rose-700 font-mono">
-                    {totalEveningCalls} <span className="text-xs text-rose-500 font-normal">calls</span>
-                  </div>
-                  <div className="text-[11px] text-rose-600 mt-1 font-semibold">Biggest stress trigger</div>
-                </div>
-
-                <div className="p-4 bg-white rounded-2xl border border-[#E2E8F0] shadow-2xs">
-                  <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 mb-1">
-                    <Plane className="w-4 h-4 text-amber-500" />
-                    <span>Flights</span>
-                  </div>
-                  <div className="text-2xl font-bold text-black font-mono">
-                    {totalFlights || 11} <span className="text-xs text-slate-500 font-normal">flights</span>
-                  </div>
-                  <div className="text-[11px] text-slate-400 mt-1">Jet lag adds stress</div>
-                </div>
-              </div>
+              </section>
 
               {/* Interactive Calendar Feed Agenda Widget */}
               <CalendarSnippetWidget
@@ -1581,8 +1570,8 @@ export default function BaalanceApp() {
                   <div className="flex items-center gap-4">
                     {/* Glowing Dual-Tone Monogram Avatar */}
                     <div className="relative shrink-0">
-                      <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-3xl bg-gradient-to-tr from-[#3186FF] via-[#6366F1] to-purple-600 p-[2px] shadow-sm">
-                        <div className="w-full h-full bg-white rounded-[22px] flex items-center justify-center font-black text-2xl text-transparent bg-clip-text bg-gradient-to-tr from-[#3186FF] to-purple-600">
+                      <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-3xl bg-gradient-to-tr from-[#0D4F59] via-[#16636E] to-purple-600 p-[2px] shadow-sm">
+                        <div className="w-full h-full bg-white rounded-[22px] flex items-center justify-center font-black text-2xl text-transparent bg-clip-text bg-gradient-to-tr from-[#0D4F59] to-purple-600">
                           {(userProfile.name || 'U').charAt(0).toUpperCase()}
                         </div>
                       </div>
@@ -1596,7 +1585,7 @@ export default function BaalanceApp() {
                         <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none">
                           {userProfile.name}
                         </h2>
-                        <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-50 text-[#3186FF] border border-blue-200">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-50 text-[#0D4F59] border border-blue-200">
                           {userProfile.isDemo ? 'Sample' : 'Member'}
                         </span>
                       </div>
@@ -1622,13 +1611,13 @@ export default function BaalanceApp() {
                       }}
                       className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer shrink-0"
                     >
-                      <SlidersHorizontal className="w-3.5 h-3.5 text-[#3186FF]" />
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-[#0D4F59]" />
                       <span>Edit Baseline</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setAppStage('wizard')}
-                      className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
+                      className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
                       <span>Re-run Setup</span>
@@ -1654,7 +1643,7 @@ export default function BaalanceApp() {
                     <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
                       Partner Lab Baseline
                     </span>
-                    <div className="text-sm font-black text-[#3186FF] font-mono">
+                    <div className="text-sm font-black text-[#0D4F59] font-mono">
                       ~11.0 pg/mg
                     </div>
                     <span className="text-[11px] text-emerald-700 font-medium block">
@@ -1692,7 +1681,7 @@ export default function BaalanceApp() {
                 <div className="pt-2 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                      <Brain className="w-4 h-4 text-[#3186FF]" />
+                      <Brain className="w-4 h-4 text-[#0D4F59]" />
                       <span>Your lifestyle</span>
                     </div>
                     <span className="text-[11px] text-slate-500 font-medium">
@@ -1760,16 +1749,16 @@ export default function BaalanceApp() {
                       }}
                       className={`p-4 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden ${
                         userProfile.role.includes('Founder') || userProfile.role.includes('Tech')
-                          ? 'bg-blue-50/70 border-[#3186FF] ring-2 ring-[#3186FF]/20 shadow-xs'
+                          ? 'bg-blue-50/70 border-[#0D4F59] ring-2 ring-[#0D4F59]/20 shadow-xs'
                           : 'bg-white hover:bg-slate-50 border-slate-200'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <div className="w-9 h-9 rounded-xl bg-blue-100 text-[#3186FF] flex items-center justify-center font-bold">
+                        <div className="w-9 h-9 rounded-xl bg-blue-100 text-[#0D4F59] flex items-center justify-center font-bold">
                           <Zap className="w-4 h-4" />
                         </div>
                         {userProfile.role.includes('Founder') || userProfile.role.includes('Tech') ? (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#3186FF] text-white shadow-2xs">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0D4F59] text-white shadow-2xs">
                             Active Calibration
                           </span>
                         ) : null}
@@ -1828,7 +1817,7 @@ export default function BaalanceApp() {
               <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-6 sm:p-7 space-y-5">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#3186FF] flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0D4F59] flex items-center justify-center">
                       <SlidersHorizontal className="w-4 h-4" />
                     </div>
                     <div>
@@ -1849,10 +1838,10 @@ export default function BaalanceApp() {
                   {/* Weekly Workload Card */}
                   <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
                     <div className="flex items-center justify-between">
-                      <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#3186FF] flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#0D4F59] flex items-center justify-center">
                         <Clock className="w-4 h-4" />
                       </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#3186FF]">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#0D4F59]">
                         Weekly Load
                       </span>
                     </div>
@@ -1976,7 +1965,7 @@ export default function BaalanceApp() {
                     {(userProfile.stressDrivers || ['evening_meetings', 'sleep_debt']).map((driver, idx) => (
                       <span
                         key={idx}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50/70 border border-blue-200 text-[#3186FF] text-xs font-bold capitalize shadow-2xs"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50/70 border border-blue-200 text-[#0D4F59] text-xs font-bold capitalize shadow-2xs"
                       >
                         <Flame className="w-3.5 h-3.5 text-rose-500" />
                         <span>{driver.replace(/_/g, ' ')}</span>
@@ -2029,7 +2018,7 @@ export default function BaalanceApp() {
 
                   <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
                     <div className="flex items-center gap-2 text-xs font-extrabold text-slate-900">
-                      <Pill className="w-4 h-4 text-[#3186FF]" />
+                      <Pill className="w-4 h-4 text-[#0D4F59]" />
                       <span>Daily Prescriptions & Medications</span>
                     </div>
                     <div className="text-xs font-semibold text-slate-800 bg-white p-3 rounded-xl border border-slate-200/70">
@@ -2072,7 +2061,7 @@ export default function BaalanceApp() {
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#3186FF]">
+                    <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#0D4F59]">
                       <Database className="w-4 h-4" />
                     </div>
                     <div>
@@ -2100,7 +2089,7 @@ export default function BaalanceApp() {
                         setModalStep('questionnaire');
                         setIsLifestyleModalOpen(true);
                       }}
-                      className="px-4 py-2.5 rounded-xl bg-[#3186FF] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+                      className="px-4 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
                     >
                       Update Lifestyle Questionnaire
                     </button>
@@ -2254,7 +2243,7 @@ export default function BaalanceApp() {
 
               {/* Informative Callout */}
               <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-left text-xs text-blue-950 leading-relaxed flex items-start gap-2.5">
-                <Sparkles className="w-4 h-4 text-[#3186FF] shrink-0 mt-0.5" />
+                <Sparkles className="w-4 h-4 text-[#0D4F59] shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold">Hardware OAuth Pipeline:</span>
                   <span className="text-blue-900 block mt-0.5 text-[11px]">

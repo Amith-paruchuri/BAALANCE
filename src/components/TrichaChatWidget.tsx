@@ -273,7 +273,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
         {/* Header */}
         <div className="p-3.5 sm:p-4 bg-gradient-to-r from-blue-50/80 via-slate-50 to-purple-50/80 border-b border-slate-200 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#3186FF] via-[#6366F1] to-[#FB7185] text-white flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#0D4F59] via-[#16636E] to-[#FB7185] text-white flex items-center justify-center shadow-xs shrink-0">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
@@ -284,7 +284,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                   <span>BAALANCE AI</span>
                 </span>
                 {isKeyConfigured && (
-                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#3186FF] border border-blue-200">
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#0D4F59] border border-blue-200">
                     Live API Active
                   </span>
                 )}
@@ -314,7 +314,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
               className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-[#E2E8F0] text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer shrink-0"
               title="Use your own AI key"
             >
-              <Key className="w-3.5 h-3.5 text-[#3186FF]" />
+              <Key className="w-3.5 h-3.5 text-[#0D4F59]" />
               <span className="hidden sm:inline">{isKeyConfigured ? 'API Connected' : 'Add AI key'}</span>
             </button>
           </div>
@@ -325,7 +325,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
           <div className="p-3.5 bg-blue-50/70 border-b border-blue-200 text-xs animate-fade-in space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 font-bold text-black">
-                <Key className="w-4 h-4 text-[#3186FF]" />
+                <Key className="w-4 h-4 text-[#0D4F59]" />
                 <span>Use your own AI key:</span>
               </div>
               <button
@@ -347,12 +347,12 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                 value={keyInput}
                 onChange={e => setKeyInput(e.target.value)}
                 placeholder="Paste your key"
-                className="flex-1 p-2 text-xs rounded-xl border border-slate-300 bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#3186FF]"
+                className="flex-1 p-2 text-xs rounded-xl border border-slate-300 bg-white font-mono focus:outline-none focus:ring-1 focus:ring-[#0D4F59]"
               />
               <button
                 type="submit"
                 disabled={isVerifyingKey || !keyInput.trim()}
-                className="px-4 py-2 rounded-xl bg-[#3186FF] hover:bg-blue-600 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
+                className="px-4 py-2 rounded-xl bg-[#0D4F59] hover:bg-blue-600 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
               >
                 {isVerifyingKey ? (
                   <>
@@ -384,7 +384,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                 href="https://aistudio.google.com/app/apikey"
                 target="_blank"
                 rel="noreferrer"
-                className="text-[#3186FF] font-semibold hover:underline flex items-center gap-0.5"
+                className="text-[#0D4F59] font-semibold hover:underline flex items-center gap-0.5"
               >
                 <span>Get API Key</span>
                 <ExternalLink className="w-2.5 h-2.5" />
@@ -405,7 +405,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                 <div
                   className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold ${
                     isTricha
-                      ? 'bg-gradient-to-tr from-[#3186FF] to-[#6366F1] text-white shadow-2xs'
+                      ? 'bg-gradient-to-tr from-[#0D4F59] to-[#16636E] text-white shadow-2xs'
                       : 'bg-slate-800 text-white'
                   }`}
                 >
@@ -417,8 +417,8 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                     msg.safety === 'crisis'
                       ? 'bg-rose-50 border-2 border-rose-300 text-slate-900 rounded-tl-xs'
                       : isTricha
-                      ? 'bg-[#F0F4FA] border border-[#E2E8F0] text-slate-900 rounded-tl-xs'
-                      : 'bg-[#3186FF] text-white rounded-tr-xs shadow-xs'
+                      ? 'bg-[#F6F2EC] border border-[#E2E8F0] text-slate-900 rounded-tl-xs'
+                      : 'bg-[#0D4F59] text-white rounded-tr-xs shadow-xs'
                   }`}
                   {...(msg.safety === 'crisis' ? { role: 'alert' } : {})}
                 >
@@ -455,7 +455,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
 
           {isLoading && (
             <div className="flex items-center gap-2.5 text-xs text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-200 max-w-[70%]">
-              <RefreshCw className="w-4 h-4 animate-spin text-[#3186FF]" />
+              <RefreshCw className="w-4 h-4 animate-spin text-[#0D4F59]" />
               <span>Tricha is finding the cause...</span>
             </div>
           )}
@@ -470,7 +470,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
               key={idx}
               type="button"
               onClick={() => handleSendMessage(chip)}
-              className="shrink-0 text-xs font-medium text-slate-700 bg-white hover:bg-blue-50 hover:text-[#3186FF] hover:border-blue-200 px-3 py-1.5 rounded-full border border-slate-200 transition-colors shadow-2xs cursor-pointer"
+              className="shrink-0 text-xs font-medium text-slate-700 bg-white hover:bg-blue-50 hover:text-[#0D4F59] hover:border-blue-200 px-3 py-1.5 rounded-full border border-slate-200 transition-colors shadow-2xs cursor-pointer"
             >
               {chip}
             </button>
@@ -494,12 +494,12 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
             value={inputPrompt}
             onChange={(e) => setInputPrompt(e.target.value)}
             placeholder="Ask Tricha about your cortisol timeline, late calls, or burnout score..."
-            className="flex-1 text-xs sm:text-sm px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3186FF] bg-slate-50/50"
+            className="flex-1 text-xs sm:text-sm px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0D4F59] bg-slate-50/50"
           />
           <button
             type="submit"
             disabled={!inputPrompt.trim() || isLoading}
-            className="px-4 py-2.5 rounded-xl bg-[#3186FF] text-white hover:bg-blue-600 disabled:opacity-40 transition-colors shadow-xs flex items-center gap-1.5 font-semibold text-xs cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-[#0D4F59] text-white hover:bg-blue-600 disabled:opacity-40 transition-colors shadow-xs flex items-center gap-1.5 font-semibold text-xs cursor-pointer"
           >
             <span>Send</span>
             <Send className="w-3.5 h-3.5" />
@@ -515,7 +515,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
       <div className="fixed bottom-20 right-5 z-30 flex items-center gap-2.5">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-12 h-12 rounded-full bg-[#3186FF] text-white flex items-center justify-center shadow-lg hover:scale-105 transition-all cursor-pointer"
+          className="w-12 h-12 rounded-full bg-[#0D4F59] text-white flex items-center justify-center shadow-lg hover:scale-105 transition-all cursor-pointer"
           title="Open Tricha AI"
         >
           {isOpen ? <X className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}

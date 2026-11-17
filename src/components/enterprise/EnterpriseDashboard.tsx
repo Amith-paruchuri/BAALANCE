@@ -79,7 +79,7 @@ export const EnterpriseDashboard: React.FC<EnterpriseDashboardProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans selection:bg-[#3186FF] selection:text-white pb-16">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans selection:bg-[#0D4F59] selection:text-white pb-16">
       {/* Top Slack-style Workspace Header */}
       <EnterpriseWorkspaceSwitcher
         currentOrg={currentOrg}
