@@ -43,6 +43,7 @@ import { getSupabaseClient, signOutUser, getProviderCalendarToken } from '@/lib/
 import { Pss10Card } from '@/components/Pss10Card';
 import { StressSummary } from '@/components/StressSummary';
 import { StressScoreCard } from '@/components/StressScoreCard';
+import { CalendarLoadHero } from '@/components/CalendarLoadHero';
 import { ProfileOverview, MedicalHistoryCard, AccountCard } from '@/components/ProfileSections';
 import { PrivacyAndActivityPanel } from '@/components/PrivacyAndActivityPanel';
 import { recordAudit } from '@/lib/auditLog';
@@ -1437,84 +1438,14 @@ export default function BaalanceApp() {
           {/* TAB 2: GOOGLE CALENDAR & TELEMETRY INSIGHTS */}
           {dashboardTab === 'calendar' && (
             <div className="space-y-4 sm:space-y-5 animate-fade-in">
-              {/* Calendar header: status, actions and the three numbers that matter */}
-              <section className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-5 sm:p-7 space-y-5" aria-label="Your calendar load">
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                  <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-[#BF6F4E]">Calendar tells us why</div>
-                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">Your calendar load</h2>
-                    <p className="text-xs sm:text-sm text-slate-600 mt-1 flex items-center gap-1.5 flex-wrap">
-                      <span
-                        className={`w-2 h-2 rounded-full ${verifiedCalendarEmail ? 'bg-emerald-500' : userProfile.isDemo ? 'bg-amber-400' : 'bg-slate-300'}`}
-                      />
-                      <span className="truncate max-w-[16rem] sm:max-w-md">
-                        {verifiedCalendarEmail
-                          ? `Connected: ${verifiedCalendarEmail}`
-                          : userProfile.isDemo
-                          ? 'Sample calendar, last 90 days'
-                          : 'Not connected yet'}
-                      </span>
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2 shrink-0">
-                    <button
-                      type="button"
-                      onClick={handleApplyCalendarRules}
-                      className="px-4 py-2.5 rounded-xl bg-[#0D4F59] hover:bg-[#0B434B] text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
-                    >
-                      {calendarRulesApplied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
-                      <span>{calendarRulesApplied ? 'Review changes again' : 'Review suggested changes'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsCalendarModalOpen(true)}
-                      className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Connect Outlook or Google</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="p-4 rounded-2xl bg-rose-50/60 border border-rose-200/80">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-rose-700">
-                      <Moon className="w-3.5 h-3.5" />
-                      <span>Meetings after 7 PM</span>
-                    </div>
-                    <div className="mt-1.5 flex items-baseline gap-1.5">
-                      <span className="text-2xl font-extrabold text-slate-900 font-mono">{totalEveningCalls}</span>
-                      <span className="text-xs font-semibold text-slate-500">in 90 days</span>
-                    </div>
-                    <div className="text-[11px] text-rose-700 font-semibold mt-1">The first thing to change</div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>Meeting hours</span>
-                    </div>
-                    <div className="mt-1.5 flex items-baseline gap-1.5">
-                      <span className="text-2xl font-extrabold text-slate-900 font-mono">{Math.round(totalMeetingHours / 12)}</span>
-                      <span className="text-xs font-semibold text-slate-500">per week</span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 mt-1">{Math.round(totalMeetingHours)} hours in 90 days</div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
-                      <Plane className="w-3.5 h-3.5" />
-                      <span>Flights</span>
-                    </div>
-                    <div className="mt-1.5 flex items-baseline gap-1.5">
-                      <span className="text-2xl font-extrabold text-slate-900 font-mono">{totalFlights}</span>
-                      <span className="text-xs font-semibold text-slate-500">in 90 days</span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 mt-1">Travel across time zones disrupts sleep</div>
-                  </div>
-                </div>
-              </section>
+              <CalendarLoadHero
+                telemetry={telemetry}
+                status={verifiedCalendarEmail ? 'connected' : userProfile.isDemo ? 'sample' : 'none'}
+                accountLabel={verifiedCalendarEmail}
+                changesApproved={calendarRulesApplied}
+                onReviewChanges={handleApplyCalendarRules}
+                onConnect={() => setIsCalendarModalOpen(true)}
+              />
 
               {/* Interactive Calendar Feed Agenda Widget */}
               <CalendarSnippetWidget
@@ -1564,6 +1495,13 @@ export default function BaalanceApp() {
               <ProfileOverview
                 userProfile={userProfile}
                 verifiedCalendarEmail={verifiedCalendarEmail}
+                segments={segments}
+                stressScore={synthesis.allostaticLoadScore}
+                onTakeQuestionnaire={() =>
+                  document.querySelector('[data-testid="pss10-card"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                }
+                onConnectCalendar={() => setIsCalendarModalOpen(true)}
+                onAddHairResult={() => setIsImportReportModalOpen(true)}
                 onEditDetails={() => {
                   setModalStep('questionnaire');
                   setIsLifestyleModalOpen(true);

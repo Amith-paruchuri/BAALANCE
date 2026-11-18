@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry, ChatMessage } from '@/lib/types';
 import { apiFetch } from '@/lib/apiFetch';
+import { TrichaAvatar } from './TrichaAvatar';
 
 interface TrichaChatWidgetProps {
   userProfile: UserProfile;
@@ -34,11 +35,6 @@ interface TrichaChatWidgetProps {
   embedded?: boolean;
 }
 
-const TRICHA_PROMPT_CHIPS = [
-  'Why did my stress spike in August?',
-  'How do calls after 7 PM delay recovery?',
-  'What should I change before my 8-week re-test?',
-];
 
 export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
   userProfile,
@@ -70,6 +66,14 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
   // STRICT PER-USER STORAGE KEY: Never fall back to shared global keys
   const userEmailClean = userProfile?.email ? userProfile.email.toLowerCase().trim() : 'guest_demo';
   const storageKey = `baalance_tricha_messages_v2_${userEmailClean}`;
+
+  // Suggested questions, written around the user's own peak month.
+  const peakSegment = segments.length ? segments.reduce((x, y) => (y.cortisolPgPerMg > x.cortisolPgPerMg ? y : x)) : null;
+  const promptChips = [
+    peakSegment && peakSegment.cortisolPgPerMg > 14 ? `Why did my stress peak in ${peakSegment.title}?` : 'What do my hair results mean?',
+    'How do meetings after 7 PM affect recovery?',
+    'What should I change before my re-test in 8 weeks?',
+  ];
 
   // One opening message, written from the user's own numbers (no scripted exchange).
   const getDefaultMessages = (): ChatMessage[] => {
@@ -278,7 +282,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
         {/* Header */}
         <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-[#0D4F59] text-white flex items-center justify-center font-black shrink-0">T</div>
+            <TrichaAvatar size={44} animated />
             <div className="min-w-0">
               <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-tight">Tricha</h2>
               <p className="text-xs text-slate-500 truncate">
@@ -299,6 +303,32 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 text-xs sm:text-sm">
+          {/* Welcome: shown until the first question is asked */}
+          {messages.length <= 1 && (
+            <div className="rounded-2xl border border-[#EFE6DA] bg-gradient-to-b from-[#FBF7F2] to-white p-5 sm:p-6 text-center" data-testid="tricha-welcome">
+              <div className="flex justify-center">
+                <TrichaAvatar size={96} animated className="drop-shadow-sm" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-3">Hi, I&apos;m Tricha.</h3>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-md mx-auto">
+                I read your hair results next to your calendar and help you work out what to change. Pick a question to start, or
+                type your own.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 text-left">
+                {promptChips.map(chip => (
+                  <button
+                    key={chip}
+                    type="button"
+                    onClick={() => handleSendMessage(chip)}
+                    className="p-3 rounded-xl bg-white border border-slate-200 hover:border-[#0D4F59] hover:bg-[#0D4F59]/5 text-xs font-semibold text-slate-800 transition-colors cursor-pointer"
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {messages.map((msg) => {
             const isTricha = msg.role === 'model';
             return (
@@ -306,13 +336,13 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                 key={msg.id}
                 className={`flex gap-3 ${isTricha ? 'items-start' : 'items-start flex-row-reverse'}`}
               >
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
-                    isTricha ? 'bg-[#0D4F59] text-white' : 'bg-[#BF6F4E] text-white'
-                  }`}
-                >
-                  {isTricha ? 'T' : userInitial}
-                </div>
+                {isTricha ? (
+                  <TrichaAvatar size={32} />
+                ) : (
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold bg-[#BF6F4E] text-white">
+                    {userInitial}
+                  </div>
+                )}
 
                 <div
                   className={`max-w-[85%] p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
@@ -367,7 +397,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
         {/* Prompt Chips */}
         <div className="px-4 py-2.5 bg-slate-50/70 border-t border-slate-200 flex items-center gap-2 overflow-x-auto">
           <span className="text-[11px] font-bold text-slate-500 shrink-0">Suggestions:</span>
-          {TRICHA_PROMPT_CHIPS.map((chip, idx) => (
+          {promptChips.map((chip, idx) => (
             <button
               key={idx}
               type="button"
