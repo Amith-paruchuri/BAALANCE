@@ -1,24 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  ResponsiveContainer,
-  ComposedChart,
-  Line,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ReferenceArea,
-  ReferenceLine,
-  Cell,
-} from 'recharts';
-import { WeeklyTelemetry } from '@/lib/types';
-import { TrendingUp, Moon, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Moon } from 'lucide-react';
+import type { HairCortisolSegment, WeeklyTelemetry } from '@/lib/types';
+import { useInView } from '@/lib/useInView';
 
 interface ChronoCorrelationChartProps {
   telemetry: WeeklyTelemetry[];
+  segments?: HairCortisolSegment[];
   activeSegmentId: 1 | 2 | 3;
   onSelectWeek?: (weekNumber: number) => void;
   onSelectSegment?: (id: 1 | 2 | 3) => void;
@@ -27,346 +16,211 @@ interface ChronoCorrelationChartProps {
   userRole?: string;
 }
 
+const cortisolTone = (value: number) =>
+  value > 20
+    ? { color: '#F43F5E', soft: 'bg-rose-50 border-rose-200 text-rose-700', word: 'high' }
+    : value > 14
+    ? { color: '#F59E0B', soft: 'bg-amber-50 border-amber-200 text-amber-800', word: 'raised' }
+    : { color: '#10B981', soft: 'bg-emerald-50 border-emerald-200 text-emerald-800', word: 'healthy' };
+
+/**
+ * Week by week: one bar per week for meeting hours, coloured by that month's
+ * hair cortisol. Hair gives one value per centimetre (one per month), so the
+ * four weeks of a month share a colour. Bars rise into place when the reader
+ * reaches the section.
+ */
 export const ChronoCorrelationChart = React.memo<ChronoCorrelationChartProps>(({
   telemetry,
+  segments = [],
   activeSegmentId,
   onSelectWeek,
   onSelectSegment,
   isCalendarConnected = false,
-  calendarEmail,
-  userRole,
 }) => {
-  // Monthly hair cortisol levels (1 cm of hair = 1 month of time)
-  // July: 11.2 pg/mg, August: 28.4 pg/mg, September: 15.6 pg/mg
-  const getMonthlyCortisol = (m: number) => (m === 1 ? 11.2 : m === 2 ? 28.4 : 15.6);
+  const { ref, inView } = useInView<HTMLDivElement>(0.3);
+  const [focusWeek, setFocusWeek] = useState<number | null>(null);
 
-  // Format telemetry so weekLabel is "Week 1", "Week 2", etc.
-  // We place 3 monthly cortisol bars centered in each month (Week 2 for July, Week 6 for August, Week 10 for September)
-  const chartData = telemetry.map(item => {
-    const monthCortisol = getMonthlyCortisol(item.month);
-    const isMonthCenter = item.weekNumber === 2 || item.weekNumber === 6 || item.weekNumber === 10;
+  const months = ([1, 2, 3] as const).map(id => {
+    const weeks = telemetry.filter(w => w.month === id).sort((a, b) => a.weekNumber - b.weekNumber);
+    const segment = segments.find(s => s.id === id);
+    const cortisol = segment?.cortisolPgPerMg ?? (weeks.length ? weeks.reduce((s, w) => s + w.cortisolPgPerMg, 0) / weeks.length : 0);
     return {
-      ...item,
-      fullWeekLabel: `Week ${item.weekNumber}`,
-      shortWeekLabel: `Wk ${item.weekNumber}`,
-      monthlyCortisolVal: monthCortisol,
-      monthlyBarCortisol: isMonthCenter ? monthCortisol : null,
-      monthColor: item.month === 1 ? '#10B981' : item.month === 2 ? '#F43F5E' : '#F59E0B',
+      id,
+      label: segment?.title || weeks[0]?.monthLabel || `Month ${id}`,
+      cortisol: Math.round(cortisol * 10) / 10,
+      tone: cortisolTone(cortisol),
+      weeks,
+      hours: weeks.reduce((s, w) => s + (w.meetingHours || 0), 0),
+      late: weeks.reduce((s, w) => s + (w.eveningCalls || 0), 0),
     };
   });
 
-  const totalMeetingHours = chartData.reduce((sum, d) => sum + (d.meetingHours || 0), 0);
-  const augustCortisol = chartData.find(d => d.month === 2 && d.cortisolPgPerMg > 20)?.cortisolPgPerMg ?? 28.4;
-  const isDiscordance = isCalendarConnected && totalMeetingHours <= 5 && augustCortisol > 16.0;
+  const maxHours = Math.max(20, ...telemetry.map(w => w.meetingHours || 0));
+  const scaleTop = Math.ceil(maxHours / 20) * 20;
+  const gridLines = [scaleTop, (scaleTop * 2) / 3, scaleTop / 3, 0].map(v => Math.round(v));
 
-  const month1Label = telemetry.find(t => t.month === 1)?.monthLabel || 'July';
-  const month2Label = telemetry.find(t => t.month === 2)?.monthLabel || 'August';
-  const month3Label = telemetry.find(t => t.month === 3)?.monthLabel || 'September';
+  const peakMonth = months.reduce((a, b) => (b.cortisol > a.cortisol ? b : a));
+  const busiestMonth = months.reduce((a, b) => (b.hours > a.hours ? b : a));
+  const aligned = peakMonth.cortisol > 14 && peakMonth.id === busiestMonth.id && busiestMonth.hours > 0;
+  const headline = aligned
+    ? 'Stress rose when meetings did.'
+    : peakMonth.cortisol > 14
+    ? 'Your busiest weeks and your highest cortisol do not line up.'
+    : 'Your weeks, next to your hair result.';
 
-  // Dynamic Y-axis ceiling to accommodate peak cortisol (up to 38+ pg/mg) without clipping
-  const maxTelemetryCortisol = Math.max(...chartData.map(d => d.cortisolPgPerMg || 0), 28);
-  const yAxisMax = Math.max(35, Math.ceil((maxTelemetryCortisol + 4) / 5) * 5);
+  const focused = focusWeek !== null ? telemetry.find(w => w.weekNumber === focusWeek) : null;
+  const focusedMonth = focused ? months.find(m => m.id === focused.month) : null;
 
-  // Active segment window (July: W1-W4, August: W5-W8, September: W9-W12)
-  const activeWeekStart = activeSegmentId === 1 ? 1 : activeSegmentId === 2 ? 5 : 9;
-  const activeWeekEnd = activeWeekStart + 3;
+  return (
+    <section
+      ref={ref}
+      className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-5 sm:p-7 space-y-5 font-sans"
+      aria-label="Week by week"
+      data-testid="chart-card"
+    >
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+        <div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-[#BF6F4E]">Week by week</div>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">{headline}</h2>
+          <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            Each bar is one week of meetings. Its colour is that month&apos;s hair cortisol.
+          </p>
+        </div>
+        <span className="self-start text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+          {isCalendarConnected ? 'Your calendar' : 'Sample data'}
+        </span>
+      </div>
 
-  const handleChartClick = (state: any) => {
-    if (state && state.activePayload && state.activePayload.length > 0) {
-      const clickedData: WeeklyTelemetry = state.activePayload[0].payload;
-      if (onSelectWeek) onSelectWeek(clickedData.weekNumber);
-      if (onSelectSegment) {
-        const segId = (clickedData.weekNumber <= 4 ? 1 : clickedData.weekNumber <= 8 ? 2 : 3) as 1 | 2 | 3;
-        onSelectSegment(segId);
-      }
-    }
-  };
-
-  // Integrated Week Inspector Tooltip Component (Compressed & positioned towards X-axis)
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data: any = payload[0].payload;
-      const cortisolVal = data.monthlyCortisolVal || data.cortisolPgPerMg;
-      const isSpike = cortisolVal > 20;
-      const isElevated = cortisolVal > 14;
-
-      return (
-        <div className="bg-white/95 backdrop-blur-md px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl border border-slate-200 shadow-lg text-xs w-[265px] sm:w-[280px] animate-fade-in pointer-events-none select-none z-50">
-          {/* Header Line: Week label + Date Range + Cortisol Value & Badge (Month removed) */}
-          <div className="flex items-center justify-between gap-1.5 pb-1 border-b border-slate-100">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="w-2 h-2 rounded-full bg-[#BF6F4E] shrink-0" />
-              <span className="font-extrabold text-slate-900 text-[11px] font-sans truncate">
-                {(data as any).fullWeekLabel || data.weekLabel || `Week ${data.weekNumber}`}
-              </span>
-              <span className="text-[10px] text-slate-500 font-medium whitespace-nowrap">
-                ({data.dateRange})
-              </span>
-            </div>
-
-            {/* Consolidated Cortisol Value & Level Badge */}
-            <div className="flex items-center gap-1 shrink-0 font-mono">
-              <span className="text-[11px] font-black text-slate-900">
-                {cortisolVal}
-              </span>
-              <span className="text-[9px] text-slate-400 font-medium">pg/mg</span>
+      <div className="rounded-2xl border border-[#EFE6DA] bg-gradient-to-b from-[#FBF7F2] to-white p-3 sm:p-5">
+        <div className="flex gap-2 sm:gap-3">
+          {/* Hours scale */}
+          <div className="relative w-8 sm:w-10 shrink-0 h-52 sm:h-60 mt-[52px]" aria-hidden="true">
+            {gridLines.map((value, i) => (
               <span
-                className={`text-[8.5px] font-extrabold px-1.5 py-0.5 rounded leading-none ${
-                  isSpike
-                    ? 'bg-rose-100 text-rose-700 border border-rose-200'
-                    : isElevated
-                    ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                    : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                }`}
+                key={i}
+                className="absolute right-0 -translate-y-1/2 text-[10px] font-semibold text-slate-400"
+                style={{ top: `${(i / (gridLines.length - 1)) * 100}%` }}
               >
-                {isSpike ? 'Spike' : isElevated ? 'Elevated' : 'Normal'}
+                {value}h
               </span>
-            </div>
+            ))}
           </div>
 
-          {/* Compressed Workload Row */}
-          <div className="pt-1 text-[10px] font-mono">
-            <div className="flex items-center justify-between bg-slate-50/90 px-2.5 py-1 rounded-lg border border-slate-100">
-              <span className="text-slate-600 font-sans text-[10px] font-medium">Calendar load:</span>
-              <span className="font-bold text-slate-900 text-[11px]">
-                {data.meetingHours}h{' '}
-                {data.eveningCalls > 0 && (
-                  <span className="text-rose-600 font-semibold text-[9.5px]">
-                    ({data.eveningCalls} late past 7 PM)
-                  </span>
-                )}
-              </span>
-            </div>
-          </div>
+          <div className="flex-1 grid grid-cols-3 gap-2 sm:gap-4 min-w-0">
+            {months.map((month, monthIndex) => {
+              const isActive = activeSegmentId === month.id;
+              return (
+                <div key={month.id} className="min-w-0">
+                  {/* Month header: the hair cortisol value for that centimetre */}
+                  <button
+                    type="button"
+                    onClick={() => onSelectSegment?.(month.id)}
+                    aria-pressed={isActive}
+                    className={`w-full h-11 px-1 rounded-xl border text-center cursor-pointer transition-shadow ${month.tone.soft} ${
+                      isActive ? 'ring-2 ring-offset-1' : ''
+                    }`}
+                    style={isActive ? ({ '--tw-ring-color': month.tone.color } as React.CSSProperties) : undefined}
+                  >
+                    <div className="text-[11px] sm:text-xs font-extrabold leading-tight truncate">{month.label}</div>
+                    <div className="text-[10px] sm:text-[11px] font-semibold leading-tight truncate">
+                      {month.cortisol} pg/mg<span className="hidden sm:inline"> · {month.tone.word}</span>
+                    </div>
+                  </button>
 
-          {/* Compact Trigger Line */}
-          {data.triggerDetails && (
-            <div className="mt-1 pt-1 border-t border-slate-100 text-[9px] text-slate-600 leading-tight font-sans line-clamp-2">
-              <span className="font-bold text-slate-700">Trigger: </span>
-              <span>
-                {data.triggerDetails
-                  .replace(/\s*\+\s*\d+%\s*deep\s*sleep\s*drop/gi, '')
-                  .replace(/;\s*Deep\s*sleep\s*crashed\s*to\s*\d+\s*min\.?/gi, '.')
-                  .replace(/,\s*stable\s*restorative\s*sleep/gi, ', balanced schedule')
-                  .replace(/;\s*minor\s*sleep\s*friction/gi, '; minor schedule friction')
-                  .replace(/;\s*initial\s*sleep\s*drop/gi, ' breaking recovery boundaries')
-                  .replace(/\s*deep\s*sleep\s*/gi, ' recovery ')
-                  .replace(/\s*sleep\s*/gi, ' recovery ')}
+                  {/* Bars */}
+                  <div className="relative h-52 sm:h-60 mt-2">
+                    {gridLines.map((_, i) => (
+                      <div
+                        key={i}
+                        className="absolute inset-x-0 border-t border-dashed border-slate-200"
+                        style={{ top: `${(i / (gridLines.length - 1)) * 100}%` }}
+                        aria-hidden="true"
+                      />
+                    ))}
+                    <div className="absolute inset-0 flex items-end justify-around gap-1 sm:gap-2 px-0.5">
+                      {month.weeks.map((week, weekIndex) => {
+                        const order = monthIndex * 4 + weekIndex;
+                        const heightPct = Math.max(2, ((week.meetingHours || 0) / scaleTop) * 100);
+                        const isFocused = focusWeek === week.weekNumber;
+                        return (
+                          <button
+                            key={week.weekNumber}
+                            type="button"
+                            onMouseEnter={() => setFocusWeek(week.weekNumber)}
+                            onMouseLeave={() => setFocusWeek(null)}
+                            onFocus={() => setFocusWeek(week.weekNumber)}
+                            onBlur={() => setFocusWeek(null)}
+                            onClick={() => {
+                              setFocusWeek(week.weekNumber);
+                              onSelectWeek?.(week.weekNumber);
+                              onSelectSegment?.(month.id);
+                            }}
+                            aria-label={`Week ${week.weekNumber}, ${week.dateRange}: ${week.meetingHours} meeting hours, ${week.eveningCalls} meetings after 7 PM`}
+                            className="relative flex-1 max-w-[44px] h-full flex items-end cursor-pointer group"
+                          >
+                            <span
+                              className="relative w-full rounded-t-lg"
+                              style={{
+                                height: inView ? `${heightPct}%` : '0%',
+                                backgroundColor: month.tone.color,
+                                opacity: isFocused || focusWeek === null ? 1 : 0.45,
+                                transition: `height 900ms cubic-bezier(0.22, 1, 0.36, 1) ${order * 70}ms, opacity 200ms ease`,
+                              }}
+                            >
+                              <span
+                                className="absolute -top-5 inset-x-0 text-center text-[10px] font-bold text-slate-700"
+                                style={{ opacity: inView ? 1 : 0, transition: `opacity 400ms ease ${order * 70 + 700}ms` }}
+                              >
+                                {Math.round(week.meetingHours || 0)}
+                              </span>
+                              {week.eveningCalls > 0 && heightPct > 18 && (
+                                <span className="absolute bottom-1 inset-x-0 flex flex-col items-center text-white/95" aria-hidden="true">
+                                  <Moon className="w-3 h-3" />
+                                  <span className="text-[9px] font-bold leading-none mt-0.5">{week.eveningCalls}</span>
+                                </span>
+                              )}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Week labels */}
+                  <div className="flex justify-around gap-1 sm:gap-2 px-0.5 mt-1.5">
+                    {month.weeks.map(week => (
+                      <span key={week.weekNumber} className="flex-1 max-w-[44px] text-center text-[10px] font-semibold text-slate-400">
+                        W{week.weekNumber}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Detail for the week under the pointer, or how to read the chart */}
+        <div className="mt-4 min-h-[2.5rem] flex items-center justify-center text-center" aria-live="polite">
+          {focused && focusedMonth ? (
+            <p className="text-xs sm:text-sm text-slate-700">
+              <span className="font-extrabold text-slate-900">Week {focused.weekNumber}</span> ({focused.dateRange}):{' '}
+              <span className="font-bold">{focused.meetingHours} meeting hours</span>, {focused.eveningCalls} after 7 PM. Hair cortisol for{' '}
+              {focusedMonth.label}: {focusedMonth.cortisol} pg/mg.
+            </p>
+          ) : (
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-500">
+              <span className="inline-flex items-center gap-1.5">
+                <Moon className="w-3 h-3" /> Meetings after 7 PM that week
               </span>
+              <span>Numbers above the bars are meeting hours</span>
+              <span>Hair gives one cortisol value per month</span>
             </div>
           )}
         </div>
-      );
-    }
-    return null;
-  };
-
-  return (
-    <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-card p-5 sm:p-7 font-sans" data-testid="chart-card">
-      {/* Chart Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[#E2E8F0]">
-        <div>
-          <div className="text-[11px] font-bold uppercase tracking-wider text-[#BF6F4E]">Week by week</div>
-          <div className="flex items-center gap-2 flex-wrap mt-1">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              Stress rose when meetings did.
-            </h2>
-            {isCalendarConnected ? (
-              <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                Live calendar
-              </span>
-            ) : (
-              <span className="text-[10px] text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
-                Sample data
-              </span>
-            )}
-          </div>
-          <p className="text-xs sm:text-sm text-slate-600 mt-1">
-            Bars are hair cortisol per month. The line is your weekly meeting hours.
-          </p>
-        </div>
-
-        {/* Legend */}
-        <div className="flex items-center gap-3 text-xs flex-wrap font-medium">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-emerald-500 rounded-xs" />
-            <span className="text-slate-700 text-[11px]">July (11.2)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-rose-500 rounded-xs" />
-            <span className="text-slate-700 text-[11px]">August (28.4)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-amber-500 rounded-xs" />
-            <span className="text-slate-700 text-[11px]">September (15.6)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-0.5 bg-slate-800" />
-            <span className="text-slate-900 font-bold text-[11px]">Meeting Hours</span>
-          </div>
-        </div>
       </div>
-
-      {/* Biomarker-Calendar Discordance Banner */}
-      {isDiscordance && (
-        <div className="mt-3 p-3 bg-amber-50/90 border border-amber-200 rounded-xl text-xs flex items-start gap-2.5 text-amber-900 animate-fade-in">
-          <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
-          <div>
-            <div className="font-bold flex items-center gap-2 flex-wrap">
-              <span>Biomarker-Calendar Discordance Active</span>
-              <span className="bg-amber-200 text-amber-900 text-[10px] px-2 py-0.5 rounded font-semibold uppercase">Inferences Withheld Pending Intake</span>
-            </div>
-            <p className="text-[11px] text-amber-800 mt-0.5 leading-relaxed">
-              Hair cortisol peaked at {augustCortisol} pg/mg despite {totalMeetingHours === 0 ? '0' : totalMeetingHours} scheduled calendar meeting hours. Standard desk meeting conclusions are withheld. Chat with <strong>Tricha AI</strong> to log your clinical ward duties, study workload, and irregular shifts.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Month Names at the Top of the Graph (Clickable to switch active segment) */}
-      <div className="grid grid-cols-3 text-center text-xs sm:text-sm font-bold mt-4 mb-1 tracking-wider uppercase select-none px-6 sm:px-8">
-        <button
-          type="button"
-          onClick={() => onSelectSegment && onSelectSegment(1)}
-          className={`py-1 border-b-2 transition-all cursor-pointer font-bold ${
-            activeSegmentId === 1
-              ? 'border-[#0D4F59] text-[#0D4F59]'
-              : 'border-slate-200 text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          {month1Label}
-        </button>
-        <button
-          type="button"
-          onClick={() => onSelectSegment && onSelectSegment(2)}
-          className={`py-1 border-b-2 transition-all cursor-pointer font-bold ${
-            activeSegmentId === 2
-              ? 'border-rose-400 text-rose-700'
-              : 'border-slate-200 text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          {month2Label}
-        </button>
-        <button
-          type="button"
-          onClick={() => onSelectSegment && onSelectSegment(3)}
-          className={`py-1 border-b-2 transition-all cursor-pointer font-bold ${
-            activeSegmentId === 3
-              ? 'border-[#0D4F59] text-[#0D4F59]'
-              : 'border-slate-200 text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          {month3Label}
-        </button>
-      </div>
-
-      {/* Recharts Dual-Axis Chart with Integrated Interactive Week Inspector */}
-      <div className="h-[280px] sm:h-[300px] w-full mt-2">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart
-            data={chartData}
-            onClick={handleChartClick}
-            margin={{ top: 15, right: 15, left: -15, bottom: 0 }}
-          >
-            <defs>
-              <linearGradient id="cortisolCurveGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#0D4F59" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#0D4F59" stopOpacity={0.0} />
-              </linearGradient>
-            </defs>
-
-            <CartesianGrid stroke="#F1F5F9" strokeDasharray="3 3" vertical={false} />
-
-            {/* Active Segment Focal Window Highlight */}
-            <ReferenceArea
-              x1={`Week ${activeWeekStart}`}
-              x2={`Week ${activeWeekEnd}`}
-              yAxisId="left"
-              fill="#0D4F59"
-              fillOpacity={0.05}
-              stroke="#0D4F59"
-              strokeOpacity={0.3}
-              strokeDasharray="3 3"
-            />
-
-            {/* Optimal Cortisol Baseline Reference Line (14.0 pg/mg) */}
-            <ReferenceLine
-              y={14.0}
-              yAxisId="left"
-              stroke="#10B981"
-              strokeDasharray="4 4"
-            />
-
-            {/* X-Axis: Explicit "Week 1", "Week 2", etc. */}
-            <XAxis
-              dataKey="fullWeekLabel"
-              tick={{ fill: '#4B5563', fontSize: 10, fontWeight: 600 }}
-              axisLine={{ stroke: '#E2E8F0' }}
-              tickLine={false}
-            />
-
-            {/* Left Y-Axis: Cortisol (pg/mg) - Smoothly dynamic ceiling */}
-            <YAxis
-              yAxisId="left"
-              orientation="left"
-              domain={[0, yAxisMax]}
-              tick={{ fill: '#0D4F59', fontSize: 10, fontWeight: 700 }}
-              axisLine={{ stroke: '#E2E8F0' }}
-              tickLine={false}
-              unit=" pg"
-            />
-
-            {/* Right Y-Axis: Calendar Meeting Hours */}
-            <YAxis
-              yAxisId="right"
-              orientation="right"
-              domain={[0, 60]}
-              tick={{ fill: '#1F2937', fontSize: 10, fontWeight: 600 }}
-              axisLine={{ stroke: '#E2E8F0' }}
-              tickLine={false}
-              unit="h"
-            />
-
-            {/* Integrated Week Inspector Tooltip (Positioned down towards X-axis) */}
-            <Tooltip
-              cursor={{ stroke: '#0D4F59', strokeWidth: 1.5, strokeDasharray: '4 4' }}
-              content={<CustomTooltip />}
-              position={{ y: 175 }}
-              allowEscapeViewBox={{ x: false, y: true }}
-              wrapperStyle={{ outline: 'none', zIndex: 50, pointerEvents: 'none' }}
-            />
-
-            {/* 3 Monthly Hair Cortisol Bars (1 cm = 1 month) */}
-            <Bar
-              yAxisId="left"
-              dataKey="monthlyBarCortisol"
-              radius={[6, 6, 0, 0]}
-              barSize={72}
-              opacity={0.88}
-              isAnimationActive={false}
-              cursor="pointer"
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cortisol-cell-${index}`} fill={entry.monthColor} />
-              ))}
-            </Bar>
-
-            {/* Weekly Google Calendar Meeting Load Line */}
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="meetingHours"
-              stroke="#334155"
-              strokeWidth={2.5}
-              dot={{ r: 3.5, fill: '#334155', stroke: '#FFFFFF', strokeWidth: 1.5 }}
-              activeDot={{ r: 6, fill: '#334155', stroke: '#FFFFFF', strokeWidth: 2 }}
-              isAnimationActive={false}
-              cursor="pointer"
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+    </section>
   );
 });
+
+ChronoCorrelationChart.displayName = 'ChronoCorrelationChart';

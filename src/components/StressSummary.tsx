@@ -12,9 +12,25 @@ interface StressSummaryProps {
   /** Upper end of the healthy range, in pg/mg. */
   healthyBelow?: number;
   onSeeLateMeetings: () => void;
-  onSeeScoreBreakdown: () => void;
   onTakeQuestionnaire: () => void;
 }
+
+/** Three small bars with labels: enough to see the shape of three months at a glance. */
+const MiniBars: React.FC<{ values: Array<{ label: string; value: number; color: string }> }> = ({ values }) => {
+  const max = Math.max(1, ...values.map(v => v.value));
+  return (
+    <div className="mt-3 grid grid-cols-3 gap-1.5 items-end" aria-hidden="true">
+      {values.map(v => (
+        <div key={v.label} className="text-center">
+          <div className="h-9 flex items-end">
+            <div className="w-full rounded-t-md" style={{ height: `${Math.max(8, (v.value / max) * 100)}%`, backgroundColor: v.color }} />
+          </div>
+          <div className="text-[10px] font-semibold text-slate-400 mt-0.5">{v.label}</div>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 /**
  * "Hair tells us when, calendar tells us why": the peak hair cortisol month,
@@ -27,7 +43,6 @@ export const StressSummary: React.FC<StressSummaryProps> = ({
   pss10,
   healthyBelow = 14,
   onSeeLateMeetings,
-  onSeeScoreBreakdown,
   onTakeQuestionnaire,
 }) => {
   if (!segments.length) return null;
@@ -93,6 +108,13 @@ export const StressSummary: React.FC<StressSummaryProps> = ({
           >
             {peakIsHigh ? `Peak in ${peak.title}` : 'In the healthy range'}
           </span>
+          <MiniBars
+            values={[...segments].sort((x, y) => x.id - y.id).map(seg => ({
+              label: seg.title.slice(0, 3),
+              value: seg.cortisolPgPerMg,
+              color: seg.cortisolPgPerMg > 20 ? '#F43F5E' : seg.cortisolPgPerMg > 14 ? '#F59E0B' : '#10B981',
+            }))}
+          />
         </div>
 
         <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80">
@@ -111,6 +133,11 @@ export const StressSummary: React.FC<StressSummaryProps> = ({
           >
             {totalLate > 0 && busiest ? `Most in ${busiest.label} (${busiest.count})` : 'None found'}
           </span>
+          <MiniBars
+            values={Array.from(lateByMonth.entries())
+              .sort((x, y) => x[0] - y[0])
+              .map(([, m]) => ({ label: m.label.slice(0, 3), value: m.count, color: '#0D4F59' }))}
+          />
         </div>
 
         <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80">
@@ -127,6 +154,15 @@ export const StressSummary: React.FC<StressSummaryProps> = ({
               <span className={`inline-block mt-2 text-[11px] font-bold px-2.5 py-1 rounded-full border ${pssTone}`}>
                 {PSS10_BAND_LABEL[pss10.band]}
               </span>
+              <div className="mt-3 h-2 rounded-full bg-slate-200 overflow-hidden" aria-hidden="true">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${(pss10.score / 40) * 100}%`,
+                    backgroundColor: pss10.band === 'high' ? '#F43F5E' : pss10.band === 'moderate' ? '#F59E0B' : '#10B981',
+                  }}
+                />
+              </div>
             </>
           ) : (
             <>
@@ -156,13 +192,6 @@ export const StressSummary: React.FC<StressSummaryProps> = ({
             className="px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold cursor-pointer"
           >
             See the late meetings
-          </button>
-          <button
-            type="button"
-            onClick={onSeeScoreBreakdown}
-            className="px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold cursor-pointer"
-          >
-            How the score is calculated
           </button>
         </div>
       </div>
