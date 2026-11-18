@@ -444,6 +444,9 @@ export const AccountCard: React.FC<{ userProfile: UserProfile; onEditDetails: ()
         <p className="text-xs text-slate-500 truncate">
           {userProfile.isDemo ? 'You are exploring the sample case. Nothing is saved to an account.' : `Signed in as ${userProfile.email}`}
         </p>
+        <p className="text-[11px] text-slate-500 mt-0.5">
+          <a href="/privacy" className="underline font-semibold">Privacy policy</a> · <a href="/terms" className="underline font-semibold">Terms of use</a>
+        </p>
       </div>
     </div>
     <div className="flex items-center gap-2 flex-wrap shrink-0">

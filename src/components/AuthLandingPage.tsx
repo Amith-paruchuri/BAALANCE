@@ -364,7 +364,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
                   <span>{oauthPending === 'google' ? 'Opening Google…' : 'Continue with Google'}</span>
                 </button>
                 <p className="text-[10px] text-slate-500 text-center leading-snug">
-                  Signing in with Microsoft or Google also lets BAALANCE read your Outlook or Google calendar. You approve each change before anything moves.
+                  Microsoft sign-in also connects your Outlook and Teams calendar. With Google you can connect your calendar after signing in. You approve each change before anything moves.
                 </p>
                 <div className="flex items-center gap-2 pt-1">
                   <div className="h-px flex-1 bg-slate-200" />
@@ -580,6 +580,10 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
           <button type="button" onClick={() => openHelpPanel('helplines')} className="font-semibold text-rose-700 underline cursor-pointer">
             Need help now?
           </button>
+          {' · '}
+          <a href="/privacy" className="font-semibold text-slate-600 underline">Privacy</a>
+          {' · '}
+          <a href="/terms" className="font-semibold text-slate-600 underline">Terms</a>
         </p>
       </footer>
     </div>
