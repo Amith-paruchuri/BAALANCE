@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { HelpPanelHost } from '@/components/HelpPanelHost';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen bg-[#F6F2EC] text-slate-900 font-sans antialiased selection:bg-[#0D4F59] selection:text-white">
         {children}
+        <HelpPanelHost />
       </body>
     </html>
   );

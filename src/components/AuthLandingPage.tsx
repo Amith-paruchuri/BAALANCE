@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { BaalanceLogo } from './BaalanceLogo';
 import { HairScienceExplainer } from './HairScienceExplainer';
+import { openHelpPanel } from '@/lib/helplines';
 import {
   type OAuthProvider,
   signInWithProvider,
@@ -575,6 +576,10 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
       <footer className="w-full text-center py-4 border-t border-slate-200/80">
         <p className="text-xs font-medium text-slate-500">
           Built by a final-year medical student at <span className="font-semibold text-slate-700">AIIMS New Delhi</span>
+          {' · '}
+          <button type="button" onClick={() => openHelpPanel('helplines')} className="font-semibold text-rose-700 underline cursor-pointer">
+            Need help now?
+          </button>
         </p>
       </footer>
     </div>

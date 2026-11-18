@@ -3,6 +3,7 @@
 import React from 'react';
 import { Sparkles, Upload, ChevronDown, ChevronUp, Droplet, CalendarClock, Clock, Plane } from 'lucide-react';
 import type { HairCortisolSegment } from '@/lib/types';
+import { openHelpPanel } from '@/lib/helplines';
 
 interface StressScoreCardProps {
   score: number;
@@ -156,6 +157,22 @@ export const StressScoreCard: React.FC<StressScoreCardProps> = ({
         </div>
 
       </div>
+
+      {safeScore > 80 && (
+        <div className="max-w-xl mx-auto w-full p-4 rounded-2xl bg-rose-50/70 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-testid="doctor-advice">
+          <p className="text-xs text-rose-950">
+            <span className="font-extrabold">A score this high is worth talking through with a doctor.</span> This is a research-stage
+            tool, not a diagnosis.
+          </p>
+          <button
+            type="button"
+            onClick={() => openHelpPanel('doctor')}
+            className="shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold cursor-pointer"
+          >
+            Find a doctor near me
+          </button>
+        </div>
+      )}
 
       {/* Explanation */}
       <div className="border-t border-slate-100 pt-4">
