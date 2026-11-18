@@ -6,7 +6,7 @@ import { ExternalLink, LifeBuoy, MapPin, Navigation, Phone, Stethoscope, X } fro
 import { HELPLINES, guessRegion, type HelpRegion } from '@/lib/helplines';
 
 type Tab = 'helplines' | 'doctor';
-type Kind = 'mental_health' | 'general';
+type Kind = 'hospital' | 'mental_health' | 'general';
 
 interface Place {
   id: string;
@@ -25,6 +25,7 @@ interface GetHelpPanelProps {
 }
 
 const KIND_LABEL: Record<Kind, { title: string; search: string }> = {
+  hospital: { title: 'Nearest hospital', search: 'hospital' },
   mental_health: { title: 'Mental health professional', search: 'psychiatrist' },
   general: { title: 'General doctor', search: 'general physician' },
 };
@@ -45,7 +46,7 @@ const directionsUrl = (place: Place) => `https://www.bing.com/maps?rtp=~pos.${pl
 export const GetHelpPanel: React.FC<GetHelpPanelProps> = ({ isOpen, initialTab = 'helplines', onClose }) => {
   const [tab, setTab] = useState<Tab>(initialTab);
   const [region, setRegion] = useState<HelpRegion>('india');
-  const [kind, setKind] = useState<Kind>('mental_health');
+  const [kind, setKind] = useState<Kind>('hospital');
   const [where, setWhere] = useState<{ lat: number; lon: number } | null>(null);
   const [status, setStatus] = useState<'idle' | 'locating' | 'searching' | 'done' | 'denied' | 'unavailable' | 'error'>('idle');
   const [places, setPlaces] = useState<Place[]>([]);
@@ -132,7 +133,7 @@ export const GetHelpPanel: React.FC<GetHelpPanelProps> = ({ isOpen, initialTab =
             </span>
             <div>
               <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Get help</h2>
-              <p className="text-xs text-slate-600">Talk to someone now, or find a doctor near you.</p>
+              <p className="text-xs text-slate-600">Talk to someone now, or find a hospital or doctor near you.</p>
             </div>
           </div>
           <button type="button" onClick={onClose} aria-label="Close" className="p-2 rounded-xl hover:bg-slate-100 text-slate-500 cursor-pointer">
@@ -226,7 +227,7 @@ export const GetHelpPanel: React.FC<GetHelpPanelProps> = ({ isOpen, initialTab =
             </>
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-2" role="group" aria-label="Kind of doctor">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2" role="group" aria-label="Kind of care">
                 {(Object.keys(KIND_LABEL) as Kind[]).map(key => (
                   <button
                     key={key}
@@ -247,7 +248,7 @@ export const GetHelpPanel: React.FC<GetHelpPanelProps> = ({ isOpen, initialTab =
                   <div className="flex items-start gap-3">
                     <MapPin className="w-5 h-5 text-[#BF6F4E] shrink-0 mt-0.5" />
                     <p className="text-xs text-slate-700">
-                      To list doctors near you, we need your location for this one search. It is rounded to about 100 metres, it is
+                      To list hospitals and doctors near you, we need your location for this one search. It is rounded to about 100 metres, it is
                       not saved, and it is not added to your profile.
                     </p>
                   </div>
@@ -275,7 +276,7 @@ export const GetHelpPanel: React.FC<GetHelpPanelProps> = ({ isOpen, initialTab =
 
               {(status === 'locating' || status === 'searching') && (
                 <p className="text-xs font-semibold text-slate-600 p-4 rounded-2xl bg-slate-50 border border-slate-200" role="status">
-                  {status === 'locating' ? 'Finding where you are…' : 'Looking for doctors near you…'}
+                  {status === 'locating' ? 'Finding where you are…' : 'Looking near you…'}
                 </p>
               )}
 
@@ -300,7 +301,7 @@ export const GetHelpPanel: React.FC<GetHelpPanelProps> = ({ isOpen, initialTab =
                   <p className="text-xs text-slate-700">
                     {status === 'done'
                       ? 'We did not find any listed within 20 km. A map search may show more.'
-                      : 'We cannot list doctors inside the app right now. Open a map of doctors near you instead.'}
+                      : 'We cannot list places inside the app right now. Open a map search instead.'}
                   </p>
                   <a
                     href={mapSearchUrl(KIND_LABEL[kind].search, where || undefined)}

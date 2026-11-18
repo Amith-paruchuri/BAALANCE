@@ -11,11 +11,24 @@ export const dynamic = 'force-dynamic';
  * Needs AZURE_MAPS_KEY; without it the client falls back to a map search link.
  */
 
-type Kind = 'mental_health' | 'general';
+type Kind = 'hospital' | 'mental_health' | 'general';
 
-const QUERIES: Record<Kind, string> = {
-  mental_health: 'psychiatrist',
-  general: 'general practitioner',
+/** Several searches per kind, merged, so one thin result does not hide nearer places. */
+const QUERIES: Record<Kind, { path: string; query: string }[]> = {
+  hospital: [
+    { path: 'search/poi/category/json', query: 'hospital' },
+    { path: 'search/poi/json', query: 'hospital' },
+  ],
+  mental_health: [
+    { path: 'search/poi/json', query: 'psychiatrist' },
+    { path: 'search/poi/json', query: 'psychologist' },
+    { path: 'search/poi/json', query: 'mental health clinic' },
+  ],
+  general: [
+    { path: 'search/poi/json', query: 'general practitioner' },
+    { path: 'search/poi/json', query: 'doctor' },
+    { path: 'search/poi/json', query: 'clinic' },
+  ],
 };
 
 interface Place {
@@ -41,29 +54,47 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const lat = Number(body?.lat);
     const lon = Number(body?.lon);
-    const kind: Kind = body?.kind === 'general' ? 'general' : 'mental_health';
+    const kind: Kind = body?.kind === 'general' ? 'general' : body?.kind === 'hospital' ? 'hospital' : 'mental_health';
     if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) {
       return NextResponse.json({ available: true, places: [], error: 'That location is not valid.' }, { status: 400 });
     }
 
-    const params = new URLSearchParams({
-      'api-version': '1.0',
-      query: QUERIES[kind],
-      lat: lat.toFixed(3),
-      lon: lon.toFixed(3),
-      radius: '20000',
-      limit: '10',
-      language: 'en-GB',
-      'subscription-key': key,
-    });
-    const res = await fetch(`https://atlas.microsoft.com/search/poi/json?${params.toString()}`, { cache: 'no-store' });
-    if (!res.ok) {
-      console.warn('[BAALANCE Doctors] Azure Maps error:', res.status);
-      return NextResponse.json({ available: false, places: [] });
-    }
+    const responses = await Promise.all(
+      QUERIES[kind].map(async ({ path, query }) => {
+        const params = new URLSearchParams({
+          'api-version': '1.0',
+          query,
+          lat: lat.toFixed(3),
+          lon: lon.toFixed(3),
+          radius: '25000',
+          limit: '10',
+          language: 'en-GB',
+          'subscription-key': key,
+        });
+        try {
+          const res = await fetch(`https://atlas.microsoft.com/${path}?${params.toString()}`, { cache: 'no-store' });
+          if (!res.ok) {
+            console.warn('[BAALANCE Doctors] Azure Maps error:', res.status);
+            return null;
+          }
+          const data = await res.json();
+          return Array.isArray(data?.results) ? (data.results as any[]) : [];
+        } catch {
+          return null;
+        }
+      }),
+    );
+    if (responses.every(r => r === null)) return NextResponse.json({ available: false, places: [] });
 
-    const data = await res.json();
-    const places: Place[] = (Array.isArray(data?.results) ? data.results : [])
+    const seen = new Set<string>();
+    const merged = responses.flatMap(r => r || []).filter(r => {
+      const id = String(r?.id || `${r?.poi?.name}|${r?.position?.lat},${r?.position?.lon}`);
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+
+    const places: Place[] = merged
       .map((r: any): Place | null => {
         const name = r?.poi?.name;
         const pos = r?.position;
