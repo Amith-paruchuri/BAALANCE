@@ -24,6 +24,10 @@ or "BAALANCE AI". Prefer Microsoft features (Outlook/Teams via Graph, Azure Open
 - Activity log: `src/lib/auditLog.ts` (browser), `src/lib/auditServer.ts` + `/api/audit` (table `baalance_audit_log`).
   `/api/calendar/reschedule` refuses to move anything without `approvedByUser: true` and logs every move.
 - Data controls: `/api/storage/user-data` (GET export, DELETE), UI in `src/components/PrivacyAndActivityPanel.tsx`.
+- Get help: `src/components/GetHelpPanel.tsx` (helplines by country, doctors near you), mounted once by
+  `HelpPanelHost` in the layout and opened with `openHelpPanel()` from `src/lib/helplines.ts`. Numbers live in that file
+  and were checked in November 2026; re-check before releases. `/api/doctors/nearby` uses Azure Maps (`AZURE_MAPS_KEY`).
+  Location is asked for per search, rounded, and never stored. The app does not run a helpline or book appointments.
 - Demo data: `src/lib/mockData.ts` (fictional "Sample Case"; July 11.2, August 28.4, September 15.6 pg/mg).
 
 ## Design system (set in November 2026)

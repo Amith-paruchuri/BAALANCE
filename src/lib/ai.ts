@@ -9,6 +9,8 @@ import { GoogleGenAI } from '@google/genai';
  *   AI_PROVIDER=azure    Azure OpenAI  (AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY,
  *                                       AZURE_OPENAI_DEPLOYMENT, optional AZURE_OPENAI_API_VERSION)
  *   AI_PROVIDER=auto     (default) the first configured provider, the other as fallback
+ *
+ * When AI_PROVIDER names a provider and it is configured, only that provider is used.
  */
 
 export type AIProviderName = 'gemini' | 'azure';
@@ -70,10 +72,12 @@ function providerOrder(geminiOverride?: string): AIProviderName[] {
 
   const preferred = (process.env.AI_PROVIDER || 'auto').toLowerCase();
   if (preferred === 'azure' || preferred === 'gemini') {
-    return [
-      ...configured.filter(p => p === preferred),
-      ...configured.filter(p => p !== preferred),
-    ];
+    // A named provider is used on its own: requests are never sent to a second AI
+    // company behind the user's back. If it is down, callers fall back to the
+    // built-in rule-based answers. A visitor's own key is the one exception.
+    const chosen = configured.filter(p => p === preferred);
+    if (chosen.length > 0 && !geminiOverride) return chosen;
+    return [...chosen, ...configured.filter(p => p !== preferred)];
   }
   return configured;
 }

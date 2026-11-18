@@ -29,7 +29,7 @@ export interface CrisisResource {
 export const CRISIS_RESOURCES: CrisisResource[] = [
   { label: 'Emergency (India)', detail: 'If you or someone else is in immediate danger, call 112 now.', phone: '112' },
   { label: 'Tele-MANAS', detail: 'Free government mental health helpline, 24x7, in many languages.', phone: '14416' },
-  { label: 'KIRAN helpline', detail: 'Free 24x7 mental health support.', phone: '18005990019' },
+  { label: 'Tele-MANAS (toll-free)', detail: 'The same service on a toll-free number.', phone: '18008914416' },
   { label: 'Outside India', detail: 'Call your local emergency number, or go to the nearest emergency department.' },
 ];
 
@@ -38,7 +38,7 @@ export const CRISIS_REPLY =
   'I am an AI coach, not a doctor or an emergency service, so I am not the right help for this. Please talk to a person now:\n' +
   '• In immediate danger: call 112 (India) or your local emergency number.\n' +
   '• Tele-MANAS: call 14416, free, 24x7.\n' +
-  '• KIRAN helpline: call 1800-599-0019, free, 24x7.\n\n' +
+  '• Tele-MANAS toll-free: call 1800-891-4416.\n\n' +
   'If you can, reach out to someone you trust and stay with them. I am still here if you want to talk about your results afterwards.';
 
 export const BLOCKED_INPUT_REPLY =

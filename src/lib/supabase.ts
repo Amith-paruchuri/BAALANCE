@@ -38,10 +38,22 @@ export function getSupabaseClient(): SupabaseClient | null {
 
 export type OAuthProvider = 'google' | 'azure';
 
-/** Calendar scopes requested at sign-in so the app can read meetings and propose reschedules. */
-const PROVIDER_SCOPES: Record<OAuthProvider, string> = {
-  google: 'https://www.googleapis.com/auth/calendar.events',
-  azure: 'openid email profile offline_access User.Read Calendars.ReadWrite',
+/**
+ * Scopes requested from each provider.
+ *
+ * Google treats calendar access as a "sensitive" scope and shows an
+ * "unverified app" warning for it until Google has reviewed the app. So plain
+ * "Continue with Google" asks only for the basic profile (no warning), and the
+ * calendar scope is requested later, when the person chooses to connect their
+ * Google Calendar. Microsoft shows no such warning, so it asks for calendar
+ * access at sign-in.
+ */
+const PROVIDER_SCOPES: Record<OAuthProvider, { signIn?: string; calendar: string }> = {
+  google: { calendar: 'https://www.googleapis.com/auth/calendar.events' },
+  azure: {
+    signIn: 'openid email profile offline_access User.Read Calendars.ReadWrite',
+    calendar: 'openid email profile offline_access User.Read Calendars.ReadWrite',
+  },
 };
 
 /**
@@ -50,7 +62,8 @@ const PROVIDER_SCOPES: Record<OAuthProvider, string> = {
  */
 export async function signInWithProvider(
   provider: OAuthProvider,
-  redirectTo?: string
+  redirectTo?: string,
+  options: { calendar?: boolean } = {}
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = getSupabaseClient();
   if (!supabase) return { success: false, error: 'Sign-in service could not be initialised.' };
@@ -63,10 +76,12 @@ export async function signInWithProvider(
       provider,
       options: {
         redirectTo: redirectTo || (typeof window !== 'undefined' ? `${window.location.origin}/` : undefined),
-        scopes: PROVIDER_SCOPES[provider],
+        scopes: options.calendar ? PROVIDER_SCOPES[provider].calendar : PROVIDER_SCOPES[provider].signIn,
         queryParams:
           provider === 'google'
-            ? { access_type: 'offline', prompt: 'consent select_account' }
+            ? options.calendar
+              ? { access_type: 'offline', prompt: 'consent select_account' }
+              : { prompt: 'select_account' }
             : { prompt: 'select_account' },
       },
     });

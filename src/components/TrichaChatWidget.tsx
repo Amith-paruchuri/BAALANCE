@@ -22,6 +22,7 @@ import {
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry, ChatMessage } from '@/lib/types';
 import { apiFetch } from '@/lib/apiFetch';
 import { TrichaAvatar } from './TrichaAvatar';
+import { openHelpPanel } from '@/lib/helplines';
 
 interface TrichaChatWidgetProps {
   userProfile: UserProfile;
@@ -368,9 +369,23 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                       <a href="tel:14416" className="px-3 py-2 rounded-xl bg-white border border-rose-300 text-rose-700 hover:bg-rose-100 text-xs font-bold">
                         Call Tele-MANAS 14416
                       </a>
-                      <a href="tel:18005990019" className="px-3 py-2 rounded-xl bg-white border border-rose-300 text-rose-700 hover:bg-rose-100 text-xs font-bold">
-                        Call KIRAN 1800-599-0019
+<a href="tel:18008914416" className="px-3 py-2 rounded-xl bg-white border border-rose-300 text-rose-700 hover:bg-rose-100 text-xs font-bold">
+                        Call 1800-891-4416
                       </a>
+                      <button
+                        type="button"
+                        onClick={() => openHelpPanel('helplines')}
+                        className="px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-bold cursor-pointer"
+                      >
+                        Other countries
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openHelpPanel('doctor')}
+                        className="px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-bold cursor-pointer"
+                      >
+                        Find a doctor near me
+                      </button>
                     </div>
                   )}
                   <div
@@ -410,7 +425,10 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
         </div>
 
         <p className="px-4 py-1.5 bg-white border-t border-slate-100 text-[10px] text-slate-500 text-center">
-          Tricha is an AI coach, not a doctor or an emergency service. Messages are checked for safety. In an emergency call 112.
+          Tricha is an AI coach, not a doctor or an emergency service. Messages are checked for safety.{' '}
+          <button type="button" onClick={() => openHelpPanel('helplines')} className="underline font-semibold text-slate-600 hover:text-slate-900 cursor-pointer">
+            Get help now
+          </button>
         </p>
 
         {/* Input Bar */}

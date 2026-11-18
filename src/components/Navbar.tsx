@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { LogOut, Sparkles, User, Play, HelpCircle, Building2 } from 'lucide-react';
+import { LogOut, Building2, LifeBuoy } from 'lucide-react';
+import { openHelpPanel } from '@/lib/helplines';
 import { UserProfile } from '@/lib/types';
 import { BaalanceLogo } from './BaalanceLogo';
 import { DashboardTab } from './BottomNavigationBar';
@@ -37,6 +38,16 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right: Controls (How It Works Guide for Judges/Users + Profile) */}
         <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+          <button
+            type="button"
+            onClick={() => openHelpPanel('helplines')}
+            className="flex items-center gap-1.5 text-xs font-bold px-2.5 sm:px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-colors cursor-pointer"
+            title="Helplines and doctors near you"
+          >
+            <LifeBuoy className="w-3.5 h-3.5" />
+            <span>Get help</span>
+          </button>
+
           {/* Switch to Enterprise Workspaces */}
           {onOpenEnterprise && (
             <button
