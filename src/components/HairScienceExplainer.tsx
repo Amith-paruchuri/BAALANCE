@@ -249,6 +249,14 @@ export const HairScienceExplainer: React.FC = () => {
         </svg>
       </div>
 
+      {/* Key for the dots, always visible */}
+      <div className="flex items-center justify-center gap-2 mt-2 text-xs sm:text-sm text-slate-600">
+        <span className="w-3 h-3 rounded-full bg-[#F6B73C] border border-[#D98A1B] shrink-0" aria-hidden="true" />
+        <span>
+          <span className="font-semibold text-slate-800">Yellow dots</span> are cortisol trapped in the hair. More dots, more stress that month.
+        </span>
+      </div>
+
       {/* Caption for the current beat (or the hovered centimetre) */}
       <p className="text-sm sm:text-base text-slate-700 font-medium text-center mt-3 min-h-[3rem] sm:min-h-[1.75rem] px-2" aria-live="polite">
         {caption}

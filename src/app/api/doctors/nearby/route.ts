@@ -31,6 +31,12 @@ const QUERIES: Record<Kind, { path: string; query: string }[]> = {
   ],
 };
 
+/**
+ * Azure Maps files labs, eye banks and even training academies under
+ * "hospital/polyclinic", so the hospital list drops them by name.
+ */
+const NOT_A_HOSPITAL = /\b(lab|labs|laborator(y|ies)|diagnostic|diagnostics|pathology|imaging|scan|x-?ray|eye bank|blood bank|academy|school|college of|institute of hotel|hospitality|pharmacy|chemist|medical store|optical|opticians?|dental|dentist|physiotherapy|homeopathy|ayurved\w*|pain management|spa|salon|insurance|agency|consultants?)\b/i;
+
 interface Place {
   id: string;
   name: string;
@@ -111,6 +117,7 @@ export async function POST(req: NextRequest) {
         };
       })
       .filter((p: Place | null): p is Place => p !== null)
+      .filter((p: Place) => kind !== 'hospital' || !NOT_A_HOSPITAL.test(p.name))
       .sort((a: Place, b: Place) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999))
       .slice(0, 8);
 
