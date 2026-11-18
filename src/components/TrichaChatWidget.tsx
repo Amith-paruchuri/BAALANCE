@@ -24,6 +24,22 @@ import { apiFetch } from '@/lib/apiFetch';
 import { TrichaAvatar } from './TrichaAvatar';
 import { openHelpPanel } from '@/lib/helplines';
 
+const AGENT_TOOL_LABEL: Record<string, string> = {
+  get_hair_results: 'your hair results',
+  get_calendar_load: 'your calendar',
+  get_week_detail: 'one week',
+  search_evidence: 'the evidence library',
+  get_helplines: 'helplines',
+  suggest_app_action: 'app actions',
+};
+
+const AGENT_ACTIONS: Record<string, string> = {
+  review_calendar_changes: 'Review suggested calendar changes',
+  find_doctor: 'Find a doctor near me',
+  open_helplines: 'See helplines',
+  take_pss10: 'Take the stress questionnaire',
+};
+
 interface TrichaChatWidgetProps {
   userProfile: UserProfile;
   segments: HairCortisolSegment[];
@@ -33,6 +49,10 @@ interface TrichaChatWidgetProps {
   verifiedCalendarEmail?: string;
   /** The dashboard's 3-month stress score, so Tricha quotes the same number. */
   stressScore?: number;
+  /** Opens the calendar approval screen, when the agent suggests it. */
+  onReviewCalendar?: () => void;
+  /** Takes the user to the PSS-10 questionnaire. */
+  onTakeQuestionnaire?: () => void;
   embedded?: boolean;
 }
 
@@ -45,6 +65,8 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
   calendarIcalUrl,
   verifiedCalendarEmail,
   stressScore,
+  onReviewCalendar,
+  onTakeQuestionnaire,
   embedded = false,
 }) => {
   const [isOpen, setIsOpen] = useState(embedded);
@@ -256,6 +278,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
           role: 'model',
           text: cleanReply,
           ...(safetyAction === 'crisis' || safetyAction === 'blocked' ? { safety: safetyAction } : {}),
+          ...(data.agent && Array.isArray(data.agent.tools) ? { agent: data.agent } : {}),
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
         setMessages(prev => [...prev, modelMsg]);
@@ -386,6 +409,60 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                       >
                         Find a doctor near me
                       </button>
+                    </div>
+                  )}
+                  {isTricha && msg.agent && (msg.agent.actions.length > 0 || msg.agent.tools.length > 0) && (
+                    <div className="mt-3 pt-3 border-t border-slate-200/80 space-y-2.5" data-testid="agent-trace">
+                      {msg.agent.actions.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {msg.agent.actions.map(action => {
+                            const item = AGENT_ACTIONS[action];
+                            if (!item) return null;
+                            return (
+                              <button
+                                key={action}
+                                type="button"
+                                onClick={() => {
+                                  if (action === 'review_calendar_changes') onReviewCalendar?.();
+                                  else if (action === 'find_doctor') openHelpPanel('doctor');
+                                  else if (action === 'open_helplines') openHelpPanel('helplines');
+                                  else if (action === 'take_pss10') onTakeQuestionnaire?.();
+                                }}
+                                className="px-3 py-2 rounded-xl bg-[#0D4F59] hover:bg-[#0B434B] text-white text-xs font-bold cursor-pointer"
+                              >
+                                {item}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {msg.agent.citations.length > 0 && (
+                        <div className="text-[11px] text-slate-600">
+                          <span className="font-bold text-slate-700">Sources: </span>
+                          {msg.agent.citations.map((c, i) => (
+                            <span key={c.id}>
+                              {i > 0 ? '; ' : ''}
+                              {c.url ? (
+                                <a href={c.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-900">
+                                  {c.source}
+                                </a>
+                              ) : (
+                                c.source
+                              )}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {msg.agent.tools.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-slate-500">
+                          <span className="font-semibold">Looked at:</span>
+                          {Array.from(new Set(msg.agent.tools)).map(tool => (
+                            <span key={tool} className="px-2 py-0.5 rounded-full bg-white border border-slate-200 font-semibold text-slate-600">
+                              {AGENT_TOOL_LABEL[tool] || tool}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                   <div

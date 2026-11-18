@@ -180,6 +180,39 @@ async function callAzure(req: AIRequest): Promise<AIResult | null> {
   }
 }
 
+/** True when Azure OpenAI is configured and is the provider in use (needed for tool calling). */
+export function azureIsPrimary(): boolean {
+  return providerOrder()[0] === 'azure';
+}
+
+/**
+ * One raw Azure OpenAI chat-completions call, for callers that need features
+ * beyond generateText() such as tool (function) calling. Returns the first
+ * choice's message, or null on any failure.
+ */
+export async function azureChatRaw(body: Record<string, unknown>): Promise<{ message: any; model: string } | null> {
+  const cfg = azureConfig();
+  if (!cfg) return null;
+  const url = `${cfg.endpoint}/openai/deployments/${encodeURIComponent(cfg.deployment)}/chat/completions?api-version=${encodeURIComponent(cfg.apiVersion)}`;
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'api-key': cfg.apiKey },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      console.warn('[BAALANCE AI] Azure OpenAI error:', res.status, (await res.text()).slice(0, 300));
+      return null;
+    }
+    const data = await res.json();
+    const message = data?.choices?.[0]?.message;
+    return message ? { message, model: cfg.deployment } : null;
+  } catch (err: any) {
+    console.warn('[BAALANCE AI] Azure OpenAI request failed:', err?.message || err);
+    return null;
+  }
+}
+
 /** Sends the request to the configured provider, falling back to the other one if it fails. */
 export async function generateText(req: AIRequest): Promise<AIResult | null> {
   for (const provider of providerOrder(req.geminiApiKey)) {

@@ -125,4 +125,11 @@ export interface ChatMessage {
   timestamp: string;
   /** Set when the safety check replaced the coach's answer. */
   safety?: 'crisis' | 'blocked';
+  /** What the agent looked up to write this reply, and what it offers to open. */
+  agent?: {
+    tools: string[];
+    citations: Array<{ id: string; title: string; source: string; url?: string }>;
+    actions: string[];
+    retrieval?: string | null;
+  };
 }

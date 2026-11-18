@@ -28,6 +28,14 @@ or "BAALANCE AI". Prefer Microsoft features (Outlook/Teams via Graph, Azure Open
   `HelpPanelHost` in the layout and opened with `openHelpPanel()` from `src/lib/helplines.ts`. Numbers live in that file
   and were checked in November 2026; re-check before releases. `/api/doctors/nearby` uses Azure Maps (`AZURE_MAPS_KEY`).
   Location is asked for per search, rounded, and never stored. The app does not run a helpline or book appointments.
+- Tricha agent: `src/lib/trichaAgent.ts` (Azure OpenAI tool calling, six read-only tools). `/api/gemini-chat` tries the
+  agent first and falls back to the single-prompt reply, then to rule-based answers. Evidence for grounding lives in
+  `src/lib/evidence.ts` (Azure AI Search when `AZURE_SEARCH_*` is set, built-in search otherwise).
+- Prompt Shields run with Content Safety on every user message (`src/lib/contentSafety.ts`).
+- `/azure` shows the live state of each Microsoft service from `/api/status`. `/api/mcp` is a small MCP server exposing
+  the evidence library and helplines (no personal data).
+- Evaluation: `node scripts/eval-tricha.mjs` runs 15 checks against the live chat and writes `docs/tricha-eval.md`.
+  Run it after changing the prompt, tools or safety checks.
 - Demo data: `src/lib/mockData.ts` (fictional "Sample Case"; July 11.2, August 28.4, September 15.6 pg/mg).
 
 ## Design system (set in November 2026)

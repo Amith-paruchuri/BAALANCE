@@ -1485,6 +1485,11 @@ export default function BaalanceApp() {
               calendarIcalUrl={savedCalendarIcalUrl}
               verifiedCalendarEmail={verifiedCalendarEmail}
               stressScore={synthesis.allostaticLoadScore}
+              onReviewCalendar={handleApplyCalendarRules}
+              onTakeQuestionnaire={() => {
+                setDashboardTab('profile');
+                setTimeout(() => document.querySelector('[data-testid="pss10-card"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
+              }}
               embedded={true}
             />
           </div>

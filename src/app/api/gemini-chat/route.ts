@@ -4,6 +4,7 @@ import { userOrDemoQuota } from '@/lib/serverAuth';
 import { screenText, CRISIS_REPLY, CRISIS_RESOURCES, BLOCKED_INPUT_REPLY, BLOCKED_OUTPUT_REPLY } from '@/lib/contentSafety';
 import { writeAudit } from '@/lib/auditServer';
 import { describePss10 } from '@/lib/pss10';
+import { agentSystemPrompt, runTrichaAgent } from '@/lib/trichaAgent';
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry } from '@/lib/types';
 
 export async function POST(req: NextRequest) {
@@ -228,6 +229,40 @@ COMMUNICATION RULES:
     const chatHistory = (Array.isArray(history) ? history.slice(-6) : [])
       .filter((h: any) => h && typeof h.text === 'string' && h.text.trim())
       .map((h: any) => ({ role: h.role === 'user' ? ('user' as const) : ('assistant' as const), text: h.text }));
+
+    // 1. Preferred path: Tricha as a tool-using agent on Azure OpenAI. It looks up the
+    //    user's numbers and the evidence library itself, and can offer app actions.
+    //    If it is unavailable or fails, the plain single-prompt reply below is used.
+    if (!clientApiKey && !req.headers.get('x-gemini-api-key')) {
+      const agent = await runTrichaAgent({
+        system: agentSystemPrompt(firstName),
+        history: chatHistory,
+        message: String(message || ''),
+        context: {
+          segments: Array.isArray(segments) ? segments : [],
+          telemetry: weeklyData,
+          stressScore: Number.isFinite(scoreNumber) ? scoreNumber : null,
+          pss10Score: typeof userProfile.pss10?.score === 'number' ? userProfile.pss10.score : null,
+        },
+      });
+      if (agent) {
+        const agentVerdict = await screenText(agent.text, 'output');
+        if (agentVerdict.blocked) {
+          if (access) await writeAudit(access, 'content_blocked', { detail: { stage: 'reply', checkedBy: agentVerdict.checkedBy.join('+') } });
+          return NextResponse.json({
+            reply: BLOCKED_OUTPUT_REPLY,
+            source: 'safety',
+            safety: { action: 'blocked', checkedBy: agentVerdict.checkedBy, resources: [] },
+          });
+        }
+        return NextResponse.json({
+          reply: agent.text.replace(/\*/g, '').replace(/\s*\u2014\s*/g, ', '),
+          source: `azure-agent:${agent.model}`,
+          safety: { action: 'passed', checkedBy: Array.from(new Set([...inputVerdict.checkedBy, ...agentVerdict.checkedBy])) },
+          agent: { tools: agent.tools, citations: agent.citations, actions: agent.actions, retrieval: agent.retrieval },
+        });
+      }
+    }
 
     const aiResult = await generateText({
       system: systemPrompt,

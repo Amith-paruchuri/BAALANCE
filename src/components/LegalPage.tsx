@@ -13,6 +13,7 @@ export function LegalPage({ title, updated, children }: { title: string; updated
           <nav className="flex items-center gap-4 text-xs font-semibold text-slate-600">
             <Link href="/privacy" className="hover:text-slate-900">Privacy</Link>
             <Link href="/terms" className="hover:text-slate-900">Terms</Link>
+            <Link href="/azure" className="hidden sm:inline hover:text-slate-900">Built on Azure</Link>
             <Link href="/" className="px-3 py-1.5 rounded-lg bg-[#0D4F59] text-white hover:bg-[#0B434B]">Open the app</Link>
           </nav>
         </div>
