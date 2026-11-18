@@ -112,7 +112,7 @@ export const StressScoreCard: React.FC<StressScoreCardProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8 items-center">
+      <div className="max-w-xl mx-auto w-full">
         {/* Gauge */}
         <div className="rounded-2xl border border-[#EFE6DA] bg-gradient-to-b from-[#FBF7F2] to-white p-5 flex flex-col items-center">
           <div className="relative w-full max-w-[280px]">
@@ -155,46 +155,6 @@ export const StressScoreCard: React.FC<StressScoreCardProps> = ({
           </div>
         </div>
 
-        {/* What goes into it */}
-        <div className="space-y-3">
-          <div className="text-xs font-extrabold text-slate-900">What goes into this score</div>
-
-          <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
-              <Droplet className="w-3.5 h-3.5" />
-              <span>Hair cortisol, month by month (pg/mg)</span>
-            </div>
-            <div className="mt-3 grid grid-cols-3 gap-3 items-end">
-              {ordered.map(seg => {
-                const v = seg.cortisolPgPerMg;
-                const color = v > 20 ? '#F43F5E' : v > 14 ? '#F59E0B' : '#10B981';
-                return (
-                  <div key={seg.id} className="text-center">
-                    <div className="h-16 flex items-end justify-center">
-                      <div
-                        className="w-full max-w-[56px] rounded-t-lg"
-                        style={{ height: `${Math.max(12, (v / maxCortisol) * 100)}%`, backgroundColor: color, transition: 'height 300ms ease' }}
-                      />
-                    </div>
-                    <div className="text-sm font-black font-mono text-slate-900 mt-1">{v}</div>
-                    <div className="text-[10px] font-semibold text-slate-500">{seg.title}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2">
-            {inputs.map(item => (
-              <div key={item.label} className="p-3 rounded-2xl bg-slate-50/70 border border-slate-200/80">
-                <item.icon className="w-3.5 h-3.5 text-slate-400" />
-                <div className="text-lg font-black font-mono text-slate-900 leading-tight mt-1">{item.value}</div>
-                <div className="text-[10px] font-semibold text-slate-600 leading-tight">{item.label}</div>
-                <div className="text-[10px] text-slate-400">{item.unit}</div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Explanation */}
@@ -205,12 +165,53 @@ export const StressScoreCard: React.FC<StressScoreCardProps> = ({
           aria-expanded={showBreakdown}
           className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 cursor-pointer"
         >
-          <span>{showBreakdown ? 'Hide the explanation' : 'How this is calculated, and the likely cause'}</span>
+          <span>{showBreakdown ? 'Hide the details' : 'What goes into this score, and the likely cause'}</span>
           {showBreakdown ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
 
         {showBreakdown && (
           <div id="score-breakdown" className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3 animate-fade-in">
+            {/* What goes into it */}
+            <div className="space-y-3 md:col-span-3" data-testid="score-inputs">
+              <div className="text-xs font-extrabold text-slate-900">What goes into this score</div>
+
+              <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+                  <Droplet className="w-3.5 h-3.5" />
+                  <span>Hair cortisol, month by month (pg/mg)</span>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-3 items-end">
+                  {ordered.map(seg => {
+                    const v = seg.cortisolPgPerMg;
+                    const color = v > 20 ? '#F43F5E' : v > 14 ? '#F59E0B' : '#10B981';
+                    return (
+                      <div key={seg.id} className="text-center">
+                        <div className="h-16 flex items-end justify-center">
+                          <div
+                            className="w-full max-w-[56px] rounded-t-lg"
+                            style={{ height: `${Math.max(12, (v / maxCortisol) * 100)}%`, backgroundColor: color, transition: 'height 300ms ease' }}
+                          />
+                        </div>
+                        <div className="text-sm font-black font-mono text-slate-900 mt-1">{v}</div>
+                        <div className="text-[10px] font-semibold text-slate-500">{seg.title}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                {inputs.map(item => (
+                  <div key={item.label} className="p-3 rounded-2xl bg-slate-50/70 border border-slate-200/80">
+                    <item.icon className="w-3.5 h-3.5 text-slate-400" />
+                    <div className="text-lg font-black font-mono text-slate-900 leading-tight mt-1">{item.value}</div>
+                    <div className="text-[10px] font-semibold text-slate-600 leading-tight">{item.label}</div>
+                    <div className="text-[10px] text-slate-400">{item.unit}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80">
               <div className="text-xs font-extrabold text-slate-900">1. Hair cortisol</div>
               <p className="text-xs text-slate-600 leading-relaxed mt-1">
