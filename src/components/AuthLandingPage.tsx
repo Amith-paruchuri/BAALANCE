@@ -259,7 +259,12 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
 
         <p className="text-xs font-medium text-slate-500">
           Pilot planned with 150 resident doctors at AIIMS New Delhi
-          {aiOnAzure ? ' · AI on Microsoft Azure' : ''}
+          {aiOnAzure ? (
+            <>
+              {' · '}
+              <a href="/azure" className="underline hover:text-slate-700">Built on Microsoft Azure</a>
+            </>
+          ) : null}
         </p>
 
         {/* PRIMARY PORTAL SELECTOR: INDIVIDUAL VS ENTERPRISE */}
@@ -584,6 +589,8 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
           <a href="/privacy" className="font-semibold text-slate-600 underline">Privacy</a>
           {' · '}
           <a href="/terms" className="font-semibold text-slate-600 underline">Terms</a>
+          {' · '}
+          <a href="/azure" className="font-semibold text-slate-600 underline">Built on Microsoft Azure</a>
         </p>
       </footer>
     </div>

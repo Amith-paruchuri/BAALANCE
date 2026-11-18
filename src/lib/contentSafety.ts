@@ -9,7 +9,7 @@
  * emergency guidance instead. Model replies are screened before they are shown.
  */
 
-export type SafetyCategory = 'SelfHarm' | 'Violence' | 'Hate' | 'Sexual';
+export type SafetyCategory = 'SelfHarm' | 'Violence' | 'Hate' | 'Sexual' | 'PromptAttack';
 
 export interface SafetyVerdict {
   /** The user may be in distress: show help and emergency guidance. */
@@ -17,7 +17,7 @@ export interface SafetyVerdict {
   /** The text should not be shown or answered as-is. */
   blocked: boolean;
   categories: SafetyCategory[];
-  checkedBy: Array<'rules' | 'azure'>;
+  checkedBy: Array<'rules' | 'azure' | 'prompt-shields'>;
 }
 
 export interface CrisisResource {
@@ -88,7 +88,8 @@ function azureSafetyConfig() {
 }
 
 export function getSafetyStatus() {
-  return { rules: true, azureContentSafety: !!azureSafetyConfig() };
+  const on = !!azureSafetyConfig();
+  return { rules: true, azureContentSafety: on, promptShields: on };
 }
 
 /**
@@ -130,6 +131,37 @@ async function azureAnalyze(text: string): Promise<Partial<Record<SafetyCategory
 }
 
 /**
+ * Azure AI Content Safety Prompt Shields: detects attempts to override the
+ * coach's instructions ("jailbreaks"). Returns null when not configured or on
+ * any failure, so a problem with the check never blocks a normal message.
+ */
+async function azureShieldPrompt(text: string): Promise<boolean | null> {
+  const cfg = azureSafetyConfig();
+  if (!cfg) return null;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 4000);
+  try {
+    const res = await fetch(`${cfg.endpoint}/contentsafety/text:shieldPrompt?api-version=${encodeURIComponent(cfg.apiVersion)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': cfg.key },
+      body: JSON.stringify({ userPrompt: text.slice(0, 10000), documents: [] }),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      console.warn('[BAALANCE Safety] Prompt Shields error:', res.status);
+      return null;
+    }
+    const data = await res.json();
+    return typeof data?.userPromptAnalysis?.attackDetected === 'boolean' ? data.userPromptAnalysis.attackDetected : null;
+  } catch (err: any) {
+    console.warn('[BAALANCE Safety] Prompt Shields request failed:', err?.message || err);
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
  * Screens a piece of text. `kind` is 'input' for what the user typed and
  * 'output' for what the model wrote.
  */
@@ -142,7 +174,15 @@ export async function screenText(text: string, kind: 'input' | 'output'): Promis
     verdict.categories.push('SelfHarm');
   }
 
-  const severities = await azureAnalyze(text);
+  const [severities, attack] = await Promise.all([azureAnalyze(text), kind === 'input' ? azureShieldPrompt(text) : Promise.resolve(null)]);
+  if (attack !== null) {
+    verdict.checkedBy.push('prompt-shields');
+    // A crisis message always gets help first, whatever else it contains.
+    if (attack && !verdict.crisis) {
+      verdict.blocked = true;
+      verdict.categories.push('PromptAttack');
+    }
+  }
   if (severities) {
     verdict.checkedBy.push('azure');
     for (const [category, severity] of Object.entries(severities) as Array<[SafetyCategory, number]>) {
