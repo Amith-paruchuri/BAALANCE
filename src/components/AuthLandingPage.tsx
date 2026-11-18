@@ -23,6 +23,7 @@ import {
   CalendarClock,
 } from 'lucide-react';
 import { BaalanceLogo } from './BaalanceLogo';
+import { HairScienceExplainer } from './HairScienceExplainer';
 import {
   type OAuthProvider,
   signInWithProvider,
@@ -185,14 +186,6 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
             <>
               <button
                 type="button"
-                onClick={() => setPortalMode('enterprise')}
-                className="px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 active:scale-95 cursor-pointer"
-              >
-                <Building2 className="w-3 h-3 text-slate-500" />
-                <span>For teams</span>
-              </button>
-              <button
-                type="button"
                 onClick={scrollToSignIn}
                 className="hidden sm:block px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
               >
@@ -232,75 +225,39 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
 
       {/* Main Section */}
       <div className="max-w-4xl mx-auto w-full py-6 sm:py-10 space-y-6 text-center">
-        {/* Hero: one message, one main button */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 md:gap-8 items-center text-left max-w-3xl mx-auto">
-          <div className="md:col-span-3 space-y-4">
-            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-              Your next stress test is <span className="text-[#BF6F4E]">a haircut.</span>
-            </h1>
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              3 cm of hair holds 3 months of cortisol. Your calendar shows what caused it.
-            </p>
-            <div className="flex flex-wrap items-center gap-2.5">
-              <button
-                type="button"
-                onClick={onStartDemo}
-                className="px-5 py-3 rounded-xl bg-[#0D4F59] hover:bg-[#0B434B] text-white font-extrabold text-sm shadow-md flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
-              >
-                <Play className="w-3.5 h-3.5 fill-white" />
-                <span>Try the demo</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleOAuth('azure')}
-                disabled={oauthPending !== null}
-                className="px-4 py-3 rounded-xl border border-[#E2E8F0] bg-white hover:bg-slate-50 text-slate-900 font-bold text-sm flex items-center gap-2.5 transition-all cursor-pointer disabled:opacity-60"
-              >
-                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>
-                <span>{oauthPending === 'azure' ? 'Opening Microsoft…' : 'Continue with Microsoft'}</span>
-              </button>
-            </div>
-            <p className="text-xs text-slate-500">No account needed for the demo. Research stage, not a diagnosis.</p>
+        {/* Hero: the headline, the two ways in, then the science told once */}
+        <div className="max-w-3xl mx-auto space-y-5">
+          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.1]">
+            Your next stress test is <span className="text-[#BF6F4E]">a haircut.</span>
+          </h1>
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
+            <button
+              type="button"
+              onClick={onStartDemo}
+              className="px-5 py-3 rounded-xl bg-[#0D4F59] hover:bg-[#0B434B] text-white font-extrabold text-sm shadow-md flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+            >
+              <Play className="w-3.5 h-3.5 fill-white" />
+              <span>Try the demo</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleOAuth('azure')}
+              disabled={oauthPending !== null}
+              className="px-4 py-3 rounded-xl border border-[#E2E8F0] bg-white hover:bg-slate-50 text-slate-900 font-bold text-sm flex items-center gap-2.5 transition-all cursor-pointer disabled:opacity-60"
+            >
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>
+              <span>{oauthPending === 'azure' ? 'Opening Microsoft…' : 'Continue with Microsoft'}</span>
+            </button>
           </div>
-
-          <div className="md:col-span-2 bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-card" aria-label="Sample case: hair cortisol by month">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-bold text-slate-500">Sample case · pg/mg</span>
-              <span className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">Peak in August</span>
-            </div>
-            <div className="grid grid-cols-3 gap-3 items-end h-28">
-              <div className="rounded-t-lg bg-emerald-400" style={{ height: '39%' }} />
-              <div className="rounded-t-lg bg-rose-500" style={{ height: '100%' }} />
-              <div className="rounded-t-lg bg-amber-400" style={{ height: '55%' }} />
-            </div>
-            <div className="grid grid-cols-3 gap-3 text-center mt-1.5">
-              <div className="text-[11px] text-slate-600"><span className="font-bold text-slate-900">11.2</span><br />July</div>
-              <div className="text-[11px] text-slate-600"><span className="font-bold text-slate-900">28.4</span><br />August</div>
-              <div className="text-[11px] text-slate-600"><span className="font-bold text-slate-900">15.6</span><br />September</div>
-            </div>
-            <p className="text-[11px] text-slate-500 mt-3 pt-3 border-t border-slate-100">
-              57 meetings after 7 PM in the same 90 days.
-            </p>
-          </div>
+          <p className="text-xs text-slate-500">No account needed for the demo. Research stage, not a diagnosis.</p>
         </div>
 
-        {/* How it works */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto text-left">
-          {[
-            { icon: Scissors, title: '1. Haircut, 3 cm lock', text: 'At a partner salon or at home.' },
-            { icon: FlaskConical, title: '2. Lab reads each month', text: '1 cm of hair is about 1 month.' },
-            { icon: CalendarClock, title: '3. Calendar shows why', text: 'You approve every change.' },
-          ].map(step => (
-            <div key={step.title} className="bg-white rounded-2xl border border-[#E2E8F0] p-4 shadow-2xs">
-              <step.icon className="w-4 h-4 text-[#BF6F4E]" />
-              <div className="text-sm font-extrabold text-slate-900 mt-2">{step.title}</div>
-              <div className="text-xs text-slate-600 mt-0.5">{step.text}</div>
-            </div>
-          ))}
+        <div className="max-w-3xl mx-auto">
+          <HairScienceExplainer />
         </div>
 
         <p className="text-xs font-medium text-slate-500">
-          Pilot planned with 150 resident doctors at AIIMS New Delhi · Works with Outlook, Teams and Google Calendar
+          Pilot planned with 150 resident doctors at AIIMS New Delhi
           {aiOnAzure ? ' · AI on Microsoft Azure' : ''}
         </p>
 
@@ -617,7 +574,7 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
       {/* Social Proof & Origin Footer */}
       <footer className="w-full text-center py-4 border-t border-slate-200/80">
         <p className="text-xs font-medium text-slate-500">
-          Built by a final-year medical student at <span className="font-semibold text-slate-700">AIIMS New Delhi</span> · <span className="text-[#0D4F59] font-semibold">Winner, Google Fund My Crazy 2026</span>
+          Built by a final-year medical student at <span className="font-semibold text-slate-700">AIIMS New Delhi</span>
         </p>
       </footer>
     </div>

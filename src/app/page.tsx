@@ -1376,10 +1376,6 @@ export default function BaalanceApp() {
                 telemetry={telemetry}
                 pss10={userProfile.pss10}
                 onSeeLateMeetings={() => setDashboardTab('calendar')}
-                onSeeScoreBreakdown={() => {
-                  setShowScoreDerivation(true);
-                  setTimeout(() => document.getElementById('score-breakdown')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
-                }}
                 onTakeQuestionnaire={() => {
                   setDashboardTab('profile');
                   setTimeout(() => document.querySelector('[data-testid="pss10-card"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 120);
@@ -1413,6 +1409,7 @@ export default function BaalanceApp() {
               {/* 3. 12-Week Cortisol & Workload Timeline */}
               <ChronoCorrelationChart
                 telemetry={telemetry}
+                segments={segments}
                 activeSegmentId={activeSegmentId}
                 onSelectSegment={(id) => setActiveSegmentId(id)}
                 isCalendarConnected={!userProfile.isDemo && (!!savedCalendarIcalUrl || (savedCalendarEvents && savedCalendarEvents.length > 0))}
@@ -1428,6 +1425,8 @@ export default function BaalanceApp() {
                 onOpenCalendarModal={() => setIsCalendarModalOpen(true)}
                 onApplyCalendarRules={handleApplyCalendarRules}
                 calendarRulesApplied={calendarRulesApplied}
+                lateMeetings={totalEveningCalls}
+                sleepHours={userProfile.nightlySleepHours}
               />
 
               {/* 5. Hair's Journey Stepper */}
