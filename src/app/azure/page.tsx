@@ -11,6 +11,7 @@ interface Status {
   contentSafety: { on: boolean };
   promptShields: { on: boolean };
   grounding: { on: boolean; backend: string; passages: number };
+  azureSearch?: { on: boolean; configured: boolean; index: string | null; ranking: string | null };
   maps: { on: boolean };
   entraSignIn: { on: boolean };
   graphCalendar: { on: boolean };
@@ -60,6 +61,16 @@ export default function AzurePage() {
       on: status?.grounding.on,
       what: 'Claims about the science come from a library of published studies and method notes, and replies list their sources.',
       detail: status ? `${status.grounding.passages} passages, retrieved with ${status.grounding.backend === 'azure-ai-search' ? 'Azure AI Search' : 'the built-in search (Azure AI Search ready)'}` : undefined,
+    },
+    {
+      name: 'Azure AI Search',
+      on: status?.azureSearch?.on,
+      what: 'Holds the evidence library and finds the passages that answer each question, so Tricha\'s claims about the science come from published sources. The app builds and refreshes the index itself.',
+      detail: status?.azureSearch?.on
+        ? `Index: ${status.azureSearch.index}${status.azureSearch.ranking ? `, ${status.azureSearch.ranking === 'semantic' ? 'semantic ranking' : 'keyword ranking'}` : ''}`
+        : status?.azureSearch?.configured
+          ? 'Configured but not reachable right now; the built-in search is used'
+          : undefined,
     },
     {
       name: 'Azure AI Content Safety',

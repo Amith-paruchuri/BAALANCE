@@ -30,7 +30,9 @@ or "BAALANCE AI". Prefer Microsoft features (Outlook/Teams via Graph, Azure Open
   Location is asked for per search, rounded, and never stored. The app does not run a helpline or book appointments.
 - Tricha agent: `src/lib/trichaAgent.ts` (Azure OpenAI tool calling, six read-only tools). `/api/gemini-chat` tries the
   agent first and falls back to the single-prompt reply, then to rule-based answers. Evidence for grounding lives in
-  `src/lib/evidence.ts` (Azure AI Search when `AZURE_SEARCH_*` is set, built-in search otherwise).
+  `src/lib/evidence.ts` (Azure AI Search when `AZURE_SEARCH_ENDPOINT` + admin `AZURE_SEARCH_KEY` are set: the app
+  creates the index and reloads it whenever a passage changes, semantic ranking with keyword fallback; built-in search
+  otherwise). Add only verified sources, conservative wording in our own words.
 - Foundry Agent Service: `src/lib/foundryAgent.ts` creates/updates the `tricha` agent in the Foundry project from code
   (same instructions and tools as `trichaAgent.ts`) and runs each turn through `{endpoint}/openai/v1/responses`; tools run
   on our server. Needs `FOUNDRY_PROJECT_ENDPOINT` + `AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET` (service principal with the
