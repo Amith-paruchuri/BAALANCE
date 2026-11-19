@@ -34,7 +34,7 @@ import {
 
 const TIMEOUT_MS = 20_000;
 
-function config() {
+export function config() {
   const endpoint = (process.env.FOUNDRY_PROJECT_ENDPOINT || '').trim().replace(/\/+$/, '');
   const tenant = (process.env.AZURE_TENANT_ID || '').trim();
   const clientId = (process.env.AZURE_CLIENT_ID || '').trim();
@@ -76,7 +76,7 @@ async function getToken(): Promise<string> {
   return token.value;
 }
 
-async function foundryFetch(path: string, body?: unknown, method = body === undefined ? 'GET' : 'POST') {
+export async function foundryFetch(path: string, body?: unknown, method = body === undefined ? 'GET' : 'POST') {
   const c = config();
   const res = await fetch(`${c.endpoint}${path}`, {
     method,
@@ -114,7 +114,7 @@ let lastError: string | null = null;
 let lastReplyAt: number | null = null;
 const READY_FOR_MS = 10 * 60 * 1000;
 
-function versionOf(data: any): string | null {
+export function versionOf(data: any): string | null {
   const v = data?.version ?? data?.versions?.latest?.version ?? data?.latest_version ?? null;
   return v === null || v === undefined ? null : String(v);
 }
@@ -151,7 +151,7 @@ export async function ensureFoundryAgent(): Promise<{ ok: boolean; version: stri
 /** The docs show both keys for naming the agent; use whichever the service accepts. */
 let referenceKey: 'agent' | 'agent_reference' = 'agent';
 
-function textFrom(output: any[]): string {
+export function textFrom(output: any[]): string {
   return output
     .filter(item => item?.type === 'message')
     .flatMap(item => (Array.isArray(item.content) ? item.content : []))
@@ -262,4 +262,68 @@ export async function probeFoundryAgent(): Promise<{ ok: boolean; source: string
   });
   const clean = (e: string | null) => (e ? e.replace(/Bearer\s+\S+/gi, 'Bearer ***').replace(/(key|secret|token)=\S+/gi, '$1=***') : null);
   return result ? { ok: true, source: `${result.agentName}@${result.agentVersion}:${result.model}`, error: null } : { ok: false, source: null, error: clean(lastError) };
+}
+
+// ---- Generic helpers, used by the multi-agent team (src/lib/foundryTeam.ts) ----
+
+const namedReady = new Map<string, { at: number; version: string | null }>();
+
+/** Creates or updates any named prompt agent in the Foundry project. Cached per server instance. */
+export async function ensureNamedAgent(name: string, definition: Record<string, unknown>, description: string): Promise<string | null> {
+  const cached = namedReady.get(name);
+  if (cached && Date.now() - cached.at < READY_FOR_MS) return cached.version;
+  let res = await foundryFetch(`/agents/${encodeURIComponent(name)}?api-version=v1`, { definition, description });
+  if (res.status === 404) res = await foundryFetch(`/agents?api-version=v1`, { name, definition, description });
+  if (!res.ok) throw new Error(`agent ${name} setup failed (${res.status}): ${String(res.data?.error?.message || res.text).slice(0, 200)}`);
+  const version = versionOf(res.data);
+  namedReady.set(name, { at: Date.now(), version });
+  return version;
+}
+
+/** One Responses call to a named agent. */
+export async function respondWithAgent(name: string, items: any[], toolChoice: 'auto' | 'none' = 'auto'): Promise<any> {
+  // tool_choice is sent only to force a final answer; agents without tools never get it.
+  const body = (key: typeof referenceKey) => ({ [key]: { type: 'agent_reference', name }, input: items, ...(toolChoice === 'none' ? { tool_choice: 'none' } : {}) });
+  let res = await foundryFetch('/openai/v1/responses', body(referenceKey));
+  if (res.status === 400 && /agent/i.test(String(res.data?.error?.message || res.text)) && !/Supported values/i.test(String(res.data?.error?.message || ''))) {
+    const other = referenceKey === 'agent' ? 'agent_reference' : 'agent';
+    const retry = await foundryFetch('/openai/v1/responses', body(other));
+    if (retry.ok) referenceKey = other;
+    res = retry;
+  }
+  if (!res.ok) throw new Error(`${name} response failed (${res.status}): ${String(res.data?.error?.message || res.text).slice(0, 200)}`);
+  return res.data;
+}
+
+/**
+ * Runs a named agent to completion: whenever it asks for function calls, they
+ * are executed here and the results sent back, up to maxSteps rounds.
+ */
+export async function runAgentLoop(
+  name: string,
+  input: any[],
+  execute: (tool: string, args: any) => Promise<unknown>,
+  maxSteps = 4,
+): Promise<{ text: string; model: string | null }> {
+  let model: string | null = null;
+  for (let step = 0; step <= maxSteps; step++) {
+    const response = await respondWithAgent(name, input, step === maxSteps && maxSteps > 0 ? 'none' : 'auto');
+    if (typeof response?.model === 'string') model = response.model;
+    const output: any[] = Array.isArray(response?.output) ? response.output : [];
+    const calls = output.filter(item => item?.type === 'function_call');
+    if (calls.length === 0) return { text: textFrom(output), model };
+    input.push(...output);
+    // Calls in one turn are independent, so run them together.
+    const results = await Promise.all(
+      calls.slice(0, 6).map(async fc => {
+        let args: any = {};
+        try {
+          args = JSON.parse(fc.arguments || '{}');
+        } catch {}
+        return { call_id: fc.call_id, result: await execute(String(fc.name || ''), args) };
+      }),
+    );
+    for (const r of results) input.push({ type: 'function_call_output', call_id: r.call_id, output: typeof r.result === 'string' ? r.result : JSON.stringify(r.result) });
+  }
+  return { text: '', model };
 }

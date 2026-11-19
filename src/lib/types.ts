@@ -131,5 +131,7 @@ export interface ChatMessage {
     citations: Array<{ id: string; title: string; source: string; url?: string }>;
     actions: string[];
     retrieval?: string | null;
+    /** Foundry agents that took part (multi-agent replies only). */
+    team?: string[];
   };
 }

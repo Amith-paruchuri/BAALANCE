@@ -26,11 +26,21 @@ import { openHelpPanel } from '@/lib/helplines';
 
 const AGENT_TOOL_LABEL: Record<string, string> = {
   get_hair_results: 'your hair results',
+  get_scores: 'your scores',
   get_calendar_load: 'your calendar',
   get_week_detail: 'one week',
   search_evidence: 'the evidence library',
   get_helplines: 'helplines',
   suggest_app_action: 'app actions',
+};
+
+const AGENT_TEAM_LABEL: Record<string, string> = {
+  'tricha-orchestrator': 'Lead',
+  'tricha-biomarker': 'Biomarker',
+  'tricha-calendar': 'Calendar',
+  'tricha-evidence': 'Evidence',
+  'tricha-care': 'Care',
+  'tricha-reviewer': 'Reviewer',
 };
 
 const AGENT_ACTIONS: Record<string, string> = {
@@ -449,6 +459,16 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                               ) : (
                                 c.source
                               )}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {msg.agent.team && msg.agent.team.length > 1 && (
+                        <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-slate-500" data-testid="agent-team">
+                          <span className="font-semibold">Agents:</span>
+                          {msg.agent.team.map(name => (
+                            <span key={name} className="px-2 py-0.5 rounded-full bg-[#0D4F59]/5 border border-[#0D4F59]/20 font-semibold text-[#0D4F59]">
+                              {AGENT_TEAM_LABEL[name] || name}
                             </span>
                           ))}
                         </div>

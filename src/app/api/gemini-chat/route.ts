@@ -6,7 +6,11 @@ import { writeAudit } from '@/lib/auditServer';
 import { describePss10 } from '@/lib/pss10';
 import { agentSystemPrompt, runTrichaAgent, type AgentResult } from '@/lib/trichaAgent';
 import { runFoundryAgent } from '@/lib/foundryAgent';
+import { runTrichaTeam } from '@/lib/foundryTeam';
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry } from '@/lib/types';
+
+// The six-agent team can take longer than a single reply.
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   const access = await userOrDemoQuota(req, 'chat', 30);
@@ -243,10 +247,15 @@ COMMUNICATION RULES:
       };
       // 1a. Tricha hosted on Microsoft Foundry Agent Service, when configured.
       // 1b. Otherwise the same tools in a direct Azure OpenAI loop.
-      let agent: AgentResult | null = null;
+      let agent: (AgentResult & { team?: string[] }) | null = null;
       let agentSource = '';
-      const foundry = await runFoundryAgent({ firstName, history: chatHistory, message: String(message || ''), context: agentContext });
-      if (foundry) {
+      // 1. Six agents on Microsoft Foundry: a lead, four specialists and a reviewer.
+      const teamRun = await runTrichaTeam({ firstName, history: chatHistory, message: String(message || ''), context: agentContext });
+      const foundry = teamRun ? null : await runFoundryAgent({ firstName, history: chatHistory, message: String(message || ''), context: agentContext });
+      if (teamRun) {
+        agent = teamRun;
+        agentSource = `foundry-team:${teamRun.team.length}-agents:${teamRun.model}`;
+      } else if (foundry) {
         agent = foundry;
         agentSource = `foundry-agent:${foundry.agentName}${foundry.agentVersion ? `@${foundry.agentVersion}` : ''}:${foundry.model}`;
       } else {
@@ -267,7 +276,7 @@ COMMUNICATION RULES:
           reply: agent.text.replace(/\*/g, '').replace(/\s*\u2014\s*/g, ', '),
           source: agentSource,
           safety: { action: 'passed', checkedBy: Array.from(new Set([...inputVerdict.checkedBy, ...agentVerdict.checkedBy])) },
-          agent: { tools: agent.tools, citations: agent.citations, actions: agent.actions, retrieval: agent.retrieval },
+          agent: { tools: agent.tools, citations: agent.citations, actions: agent.actions, retrieval: agent.retrieval, ...(agent.team ? { team: agent.team } : {}) },
         });
       }
     }

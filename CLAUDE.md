@@ -39,6 +39,10 @@ or "BAALANCE AI". Prefer Microsoft features (Outlook/Teams via Graph, Azure Open
   on our server. Needs `FOUNDRY_PROJECT_ENDPOINT` + `AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET` (service principal with the
   Azure AI User role on the project). Chat order: Foundry agent, then direct Azure OpenAI agent, then single prompt.
   Reply `source` starts with `foundry-agent:` when Foundry answered.
+- Multi-agent Tricha: `src/lib/foundryTeam.ts`, six Foundry agents (orchestrator, biomarker, calendar, evidence, care,
+  reviewer). The orchestrator consults specialists as function tools (in parallel), the reviewer checks the draft. Runs
+  first when Foundry is configured; `TRICHA_MULTI_AGENT=off` falls back to the single agent. Source `foundry-team:...`.
+  `/api/status?probe=team` runs one test question through the team.
 - Prompt Shields run with Content Safety on every user message (`src/lib/contentSafety.ts`).
 - `/azure` shows the live state of each Microsoft service from `/api/status`. `/api/mcp` is a small MCP server exposing
   the evidence library and helplines (no personal data).
