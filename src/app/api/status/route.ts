@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAIStatus, azureIsPrimary } from '@/lib/ai';
 import { getSafetyStatus } from '@/lib/contentSafety';
 import { evidenceBackend, EVIDENCE } from '@/lib/evidence';
+import { foundryStatus } from '@/lib/foundryAgent';
 import { SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -24,10 +25,13 @@ export async function GET() {
     }
   } catch {}
 
+  const foundry = await foundryStatus();
+
   return NextResponse.json({
     checkedAt: new Date().toISOString(),
     azureOpenAI: { on: ai.provider === 'azure', model: ai.provider === 'azure' ? ai.model : null },
-    agent: { on: azureIsPrimary(), tools: 6 },
+    agent: { on: azureIsPrimary() || foundry.on, tools: 6 },
+    foundryAgent: { on: foundry.on, configured: foundry.configured, name: foundry.on ? foundry.agent : null, version: foundry.version },
     contentSafety: { on: safety.azureContentSafety },
     promptShields: { on: safety.promptShields },
     grounding: { on: true, backend: evidenceBackend(), passages: EVIDENCE.length },

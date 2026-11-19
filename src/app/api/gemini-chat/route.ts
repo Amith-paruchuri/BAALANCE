@@ -4,7 +4,8 @@ import { userOrDemoQuota } from '@/lib/serverAuth';
 import { screenText, CRISIS_REPLY, CRISIS_RESOURCES, BLOCKED_INPUT_REPLY, BLOCKED_OUTPUT_REPLY } from '@/lib/contentSafety';
 import { writeAudit } from '@/lib/auditServer';
 import { describePss10 } from '@/lib/pss10';
-import { agentSystemPrompt, runTrichaAgent } from '@/lib/trichaAgent';
+import { agentSystemPrompt, runTrichaAgent, type AgentResult } from '@/lib/trichaAgent';
+import { runFoundryAgent } from '@/lib/foundryAgent';
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry } from '@/lib/types';
 
 export async function POST(req: NextRequest) {
@@ -234,17 +235,24 @@ COMMUNICATION RULES:
     //    user's numbers and the evidence library itself, and can offer app actions.
     //    If it is unavailable or fails, the plain single-prompt reply below is used.
     if (!clientApiKey && !req.headers.get('x-gemini-api-key')) {
-      const agent = await runTrichaAgent({
-        system: agentSystemPrompt(firstName),
-        history: chatHistory,
-        message: String(message || ''),
-        context: {
-          segments: Array.isArray(segments) ? segments : [],
-          telemetry: weeklyData,
-          stressScore: Number.isFinite(scoreNumber) ? scoreNumber : null,
-          pss10Score: typeof userProfile.pss10?.score === 'number' ? userProfile.pss10.score : null,
-        },
-      });
+      const agentContext = {
+        segments: Array.isArray(segments) ? segments : [],
+        telemetry: weeklyData,
+        stressScore: Number.isFinite(scoreNumber) ? scoreNumber : null,
+        pss10Score: typeof userProfile.pss10?.score === 'number' ? userProfile.pss10.score : null,
+      };
+      // 1a. Tricha hosted on Microsoft Foundry Agent Service, when configured.
+      // 1b. Otherwise the same tools in a direct Azure OpenAI loop.
+      let agent: AgentResult | null = null;
+      let agentSource = '';
+      const foundry = await runFoundryAgent({ firstName, history: chatHistory, message: String(message || ''), context: agentContext });
+      if (foundry) {
+        agent = foundry;
+        agentSource = `foundry-agent:${foundry.agentName}${foundry.agentVersion ? `@${foundry.agentVersion}` : ''}:${foundry.model}`;
+      } else {
+        agent = await runTrichaAgent({ system: agentSystemPrompt(firstName), history: chatHistory, message: String(message || ''), context: agentContext });
+        if (agent) agentSource = `azure-agent:${agent.model}`;
+      }
       if (agent) {
         const agentVerdict = await screenText(agent.text, 'output');
         if (agentVerdict.blocked) {
@@ -257,7 +265,7 @@ COMMUNICATION RULES:
         }
         return NextResponse.json({
           reply: agent.text.replace(/\*/g, '').replace(/\s*\u2014\s*/g, ', '),
-          source: `azure-agent:${agent.model}`,
+          source: agentSource,
           safety: { action: 'passed', checkedBy: Array.from(new Set([...inputVerdict.checkedBy, ...agentVerdict.checkedBy])) },
           agent: { tools: agent.tools, citations: agent.citations, actions: agent.actions, retrieval: agent.retrieval },
         });
