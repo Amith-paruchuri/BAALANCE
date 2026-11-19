@@ -174,9 +174,10 @@ export async function runFoundryAgent(opts: {
   const c = config();
   const run = newRunState();
   const input: any[] = [
-    { role: 'developer', content: `You are talking with ${opts.firstName}.` },
-    ...opts.history.map(h => ({ role: h.role, content: h.text })),
-    { role: 'user', content: opts.message },
+    // Foundry needs the item type spelled out on every message.
+    { type: 'message', role: 'developer', content: `You are talking with ${opts.firstName}.` },
+    ...opts.history.map(h => ({ type: 'message', role: h.role, content: h.text })),
+    { type: 'message', role: 'user', content: opts.message },
   ];
 
   const call = async (items: any[], toolChoice: 'auto' | 'none') => {
