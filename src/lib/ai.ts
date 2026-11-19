@@ -1,19 +1,16 @@
-import { GoogleGenAI } from '@google/genai';
-
 /**
- * Model-agnostic AI layer. Every AI feature in BAALANCE (lab report parsing,
- * biomarker synthesis, the Tricha coach) calls generateText(), and the provider
- * is chosen by configuration:
+ * The AI layer. Every AI feature in BAALANCE (lab report reading, biomarker
+ * synthesis, the Tricha coach) calls generateText() or azureChatRaw(), and
+ * both go to Azure OpenAI only:
  *
- *   AI_PROVIDER=gemini   Google Gemini (GEMINI_API_KEY, optional GEMINI_MODEL)
- *   AI_PROVIDER=azure    Azure OpenAI  (AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY,
- *                                       AZURE_OPENAI_DEPLOYMENT, optional AZURE_OPENAI_API_VERSION)
- *   AI_PROVIDER=auto     (default) the first configured provider, the other as fallback
+ *   AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, AZURE_OPENAI_DEPLOYMENT,
+ *   optional AZURE_OPENAI_API_VERSION
  *
- * When AI_PROVIDER names a provider and it is configured, only that provider is used.
+ * The Tricha agent can also run on Microsoft Foundry Agent Service
+ * (src/lib/foundryAgent.ts). No other AI provider is used.
  */
 
-export type AIProviderName = 'gemini' | 'azure';
+export type AIProviderName = 'azure';
 
 export interface AIMessage {
   role: 'user' | 'assistant';
@@ -31,9 +28,9 @@ export interface AIRequest {
   messages: AIMessage[];
   /** Ask the model to answer with a JSON object only. */
   json?: boolean;
-  /** Images (or PDFs, Gemini only) sent with the last user message. */
+  /** Images sent with the last user message (Azure OpenAI does not read PDFs). */
   attachments?: AIAttachment[];
-  /** A visitor's own Gemini key ("bring your own key"). Never stored on the server. */
+  /** Ignored. Kept so older callers still compile; only Azure OpenAI is used. */
   geminiApiKey?: string;
   temperature?: number;
 }
@@ -44,13 +41,7 @@ export interface AIResult {
   model: string;
 }
 
-const GEMINI_DEFAULT_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash'];
 const AZURE_DEFAULT_API_VERSION = '2024-10-21';
-
-function geminiKey(override?: string): string | null {
-  const key = (override || process.env.GEMINI_API_KEY || '').trim();
-  return key.length > 10 ? key : null;
-}
 
 function azureConfig() {
   const endpoint = (process.env.AZURE_OPENAI_ENDPOINT || '').trim().replace(/\/+$/, '');
@@ -65,71 +56,9 @@ function azureConfig() {
   };
 }
 
-function providerOrder(geminiOverride?: string): AIProviderName[] {
-  const configured: AIProviderName[] = [];
-  if (geminiKey(geminiOverride)) configured.push('gemini');
-  if (azureConfig()) configured.push('azure');
-
-  const preferred = (process.env.AI_PROVIDER || 'auto').toLowerCase();
-  if (preferred === 'azure' || preferred === 'gemini') {
-    // A named provider is used on its own: requests are never sent to a second AI
-    // company behind the user's back. If it is down, callers fall back to the
-    // built-in rule-based answers. A visitor's own key is the one exception.
-    const chosen = configured.filter(p => p === preferred);
-    if (chosen.length > 0 && !geminiOverride) return chosen;
-    return [...chosen, ...configured.filter(p => p !== preferred)];
-  }
-  return configured;
-}
-
 export function getAIStatus() {
-  const order = providerOrder();
-  const primary = order[0];
-  return {
-    configured: order.length > 0,
-    provider: primary || null,
-    providers: order,
-    model:
-      primary === 'azure'
-        ? azureConfig()?.deployment || null
-        : primary === 'gemini'
-        ? process.env.GEMINI_MODEL || GEMINI_DEFAULT_MODELS[0]
-        : null,
-  };
-}
-
-async function callGemini(req: AIRequest): Promise<AIResult | null> {
-  const key = geminiKey(req.geminiApiKey);
-  if (!key) return null;
-  const ai = new GoogleGenAI({ apiKey: key });
-  const models = process.env.GEMINI_MODEL ? [process.env.GEMINI_MODEL, ...GEMINI_DEFAULT_MODELS] : GEMINI_DEFAULT_MODELS;
-
-  const contents = req.messages.map((m, i) => {
-    const parts: any[] = [{ text: m.text }];
-    if (i === req.messages.length - 1 && req.attachments?.length) {
-      for (const a of req.attachments) parts.push({ inlineData: { mimeType: a.mimeType, data: a.base64 } });
-    }
-    return { role: m.role === 'assistant' ? 'model' : 'user', parts };
-  });
-
-  for (const model of Array.from(new Set(models))) {
-    try {
-      const response = await ai.models.generateContent({
-        model,
-        contents,
-        config: {
-          ...(req.system ? { systemInstruction: req.system } : {}),
-          ...(req.json ? { responseMimeType: 'application/json' } : {}),
-          ...(typeof req.temperature === 'number' ? { temperature: req.temperature } : {}),
-        },
-      });
-      const text = response.text || '';
-      if (text.trim()) return { text, provider: 'gemini', model };
-    } catch (err: any) {
-      console.warn(`[BAALANCE AI] Gemini ${model} failed:`, err?.message || err);
-    }
-  }
-  return null;
+  const cfg = azureConfig();
+  return { configured: !!cfg, provider: cfg ? ('azure' as const) : null, providers: cfg ? (['azure'] as AIProviderName[]) : [], model: cfg?.deployment || null };
 }
 
 async function callAzure(req: AIRequest): Promise<AIResult | null> {
@@ -180,9 +109,9 @@ async function callAzure(req: AIRequest): Promise<AIResult | null> {
   }
 }
 
-/** True when Azure OpenAI is configured and is the provider in use (needed for tool calling). */
+/** True when Azure OpenAI is configured (needed for tool calling). */
 export function azureIsPrimary(): boolean {
-  return providerOrder()[0] === 'azure';
+  return !!azureConfig();
 }
 
 /**
@@ -213,13 +142,9 @@ export async function azureChatRaw(body: Record<string, unknown>): Promise<{ mes
   }
 }
 
-/** Sends the request to the configured provider, falling back to the other one if it fails. */
+/** Sends the request to Azure OpenAI. Returns null if it is not configured or fails. */
 export async function generateText(req: AIRequest): Promise<AIResult | null> {
-  for (const provider of providerOrder(req.geminiApiKey)) {
-    const result = provider === 'gemini' ? await callGemini(req) : await callAzure(req);
-    if (result) return result;
-  }
-  return null;
+  return callAzure(req);
 }
 
 /** Parses a JSON object from model output, tolerating ```json fences. */
