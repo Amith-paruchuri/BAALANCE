@@ -70,3 +70,40 @@ export function openHelpPanel(tab: 'helplines' | 'doctor' = 'helplines') {
     window.dispatchEvent(new CustomEvent('baalance-open-help', { detail: { tab } }));
   }
 }
+
+/** Every helpline number we have verified, as digits only. */
+export function verifiedHelplineDigits(): Set<string> {
+  const out = new Set<string>();
+  Object.values(HELPLINES).forEach(region => region.lines.forEach(line => line.phone && out.add(line.phone.replace(/\D/g, ''))));
+  return out;
+}
+
+/** The verified numbers in plain words, for prompts. */
+export function verifiedHelplineText(): string {
+  return (Object.keys(HELPLINES) as HelpRegion[])
+    .map(key => `${HELPLINES[key].label}: ${HELPLINES[key].lines.filter(l => l.display).map(l => `${l.name} ${l.display}`).join('; ')}`)
+    .join('\n');
+}
+
+/**
+ * A model can invent a phone number. Any number in a reply (5 or more digits)
+ * that is not one of our verified helplines is removed with its sentence, and
+ * the person is pointed to the verified list instead.
+ */
+export function removeUnverifiedPhoneNumbers(text: string): { text: string; removed: string[] } {
+  const allowed = verifiedHelplineDigits();
+  const removed: string[] = [];
+  const phone = /\+?\d[\d\s\-()]{3,}\d/g;
+  const sentences = text.split(/(?<=[.!?])\s+|\n/);
+  const kept = sentences.filter(sentence => {
+    const bad = (sentence.match(phone) || []).filter(candidate => {
+      const digits = candidate.replace(/\D/g, '');
+      return digits.length >= 5 && !allowed.has(digits) && !/^(19|20)\d\d$/.test(digits);
+    });
+    removed.push(...bad);
+    return bad.length === 0;
+  });
+  if (removed.length === 0) return { text, removed };
+  const note = 'For verified helplines, use the Get help button at the top of the app. In India, Tele-MANAS is 14416, and in an emergency call 112.';
+  return { text: `${kept.join(' ').trim()}\n\n${note}`.trim(), removed };
+}
