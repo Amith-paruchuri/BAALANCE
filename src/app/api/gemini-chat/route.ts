@@ -7,6 +7,7 @@ import { describePss10 } from '@/lib/pss10';
 import { agentSystemPrompt, runTrichaAgent, type AgentResult } from '@/lib/trichaAgent';
 import { runFoundryAgent } from '@/lib/foundryAgent';
 import { runTrichaTeam } from '@/lib/foundryTeam';
+import { removeUnverifiedPhoneNumbers } from '@/lib/helplines';
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry } from '@/lib/types';
 
 // The six-agent team can take longer than a single reply.
@@ -273,7 +274,7 @@ COMMUNICATION RULES:
           });
         }
         return NextResponse.json({
-          reply: agent.text.replace(/\*/g, '').replace(/\s*\u2014\s*/g, ', '),
+          reply: removeUnverifiedPhoneNumbers(agent.text).text.replace(/\*/g, '').replace(/\s*\u2014\s*/g, ', '),
           source: agentSource,
           safety: { action: 'passed', checkedBy: Array.from(new Set([...inputVerdict.checkedBy, ...agentVerdict.checkedBy])) },
           agent: { tools: agent.tools, citations: agent.citations, actions: agent.actions, retrieval: agent.retrieval, ...(agent.team ? { team: agent.team } : {}) },
@@ -300,7 +301,7 @@ COMMUNICATION RULES:
       }
       return NextResponse.json({
         // No asterisks, and no em dashes (owner's writing preference).
-        reply: aiResult.text.replace(/\*/g, '').replace(/\s*\u2014\s*/g, ', '),
+        reply: removeUnverifiedPhoneNumbers(aiResult.text).text.replace(/\*/g, '').replace(/\s*\u2014\s*/g, ', '),
         source: `${aiResult.provider}:${aiResult.model}`,
         safety: { action: 'passed', checkedBy: outputVerdict.checkedBy },
       });

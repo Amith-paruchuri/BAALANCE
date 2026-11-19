@@ -1,4 +1,5 @@
 import { ensureNamedAgent, foundryConfigured, config, runAgentLoop } from './foundryAgent';
+import { verifiedHelplineText } from './helplines';
 import { TOOLS, executeAgentTool, finishRun, newRunState, type AgentContext, type AgentResult, type RunState } from './trichaAgent';
 
 /**
@@ -128,7 +129,7 @@ Your field: published evidence. Always call search_evidence, once or twice with 
       description: 'Decides whether to point the user to a doctor or to crisis support.',
       definition: def(
         `${SPECIALIST_RULES}
-Your field: safety and care. From the lead's question, decide one level: routine (no medical follow-up needed), see_doctor (symptoms, medicine questions, very high values, or the user asks about a doctor), or urgent (hopelessness, self-harm, not coping). Start your brief with "Level: routine", "Level: see_doctor" or "Level: urgent" and give the reason in one line. For see_doctor or urgent, call get_helplines (india unless another country is mentioned; uae for the Emirates) and list the numbers. Never diagnose or suggest medicines.`,
+Your field: safety and care. From the lead's question, decide one level: routine (no medical follow-up needed), see_doctor (symptoms, medicine questions, very high values, or the user asks about a doctor), or urgent (hopelessness, self-harm, not coping). Start your brief with "Level: routine", "Level: see_doctor" or "Level: urgent" and give the reason in one line. For see_doctor or urgent, list helplines only from the verified list you are given (India unless another country is mentioned). Never write any other phone number. Never diagnose or suggest medicines.`,
         [sharedTool('get_helplines')],
       ),
     },
@@ -138,7 +139,7 @@ Your field: safety and care. From the lead's question, decide one level: routine
       definition: def(
         `You are the reviewer in Tricha, the BAALANCE AI coach team. You receive the user's message, the specialists' briefs and the lead's draft reply. Return the final reply text only, with no preamble.
 Check that:
-- every number in the draft appears in a brief, and no study is named that the evidence brief does not mention;
+- every number in the draft appears in a brief, every phone number is in the verified helpline list, and no study is named that the evidence brief does not mention;
 - there is no diagnosis, medicine or dose advice, and links between calendar and cortisol are called associations;
 - if the care brief says see_doctor or urgent, the reply says so kindly and, for urgent, gives the helpline numbers;
 - it is warm, short (at most three short sections or bullets), answers the question first, and has no em dashes or asterisks.
@@ -199,7 +200,9 @@ export async function runTrichaTeam(opts: {
       {
         type: 'message',
         role: 'user',
-        content: `Question from the lead: ${String(question || '').slice(0, 600)}\n\nThe user's latest message, for context: ${opts.message.slice(0, 600)}`,
+        content:
+          `Question from the lead: ${String(question || '').slice(0, 600)}\n\nThe user's latest message, for context: ${opts.message.slice(0, 600)}` +
+          (agent === TEAM.care ? `\n\nVerified helplines. Use only these numbers, never any other:\n${verifiedHelplineText()}` : ''),
       },
     ];
     const { text } = await runAgentLoop(agent, input, specialistTool(agent), 3);
@@ -252,6 +255,7 @@ export async function runTrichaTeam(opts: {
             content: [
               `The user's message:\n${opts.message.slice(0, 1200)}`,
               `Specialist briefs:\n${briefs.length ? briefs.map(b => `[${TEAM_LABELS[b.agent]}] ${b.brief}`).join('\n\n') : '(none: the lead answered without specialists)'}`,
+              `Verified helpline numbers (any other phone number must be removed):\n${verifiedHelplineText()}`,
               `Draft reply:\n${lead.text}`,
             ].join('\n\n'),
           },
