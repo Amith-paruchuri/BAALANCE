@@ -8,6 +8,8 @@ import { agentSystemPrompt, runTrichaAgent, type AgentResult } from '@/lib/trich
 import { runFoundryAgent } from '@/lib/foundryAgent';
 import { runTrichaTeam } from '@/lib/foundryTeam';
 import { removeUnverifiedPhoneNumbers } from '@/lib/helplines';
+import { triageMessage, EMERGENCY_REPLY } from '@/lib/triage';
+import { checkInputs } from '@/lib/dataChecks';
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry } from '@/lib/types';
 
 // The six-agent team can take longer than a single reply.
@@ -46,6 +48,37 @@ export async function POST(req: NextRequest) {
           action: inputVerdict.crisis ? 'crisis' : 'blocked',
           checkedBy: inputVerdict.checkedBy,
           resources: inputVerdict.crisis ? CRISIS_RESOURCES : [],
+        },
+        agent: {
+          tools: [],
+          citations: [],
+          // The crisis card in the chat already has its own help buttons.
+          actions: [],
+          pipeline: [
+            {
+              stage: 'Input safety',
+              status: inputVerdict.crisis ? 'Crisis detected: stopped, helplines shown' : 'Blocked: unsafe or an attempt to override instructions',
+              detail: `Checked by ${inputVerdict.checkedBy.join(', ')}`,
+            },
+          ],
+        },
+      });
+    }
+
+    // Care triage: a possible medical emergency stops here, before any agent runs.
+    const triage = triageMessage(String(message || ''));
+    const safetyStep = { stage: 'Input safety', status: 'Passed', detail: `Checked by ${inputVerdict.checkedBy.join(', ')}` };
+    if (triage.level === 'emergency') {
+      if (access) await writeAudit(access, 'crisis_escalation', { detail: { stage: 'triage', reasons: triage.reasons.join(', ') } });
+      return NextResponse.json({
+        reply: EMERGENCY_REPLY,
+        source: 'triage:emergency',
+        safety: { action: 'emergency', checkedBy: [...inputVerdict.checkedBy, 'triage'], resources: [] },
+        agent: {
+          tools: [],
+          citations: [],
+          actions: ['find_doctor', 'open_helplines'],
+          pipeline: [safetyStep, { stage: 'Care triage', status: 'Emergency: stopped before any agent ran', detail: triage.reasons.join(', ') }],
         },
       });
     }
@@ -248,10 +281,11 @@ COMMUNICATION RULES:
       };
       // 1a. Tricha hosted on Microsoft Foundry Agent Service, when configured.
       // 1b. Otherwise the same tools in a direct Azure OpenAI loop.
-      let agent: (AgentResult & { team?: string[] }) | null = null;
+      let agent: (AgentResult & { team?: string[]; trace?: any[] }) | null = null;
       let agentSource = '';
+      const dataFlags = checkInputs(agentContext);
       // 1. Six agents on Microsoft Foundry: a lead, four specialists and a reviewer.
-      const teamRun = await runTrichaTeam({ firstName, history: chatHistory, message: String(message || ''), context: agentContext });
+      const teamRun = await runTrichaTeam({ firstName, history: chatHistory, message: String(message || ''), context: agentContext, triage, dataFlags });
       const foundry = teamRun ? null : await runFoundryAgent({ firstName, history: chatHistory, message: String(message || ''), context: agentContext });
       if (teamRun) {
         agent = teamRun;
@@ -273,11 +307,45 @@ COMMUNICATION RULES:
             safety: { action: 'blocked', checkedBy: agentVerdict.checkedBy, resources: [] },
           });
         }
+        const guarded = removeUnverifiedPhoneNumbers(agent.text);
+        if (triage.level === 'see_doctor' && !agent.actions.includes('find_doctor')) agent.actions.push('find_doctor');
+        const pipeline = [
+          safetyStep,
+          {
+            stage: 'Care triage',
+            status: triage.level === 'see_doctor' ? 'See a doctor: Care agent consulted' : 'Routine',
+            detail: triage.reasons.join(', ') || 'No red flags',
+          },
+          {
+            stage: 'Data checks',
+            status: dataFlags.some(f => f.severity === 'warn') ? 'Problems flagged' : dataFlags.length ? 'Notes' : 'All inputs complete',
+            detail: dataFlags.map(f => f.message).join(' ') || 'Hair results, calendar and questionnaire all present and plausible',
+          },
+          {
+            stage: 'Agents',
+            status: agent.team ? `${agent.team.length} agents on Microsoft Foundry` : agentSource.startsWith('foundry-agent') ? 'Single Foundry agent' : 'Azure OpenAI agent',
+            detail: agent.retrieval === 'azure-ai-search' ? 'Evidence retrieved with Azure AI Search' : undefined,
+          },
+          {
+            stage: 'Output safety',
+            status: guarded.removed.length ? 'Passed; an unverified phone number was removed' : 'Passed',
+            detail: `Checked by ${agentVerdict.checkedBy.join(', ')} and the verified-helpline check`,
+          },
+        ];
         return NextResponse.json({
-          reply: removeUnverifiedPhoneNumbers(agent.text).text.replace(/\*/g, '').replace(/\s*\u2014\s*/g, ', '),
+          reply: guarded.text.replace(/\*/g, '').replace(/\s*\u2014\s*/g, ', '),
           source: agentSource,
           safety: { action: 'passed', checkedBy: Array.from(new Set([...inputVerdict.checkedBy, ...agentVerdict.checkedBy])) },
-          agent: { tools: agent.tools, citations: agent.citations, actions: agent.actions, retrieval: agent.retrieval, ...(agent.team ? { team: agent.team } : {}) },
+          agent: {
+            tools: agent.tools,
+            citations: agent.citations,
+            actions: agent.actions,
+            retrieval: agent.retrieval,
+            ...(agent.team ? { team: agent.team } : {}),
+            ...(agent.trace ? { trace: agent.trace } : {}),
+            pipeline,
+            dataFlags,
+          },
         });
       }
     }

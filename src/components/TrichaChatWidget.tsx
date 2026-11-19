@@ -22,6 +22,7 @@ import {
 import { UserProfile, HairCortisolSegment, WeeklyTelemetry, ChatMessage } from '@/lib/types';
 import { apiFetch } from '@/lib/apiFetch';
 import { TrichaAvatar } from './TrichaAvatar';
+import { AgentTracePanel } from './AgentTracePanel';
 import { openHelpPanel } from '@/lib/helplines';
 
 const AGENT_TOOL_LABEL: Record<string, string> = {
@@ -421,7 +422,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                       </button>
                     </div>
                   )}
-                  {isTricha && msg.agent && (msg.agent.actions.length > 0 || msg.agent.tools.length > 0) && (
+                  {isTricha && msg.agent && (msg.agent.actions.length > 0 || msg.agent.tools.length > 0 || (msg.agent.pipeline?.length ?? 0) > 0) && (
                     <div className="mt-3 pt-3 border-t border-slate-200/80 space-y-2.5" data-testid="agent-trace">
                       {msg.agent.actions.length > 0 && (
                         <div className="flex flex-wrap gap-2">
@@ -483,6 +484,7 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
                           ))}
                         </div>
                       )}
+                      <AgentTracePanel agent={msg.agent} />
                     </div>
                   )}
                   <div

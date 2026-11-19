@@ -1,0 +1,669 @@
+{
+  "runAt": "2026-11-19T17:31:07.465Z",
+  "triage": {
+    "cases": 58,
+    "passed": 58,
+    "emergencyCases": 28,
+    "emergencyDetected": 28,
+    "sensitivity": 1,
+    "nonEmergencyCases": 30,
+    "falseAlarms": 0,
+    "groups": {
+      "emergency: plain": {
+        "total": 17,
+        "pass": 17
+      },
+      "emergency: hard": {
+        "total": 7,
+        "pass": 7
+      },
+      "emergency: Hindi": {
+        "total": 4,
+        "pass": 4
+      },
+      "see a doctor": {
+        "total": 12,
+        "pass": 12
+      },
+      "routine": {
+        "total": 6,
+        "pass": 6
+      },
+      "routine: denial": {
+        "total": 4,
+        "pass": 4
+      },
+      "routine: look-alike": {
+        "total": 8,
+        "pass": 8
+      }
+    }
+  },
+  "dataChecks": {
+    "cases": 12,
+    "passed": 12
+  },
+  "failures": [],
+  "triageRows": [
+    {
+      "message": "I have chest pain right now",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "chest pain or pressure",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "My chest feels tight and heavy since this morning",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "chest pain or pressure",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I get chest pain at night when I lie down",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "chest pain or pressure",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "There is a crushing pressure in my chest",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "chest pain or pressure",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I can not breathe properly, it is getting worse",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "trouble breathing",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I can't breathe after climbing stairs today",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "trouble breathing",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Shortness of breath and sweating at my desk",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "trouble breathing",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I fainted in the meeting room an hour ago",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "fainting or collapse",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "My colleague just collapsed next to me",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "fainting or collapse",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I passed out twice this week",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "fainting or collapse",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Her face is drooping and her speech is slurred",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "possible stroke signs",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Sudden weakness on one side of my body",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "possible stroke signs",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "This is the worst headache of my life, it came on suddenly",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "sudden severe headache",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I had a seizure yesterday",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "seizure",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I am coughing up blood",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "coughing or vomiting blood",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "My throat is swelling after eating nuts",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "severe allergic reaction",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "My heart is racing and I feel dizzy and faint",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "heart racing with dizziness or pain",
+      "group": "emergency: plain",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Since the deadline week my chest is tight, is that stress?",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "chest pain or pressure",
+      "group": "emergency: hard",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Is it normal to have pain in my chest during long calls?",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "chest pain or pressure",
+      "group": "emergency: hard",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "pls help chest pain since 20 min",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "chest pain or pressure",
+      "group": "emergency: hard",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "My father has chest pain and is sweating",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "chest pain or pressure",
+      "group": "emergency: hard",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Seene mein dard ho raha hai",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "chest pain (Hindi)",
+      "group": "emergency: Hindi",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Chhati me dard hai aur pasina aa raha hai",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "chest pain (Hindi)",
+      "group": "emergency: Hindi",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Saans nahi aa rahi",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "trouble breathing (Hindi)",
+      "group": "emergency: Hindi",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "सीने में दर्द हो रहा है",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "chest pain (Hindi)",
+      "group": "emergency: Hindi",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Struggling to breathe and my lips feel numb",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "trouble breathing",
+      "group": "emergency: hard",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I have palpitations during busy weeks",
+      "expected": "see_doctor",
+      "actual": "see_doctor",
+      "reasons": "heart symptoms",
+      "group": "see a doctor",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I have not slept properly in weeks, insomnia every night",
+      "expected": "see_doctor",
+      "actual": "see_doctor",
+      "reasons": "long-term sleep problems",
+      "group": "see a doctor",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Should I take melatonin for sleep?",
+      "expected": "see_doctor",
+      "actual": "see_doctor",
+      "reasons": "medicine or dose question",
+      "group": "see a doctor",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Can I stop my antidepressant if my cortisol drops?",
+      "expected": "see_doctor",
+      "actual": "see_doctor",
+      "reasons": "medicine or dose question",
+      "group": "see a doctor",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I use a steroid cream for eczema, does that matter?",
+      "expected": "see_doctor",
+      "actual": "see_doctor",
+      "reasons": "medicine or dose question",
+      "group": "see a doctor",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I can't cope with work any more",
+      "expected": "see_doctor",
+      "actual": "see_doctor",
+      "reasons": "feeling unable to cope",
+      "group": "see a doctor",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I had a panic attack before my presentation",
+      "expected": "see_doctor",
+      "actual": "see_doctor",
+      "reasons": "feeling unable to cope",
+      "group": "see a doctor",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "My hair is falling out in clumps",
+      "expected": "see_doctor",
+      "actual": "see_doctor",
+      "reasons": "physical symptoms",
+      "group": "see a doctor",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I feel dizzy every afternoon",
+      "expected": "see_doctor",
+      "actual": "see_doctor",
+      "reasons": "physical symptoms",
+      "group": "see a doctor",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I am pregnant, is the hair test still valid?",
+      "expected": "see_doctor",
+      "actual": "see_doctor",
+      "reasons": "pregnancy",
+      "group": "see a doctor",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Should I see a doctor about my results?",
+      "expected": "see_doctor",
+      "actual": "see_doctor",
+      "reasons": "asks about a doctor",
+      "group": "see a doctor",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Can you help me find a psychiatrist?",
+      "expected": "see_doctor",
+      "actual": "see_doctor",
+      "reasons": "asks about a doctor",
+      "group": "see a doctor",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Why was my cortisol high in September?",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "What should I change in my calendar?",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "How does the hair test work?",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Is hair cortisol scientifically valid?",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "When should I re-test?",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Thanks, that helps!",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "No chest pain, just tired all the time",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine: denial",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I have never fainted, but I feel drained after meetings",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine: denial",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "No shortness of breath, only stress at work",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine: denial",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I do not have chest pain, I just want to understand my score",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine: denial",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I did chest day at the gym and my legs are sore",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine: look-alike",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Breathing exercises help me before meetings",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine: look-alike",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "My deadlines are killing me this month",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine: look-alike",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "That presentation took my breath away",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine: look-alike",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Meetings after 7 PM give me a headache",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine: look-alike",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Our sprint review collapsed into chaos",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine: look-alike",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "I cannot catch my breath since lunch",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "trouble breathing",
+      "group": "emergency: hard",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "My mother suddenly collapsed in the kitchen",
+      "expected": "emergency",
+      "actual": "emergency",
+      "reasons": "fainting or collapse",
+      "group": "emergency: hard",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "The deal collapsed and I am stressed",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine: look-alike",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    },
+    {
+      "message": "Can not stop thinking about work",
+      "expected": "routine",
+      "actual": "routine",
+      "reasons": "",
+      "group": "routine: look-alike",
+      "pass": true,
+      "component": "Care triage (src/lib/triage.ts)"
+    }
+  ],
+  "dataRows": [
+    {
+      "name": "Complete, plausible inputs",
+      "expected": "no warnings",
+      "actual": "no warnings",
+      "group": "complete",
+      "pass": true,
+      "component": "Data checks (src/lib/dataChecks.ts)"
+    },
+    {
+      "name": "No hair result at all",
+      "expected": "hair",
+      "actual": "warn:hair",
+      "group": "missing",
+      "pass": true,
+      "component": "Data checks (src/lib/dataChecks.ts)"
+    },
+    {
+      "name": "Only two months of hair",
+      "expected": "hair-info",
+      "actual": "info:hair",
+      "group": "missing",
+      "pass": true,
+      "component": "Data checks (src/lib/dataChecks.ts)"
+    },
+    {
+      "name": "A month with no value",
+      "expected": "hair",
+      "actual": "warn:hair",
+      "group": "missing",
+      "pass": true,
+      "component": "Data checks (src/lib/dataChecks.ts)"
+    },
+    {
+      "name": "Zero cortisol",
+      "expected": "hair",
+      "actual": "warn:hair",
+      "group": "wrong value",
+      "pass": true,
+      "component": "Data checks (src/lib/dataChecks.ts)"
+    },
+    {
+      "name": "Negative cortisol",
+      "expected": "hair",
+      "actual": "warn:hair",
+      "group": "wrong value",
+      "pass": true,
+      "component": "Data checks (src/lib/dataChecks.ts)"
+    },
+    {
+      "name": "Unit error: 2840 instead of 28.4",
+      "expected": "hair",
+      "actual": "warn:hair",
+      "group": "wrong value",
+      "pass": true,
+      "component": "Data checks (src/lib/dataChecks.ts)"
+    },
+    {
+      "name": "Same month twice",
+      "expected": "hair",
+      "actual": "warn:hair",
+      "group": "wrong value",
+      "pass": true,
+      "component": "Data checks (src/lib/dataChecks.ts)"
+    },
+    {
+      "name": "No calendar connected",
+      "expected": "calendar-info",
+      "actual": "info:calendar",
+      "group": "missing",
+      "pass": true,
+      "component": "Data checks (src/lib/dataChecks.ts)"
+    },
+    {
+      "name": "Calendar with 140 hours in a week",
+      "expected": "calendar",
+      "actual": "warn:calendar",
+      "group": "wrong value",
+      "pass": true,
+      "component": "Data checks (src/lib/dataChecks.ts)"
+    },
+    {
+      "name": "PSS-10 not taken",
+      "expected": "pss10-info",
+      "actual": "info:pss10",
+      "group": "missing",
+      "pass": true,
+      "component": "Data checks (src/lib/dataChecks.ts)"
+    },
+    {
+      "name": "PSS-10 out of range (55)",
+      "expected": "pss10",
+      "actual": "warn:pss10",
+      "group": "wrong value",
+      "pass": true,
+      "component": "Data checks (src/lib/dataChecks.ts)"
+    }
+  ]
+}

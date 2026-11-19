@@ -43,6 +43,11 @@ or "BAALANCE AI". Prefer Microsoft features (Outlook/Teams via Graph, Azure Open
   reviewer). The orchestrator consults specialists as function tools (in parallel), the reviewer checks the draft. Runs
   first when Foundry is configured; `TRICHA_MULTI_AGENT=off` falls back to the single agent. Source `foundry-team:...`.
   `/api/status?probe=team` runs one test question through the team.
+- Safety pipeline before the agents: `src/lib/triage.ts` (rule-based Care triage; a possible medical emergency stops before any
+  agent, `EMERGENCY_REPLY`) and `src/lib/dataChecks.ts` (flags missing or implausible inputs; passed to the agents and reviewer).
+  `/api/gemini-chat` returns `agent.pipeline` (each stage) and `agent.trace` (per agent: question, brief, flags, tools, time),
+  shown by `AgentTracePanel` ("How Tricha answered"). Run `node scripts/benchmark-triage.mjs` after changing either file: it
+  writes `docs/benchmark-triage.md` and `src/data/benchmark-results.json`, which `/tricha` (How Tricha works) displays.
 - Prompt Shields run with Content Safety on every user message (`src/lib/contentSafety.ts`).
 - `/azure` shows the live state of each Microsoft service from `/api/status`. `/api/mcp` is a small MCP server exposing
   the evidence library and helplines (no personal data).

@@ -1,5 +1,7 @@
 import { ensureNamedAgent, foundryConfigured, config, runAgentLoop } from './foundryAgent';
 import { verifiedHelplineText } from './helplines';
+import { flagsForAgents, type DataFlag } from './dataChecks';
+import type { TriageResult } from './triage';
 import { TOOLS, executeAgentTool, finishRun, newRunState, type AgentContext, type AgentResult, type RunState } from './trichaAgent';
 
 /**
@@ -57,6 +59,8 @@ const ask = (what: string) => ({ question: { type: 'string', description: `What 
 const SPECIALIST_RULES = `You are one specialist in Tricha, the BAALANCE AI coach team. BAALANCE measures three months of stress from hair cortisol (1 cm of hair is about 1 month) and reads it next to the person's calendar.
 You do not talk to the user. Answer the lead's question with a short factual brief of at most 120 words, for the lead to use.
 Use your tools and quote their numbers exactly. Never invent a number, study or fact. If your tools have nothing, say so.
+If data is missing, contradictory or implausible, do not guess: say what is missing and whether the person should be asked.
+End your brief with one line starting "Flags:" that lists any such problems, or "Flags: none".
 Plain words. No em dashes, no asterisks.`;
 
 const ANSWER_STYLE = `How to answer:
@@ -142,6 +146,7 @@ Check that:
 - every number in the draft appears in a brief, every phone number is in the verified helpline list, and no study is named that the evidence brief does not mention;
 - there is no diagnosis, medicine or dose advice, and links between calendar and cortisol are called associations;
 - if the care brief says see_doctor or urgent, the reply says so kindly and, for urgent, gives the helpline numbers;
+- if a data check or a specialist flag affects the answer (for example a missing or implausible value), the reply says so plainly and asks the person to confirm, instead of interpreting it;
 - it is warm, short (at most three short sections or bullets), answers the question first, and has no em dashes or asterisks.
 If the draft already meets all of these, return it unchanged. Otherwise return a corrected version. Never add new facts.`,
       ),
@@ -166,9 +171,35 @@ function scores(ctx: AgentContext) {
   };
 }
 
+export interface TraceStep {
+  agent: string;
+  role: string;
+  /** What the lead asked this agent (specialists only). */
+  question?: string;
+  /** What the agent reported back, shortened. */
+  output?: string;
+  /** Problems the agent flagged in the data. */
+  flags?: string[];
+  tools?: string[];
+  ms: number;
+  /** Reviewer only: whether it changed the draft. */
+  changed?: boolean;
+}
+
 export interface TeamResult extends AgentResult {
   /** Agents that took part, in order, by Foundry name. */
   team: string[];
+  /** Step by step: what each agent was asked, what it found, and what it flagged. */
+  trace: TraceStep[];
+}
+
+/** Pulls the "Flags:" line out of a specialist's brief. */
+function splitFlags(brief: string): { text: string; flags: string[] } {
+  const match = brief.match(/\n?\s*Flags:\s*(.+)\s*$/i);
+  if (!match) return { text: brief.trim(), flags: [] };
+  const raw = match[1].trim();
+  const flags = /^none\.?$/i.test(raw) ? [] : raw.split(/;\s*|\.\s+(?=[A-Z])/).map(f => f.trim().replace(/\.$/, '')).filter(Boolean);
+  return { text: brief.slice(0, match.index).trim(), flags };
 }
 
 export async function runTrichaTeam(opts: {
@@ -176,11 +207,19 @@ export async function runTrichaTeam(opts: {
   history: Array<{ role: 'user' | 'assistant'; text: string }>;
   message: string;
   context: AgentContext;
+  triage?: TriageResult;
+  dataFlags?: DataFlag[];
 }): Promise<TeamResult | null> {
   if (!teamEnabled()) return null;
   const run: RunState = newRunState();
   const team: string[] = [TEAM.orchestrator];
   const briefs: Array<{ agent: string; brief: string }> = [];
+  const trace: TraceStep[] = [];
+  const dataNote = flagsForAgents(opts.dataFlags || []);
+  const triageNote =
+    opts.triage?.level === 'see_doctor'
+      ? `Care triage: this message needs a doctor's view (${opts.triage.reasons.join(', ')}). Consult the care agent and suggest find_doctor.`
+      : '';
   const join = (name: string) => {
     if (!team.includes(name)) team.push(name);
   };
@@ -196,28 +235,43 @@ export async function runTrichaTeam(opts: {
 
   const consult = async (agent: string, question: string) => {
     join(agent);
+    const started = Date.now();
+    const toolsBefore = run.tools.length;
     const input = [
       {
         type: 'message',
         role: 'user',
         content:
           `Question from the lead: ${String(question || '').slice(0, 600)}\n\nThe user's latest message, for context: ${opts.message.slice(0, 600)}` +
-          (agent === TEAM.care ? `\n\nVerified helplines. Use only these numbers, never any other:\n${verifiedHelplineText()}` : ''),
+          (agent === TEAM.care ? `\n\nVerified helplines. Use only these numbers, never any other:\n${verifiedHelplineText()}` : '') +
+          (agent === TEAM.biomarker || agent === TEAM.calendar ? `\n\n${dataNote}` : '') +
+          (agent === TEAM.care && opts.triage?.level === 'see_doctor' ? `\n\nTriage found: ${opts.triage.reasons.join(', ')}.` : ''),
       },
     ];
     const { text } = await runAgentLoop(agent, input, specialistTool(agent), 3);
     const brief = text || 'No brief: the specialist returned nothing.';
     briefs.push({ agent, brief });
+    const { text: output, flags } = splitFlags(brief);
+    trace.push({
+      agent,
+      role: TEAM_LABELS[agent],
+      question: String(question || '').slice(0, 300),
+      output: output.slice(0, 600),
+      flags,
+      tools: run.tools.slice(toolsBefore),
+      ms: Date.now() - started,
+    });
     return brief;
   };
 
   try {
     await ensureTeam();
 
+    const leadStarted = Date.now();
     const lead = await runAgentLoop(
       TEAM.orchestrator,
       [
-        { type: 'message', role: 'developer', content: `You are talking with ${opts.firstName}.` },
+        { type: 'message', role: 'developer', content: [`You are talking with ${opts.firstName}.`, dataNote, triageNote].filter(Boolean).join('\n\n') },
         ...opts.history.map(h => ({ type: 'message', role: h.role, content: h.text })),
         { type: 'message', role: 'user', content: opts.message },
       ],
@@ -241,9 +295,28 @@ export async function runTrichaTeam(opts: {
       3,
     );
     if (!lead.text) return null;
+    trace.unshift({
+      agent: TEAM.orchestrator,
+      role: TEAM_LABELS[TEAM.orchestrator],
+      output: briefs.length ? `Consulted ${briefs.map(b => TEAM_LABELS[b.agent]).join(', ')} and wrote the draft.` : 'Answered directly; no specialist was needed.',
+      ms: Date.now() - leadStarted,
+    });
+
+    // Triage said this needs a doctor's view: make sure the Care agent was heard, even if the lead skipped it.
+    if (opts.triage?.level === 'see_doctor') {
+      if (!team.includes(TEAM.care)) {
+        try {
+          await consult(TEAM.care, `The user's message suggests ${opts.triage.reasons.join(', ')}. Decide the level and what to tell them.`);
+        } catch (err: any) {
+          console.warn('[BAALANCE Team] Care consult failed:', err?.message || err);
+        }
+      }
+      if (!run.actions.includes('find_doctor')) run.actions.push('find_doctor');
+    }
 
     // The reviewer checks the draft before anything is shown.
     let finalText = lead.text;
+    const reviewStarted = Date.now();
     try {
       join(TEAM.reviewer);
       const review = await runAgentLoop(
@@ -255,6 +328,7 @@ export async function runTrichaTeam(opts: {
             content: [
               `The user's message:\n${opts.message.slice(0, 1200)}`,
               `Specialist briefs:\n${briefs.length ? briefs.map(b => `[${TEAM_LABELS[b.agent]}] ${b.brief}`).join('\n\n') : '(none: the lead answered without specialists)'}`,
+              dataNote,
               `Verified helpline numbers (any other phone number must be removed):\n${verifiedHelplineText()}`,
               `Draft reply:\n${lead.text}`,
             ].join('\n\n'),
@@ -264,11 +338,19 @@ export async function runTrichaTeam(opts: {
         0,
       );
       if (review.text.trim().length > 20) finalText = review.text.trim();
+      const changed = finalText.trim() !== lead.text.trim();
+      trace.push({
+        agent: TEAM.reviewer,
+        role: TEAM_LABELS[TEAM.reviewer],
+        output: changed ? 'Corrected the draft before it was shown.' : 'Checked the draft against the briefs and safety rules; no changes needed.',
+        changed,
+        ms: Date.now() - reviewStarted,
+      });
     } catch (err: any) {
       console.warn('[BAALANCE Team] Reviewer failed, using the draft:', err?.message || err);
     }
 
-    return { ...finishRun(run, finalText, lead.model || config().model), team };
+    return { ...finishRun(run, finalText, lead.model || config().model), team, trace };
   } catch (err: any) {
     console.warn('[BAALANCE Team] Team run failed:', err?.message || err);
     return null;
