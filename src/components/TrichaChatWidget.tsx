@@ -24,6 +24,8 @@ import { apiFetch } from '@/lib/apiFetch';
 import { TrichaAvatar } from './TrichaAvatar';
 import { AgentTracePanel } from './AgentTracePanel';
 import { openHelpPanel } from '@/lib/helplines';
+import { crisisKeywordCheck, CRISIS_REPLY } from '@/lib/contentSafety';
+import { triageMessage, EMERGENCY_REPLY } from '@/lib/triage';
 
 const AGENT_TOOL_LABEL: Record<string, string> = {
   get_hair_results: 'your hair results',
@@ -298,10 +300,40 @@ export const TrichaChatWidget: React.FC<TrichaChatWidgetProps> = ({
       }
     } catch (err) {
       console.warn('[Tricha Chat Widget] Error:', err);
+      // No connection, or the service is down. The safety checks run here on the device, and the
+      // helpline numbers are built into the app, so help is shown even with no internet.
+      const isCrisis = crisisKeywordCheck(query);
+      const triage = triageMessage(query);
+      const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+      const reason = offline ? 'You seem to be offline' : 'I cannot reach BAALANCE right now';
+      const text = isCrisis
+        ? CRISIS_REPLY
+        : triage.level === 'emergency'
+        ? EMERGENCY_REPLY
+        : `${reason}, so I cannot answer this yet. Your results on screen are unchanged.\n\n` +
+          'If you need help now: in India call 112 for an emergency or Tele-MANAS on 14416; in the UAE call 999, or 800 4673 for mental health support. The Get help button at the top works without internet.';
       const fallbackMsg: ChatMessage = {
         id: `tricha-err-${Date.now()}`,
         role: 'model',
-        text: `Based on your Month 2 peak (${segments[1]?.cortisolPgPerMg || 28.4} pg/mg) and Month 1 reading (${segments[0]?.cortisolPgPerMg || 15.6} pg/mg), your body experienced delayed stress recovery. Even with fewer daytime meetings, taking late calls past 7:00 PM kept sympathetic arousal high and delayed circadian recovery into late evening, preventing full stress clearance.`,
+        text,
+        ...(isCrisis || triage.level === 'emergency' ? { safety: 'crisis' as const } : {}),
+        agent: {
+          tools: [],
+          citations: [],
+          actions: isCrisis ? [] : ['open_helplines'],
+          pipeline: [
+            {
+              stage: 'Connection',
+              status: `${reason}: answered on this device`,
+              detail: 'The crisis check and care triage ran on your phone; helpline numbers are built into the app.',
+            },
+            {
+              stage: 'Care triage',
+              status: isCrisis ? 'Crisis words found' : triage.level === 'emergency' ? 'Emergency' : triage.level === 'see_doctor' ? 'See a doctor' : 'Routine',
+              detail: triage.reasons.join(', ') || undefined,
+            },
+          ],
+        },
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages(prev => [...prev, fallbackMsg]);
