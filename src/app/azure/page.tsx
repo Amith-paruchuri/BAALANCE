@@ -7,6 +7,7 @@ interface Status {
   checkedAt: string;
   azureOpenAI: { on: boolean; model: string | null };
   agent: { on: boolean; tools: number };
+  multiAgent?: { on: boolean; agents: Array<{ name: string; role: string; version: string | null }> };
   foundryAgent?: { on: boolean; configured: boolean; name: string | null; version: string | null };
   contentSafety: { on: boolean };
   promptShields: { on: boolean };
@@ -49,6 +50,12 @@ export default function AzurePage() {
         : status?.foundryAgent?.configured
           ? 'Configured but not reachable right now; replies use the direct Azure OpenAI agent'
           : undefined,
+    },
+    {
+      name: 'Multi-agent workflow on Foundry',
+      on: status?.multiAgent?.on,
+      what: 'Six agents answer each question together. A lead agent talks to you and consults four specialists (biomarker, calendar, evidence and care) in parallel, and a reviewer agent checks every reply against their briefs and the safety rules before you see it.',
+      detail: status?.multiAgent?.on ? status.multiAgent.agents.map(a => a.role).join(', ') : undefined,
     },
     {
       name: 'Tool-using agent (function calling)',
