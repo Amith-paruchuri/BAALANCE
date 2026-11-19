@@ -83,7 +83,7 @@ export async function fetchGoogleEvents(accessToken: string, userEmail: string):
 
 export async function fetchMicrosoftEvents(accessToken: string, userEmail: string): Promise<NormalizedEvent[]> {
   const { startIso, endIso } = windowIso();
-  const select = 'id,subject,start,end,isAllDay,isCancelled,organizer,attendees,isOnlineMeeting,onlineMeetingProvider,webLink';
+  const select = 'id,subject,start,end,isAllDay,isCancelled,isOrganizer,organizer,attendees,isOnlineMeeting,onlineMeetingProvider,webLink';
   let url: string | undefined =
     `https://graph.microsoft.com/v1.0/me/calendarView?startDateTime=${encodeURIComponent(startIso)}` +
     `&endDateTime=${encodeURIComponent(endIso)}&$select=${select}&$orderby=start/dateTime&$top=100`;
@@ -115,7 +115,9 @@ export async function fetchMicrosoftEvents(accessToken: string, userEmail: strin
         isAllDay: !!item.isAllDay,
         organizerEmail: organizerEmail || undefined,
         organizerName: item.organizer?.emailAddress?.name || undefined,
-        isUserOrganizer: organizerEmail.toLowerCase() === userEmail.toLowerCase(),
+        // Graph says directly whether the user organises the meeting. The organiser's address can differ
+        // from the sign-in email (for example a Microsoft account created with a Gmail address).
+        isUserOrganizer: typeof item.isOrganizer === 'boolean' ? item.isOrganizer : organizerEmail.toLowerCase() === userEmail.toLowerCase(),
         attendees: (item.attendees || []).map((a: any) => a.emailAddress?.address).filter(Boolean),
         onlineMeeting: item.isOnlineMeeting
           ? item.onlineMeetingProvider === 'teamsForBusiness'
@@ -201,6 +203,7 @@ export function summarizeEvents(events: NormalizedEvent[], providerLabel: string
       organizerName: evt.organizerName,
       isUserOrganizer: evt.isUserOrganizer,
       attendees: evt.attendees.length ? evt.attendees : undefined,
+      webLink: evt.webLink,
       // Needed to reschedule the event through the provider's API.
       startIso: evt.start.toISOString(),
       endIso: evt.end.toISOString(),
@@ -239,6 +242,12 @@ export async function rescheduleEvent(
   newStartIso: string,
   newEndIso: string
 ): Promise<void> {
+  // Only the organiser's change goes out to everyone. If the user is an attendee, moving their copy
+  // would change only their own calendar, so it is refused here whatever the browser sent.
+  if (!(await isOrganizerOf(provider, accessToken, eventId))) {
+    throw new Error('Only meetings you organise can be moved. Ask the organiser instead.');
+  }
+
   if (provider === 'google') {
     const res = await fetch(
       `https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(eventId)}?sendUpdates=all`,
@@ -261,6 +270,18 @@ export async function rescheduleEvent(
   });
   if (res.status === 401 || res.status === 403) throw new CalendarAuthError('Outlook calendar access expired or not allowed. Please reconnect.');
   if (!res.ok) throw new Error(`Outlook could not move the event (${res.status}).`);
+}
+
+async function isOrganizerOf(provider: CalendarProvider, accessToken: string, eventId: string): Promise<boolean> {
+  const url =
+    provider === 'google'
+      ? `https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(eventId)}?fields=organizer`
+      : `https://graph.microsoft.com/v1.0/me/events/${encodeURIComponent(eventId)}?$select=isOrganizer`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' }, cache: 'no-store' });
+  if (res.status === 401 || res.status === 403) throw new CalendarAuthError('Calendar access expired or not allowed. Please reconnect.');
+  if (!res.ok) throw new Error(`Could not check this meeting (${res.status}).`);
+  const data = await res.json();
+  return provider === 'google' ? data?.organizer?.self === true : data?.isOrganizer === true;
 }
 
 /** Calendar feed hosts the server may fetch from, to prevent requests to arbitrary or internal URLs. */
