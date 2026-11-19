@@ -13,7 +13,8 @@ or "BAALANCE AI". Prefer Microsoft features (Outlook/Teams via Graph, Azure Open
 ## Stack
 - Next.js 14 App Router, TypeScript, Tailwind. Main screen: `src/app/page.tsx` (large, ~2,500 lines).
 - Supabase: Auth (email/password, Google, Azure/Microsoft) and Postgres with row-level security.
-- AI: `src/lib/ai.ts` is the only place that calls a model. `AI_PROVIDER=gemini|azure|auto`.
+- AI: `src/lib/ai.ts` is the only place that calls a model, and it calls Azure OpenAI only (the Google SDK was removed
+  in November 2026). Some legacy names still say "gemini" (routes, `GeminiProtocolCards`); they are internal only.
 - Calendar: `src/lib/calendarProviders.ts` (Google Calendar API + Microsoft Graph, normalised events,
   reschedule via PATCH, iCal host allowlist). Routes: `/api/calendar`, `/api/calendar/reschedule`.
 - Server auth helpers: `src/lib/serverAuth.ts` (verify Bearer token, per-IP rate limit).
