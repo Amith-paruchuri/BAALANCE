@@ -116,7 +116,7 @@ export default function AzurePage() {
     <LegalPage title="Built on Microsoft Azure" updated="live status below">
       <section>
         <p>
-          This page shows which Microsoft services BAALANCE is using right now. Each line is read from the running app, so a service
+          How the agents work together and how they are tested is on <a href="/tricha">How Tricha works</a>. This page shows which Microsoft services BAALANCE is using right now. Each line is read from the running app, so a service
           is marked on only when it is configured and in use.
         </p>
       </section>

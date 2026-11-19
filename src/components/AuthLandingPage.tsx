@@ -591,6 +591,8 @@ export const AuthLandingPage: React.FC<AuthLandingPageProps> = ({
           <a href="/terms" className="font-semibold text-slate-600 underline">Terms</a>
           {' · '}
           <a href="/azure" className="font-semibold text-slate-600 underline">Built on Microsoft Azure</a>
+          {' · '}
+          <a href="/tricha" className="font-semibold text-slate-600 underline">How Tricha works</a>
         </p>
       </footer>
     </div>

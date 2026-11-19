@@ -133,5 +133,10 @@ export interface ChatMessage {
     retrieval?: string | null;
     /** Foundry agents that took part (multi-agent replies only). */
     team?: string[];
+    /** Each stage the message went through: safety, triage, data checks, agents, output safety. */
+    pipeline?: Array<{ stage: string; status: string; detail?: string }>;
+    /** Per agent: what it was asked, what it found and what it flagged. */
+    trace?: Array<{ agent: string; role: string; question?: string; output?: string; flags?: string[]; tools?: string[]; ms: number; changed?: boolean }>;
+    dataFlags?: Array<{ severity: 'warn' | 'info'; field: string; message: string }>;
   };
 }
