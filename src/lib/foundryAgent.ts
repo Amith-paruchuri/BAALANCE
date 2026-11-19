@@ -111,6 +111,7 @@ function agentDefinition() {
 
 let ready: { at: number; version: string | null } | null = null;
 let lastError: string | null = null;
+let lastReplyAt: number | null = null;
 const READY_FOR_MS = 10 * 60 * 1000;
 
 function versionOf(data: any): string | null {
@@ -201,7 +202,12 @@ export async function runFoundryAgent(opts: {
 
       if (calls.length === 0) {
         const text = textFrom(output);
-        if (!text) return null;
+        if (!text) {
+          lastError = 'Foundry reply had no text';
+          return null;
+        }
+        lastReplyAt = Date.now();
+        lastError = null;
         return { ...finishRun(run, text, model), agentName: c.agentName, agentVersion: setup.version };
       }
 
@@ -219,6 +225,7 @@ export async function runFoundryAgent(opts: {
         input.push({ type: 'function_call_output', call_id: fc.call_id, output: JSON.stringify(result) });
       }
     }
+    lastError = 'Foundry agent used too many tool steps';
     return null;
   } catch (err: any) {
     lastError = String(err?.message || err).slice(0, 300);
@@ -232,5 +239,26 @@ export async function foundryStatus() {
   const c = config();
   if (!foundryConfigured()) return { on: false, configured: false, agent: c.agentName, version: null, error: null as string | null };
   const setup = await ensureFoundryAgent();
-  return { on: setup.ok, configured: true, agent: c.agentName, version: setup.version, error: setup.ok ? null : lastError ? 'Agent not reachable' : null };
+  return {
+    on: setup.ok,
+    configured: true,
+    agent: c.agentName,
+    version: setup.version,
+    // The service's own error text (never a key or token), so a failing setup can be diagnosed.
+    error: lastError ? lastError.replace(/Bearer\s+\S+/gi, 'Bearer ***').replace(/(key|secret|token)=\S+/gi, '$1=***') : null,
+    lastReplyAt: lastReplyAt ? new Date(lastReplyAt).toISOString() : null,
+  };
+}
+
+/** One short test turn through Foundry, for diagnosing setup. Uses no user data. */
+export async function probeFoundryAgent(): Promise<{ ok: boolean; source: string | null; error: string | null }> {
+  if (!foundryConfigured()) return { ok: false, source: null, error: 'not configured' };
+  const result = await runFoundryAgent({
+    firstName: 'there',
+    history: [],
+    message: 'Reply with one short sentence saying you are ready.',
+    context: { segments: [], telemetry: [] },
+  });
+  const clean = (e: string | null) => (e ? e.replace(/Bearer\s+\S+/gi, 'Bearer ***').replace(/(key|secret|token)=\S+/gi, '$1=***') : null);
+  return result ? { ok: true, source: `${result.agentName}@${result.agentVersion}:${result.model}`, error: null } : { ok: false, source: null, error: clean(lastError) };
 }
