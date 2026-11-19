@@ -167,6 +167,14 @@ export async function getProviderCalendarToken(): Promise<{ provider: OAuthProvi
   return null;
 }
 
+/** The provider the user signed in with ('azure', 'google', 'email'), or null for guests. */
+export async function getSignInProvider(): Promise<string | null> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return null;
+  const { data } = await supabase.auth.getSession();
+  return (data?.session?.user?.app_metadata?.provider as string | undefined) || null;
+}
+
 /** Signs the user out of Supabase and clears this browser's session data. */
 export async function signOutUser(): Promise<void> {
   const supabase = getSupabaseClient();

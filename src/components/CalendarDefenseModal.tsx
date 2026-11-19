@@ -31,7 +31,7 @@ import {
 import { CalendarEventItem } from './CalendarSnippetWidget';
 import { apiFetch } from '@/lib/apiFetch';
 import { recordAudit } from '@/lib/auditLog';
-import { getProviderCalendarToken } from '@/lib/supabase';
+import { getProviderCalendarToken, getSignInProvider } from '@/lib/supabase';
 import {
   getISTDateInfo,
   getTodayISTKey,
@@ -212,6 +212,9 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
   const [activeRuleFilter, setActiveRuleFilter] = useState<'all' | DefenseRuleType>('all');
   const [previewEmailId, setPreviewEmailId] = useState<string | null>(null);
   const [newInviteeInputs, setNewInviteeInputs] = useState<Record<string, string>>({});
+  // Which calendar the user is signed in with, and what happened when we tried to move meetings there.
+  const [liveProvider, setLiveProvider] = useState<'microsoft' | 'google' | null>(null);
+  const [liveMoveNote, setLiveMoveNote] = useState<string | null>(null);
   const [confirmedItems, setConfirmedItems] = useState<Array<{
     title: string;
     newTime: string;
@@ -226,6 +229,9 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
     actionType: 'rescheduled_host' | 'proposed_invitee';
     eventId?: string;
     movedInCalendar?: boolean;
+    moveError?: string;
+    webLink?: string;
+    mailtoUrl?: string;
   }>>([]);
 
   // Generate upcoming 28 dynamic days in IST
@@ -413,7 +419,8 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
       const organizerEmail = evt.organizerEmail || '';
       const organizerName = evt.organizerName || '';
       let isUserOrganizer = evt.isUserOrganizer ?? true;
-      if (organizerEmail && cleanUserEmail) {
+      // Live Outlook and Google events already say whether the user organises them; only guess from emails when they do not.
+      if (evt.isUserOrganizer === undefined && organizerEmail && cleanUserEmail) {
         isUserOrganizer = organizerEmail.toLowerCase() === cleanUserEmail;
       }
 
@@ -421,6 +428,9 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
       let invitees: string[] = [];
       if (evt.attendees && evt.attendees.length > 0) {
         invitees = evt.attendees.filter(e => e.toLowerCase() !== cleanUserEmail);
+      } else if ((evt as any).startIso) {
+        // A real meeting with no other attendees: nobody to notify.
+        invitees = [];
       } else {
         if (titleLower.includes('ayushi')) {
           invitees = ['ayushi.k@gmail.com', 'pavan.sharma@gmail.com'];
@@ -691,12 +701,12 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
       if (p.isUserOrganizer) {
         // User hosts this meeting -> can reschedule and notify attendees
         emailSubject = `Rescheduled: ${cleanTitle} (Moved to ${chosenSlotData.day} at ${chosenSlotData.startTime} IST)`;
-        emailBody = `Hi everyone,\n\nTo respect biological recovery boundaries and adhere to calendar defense rules, I have rescheduled our meeting:\n\n• Meeting: ${cleanTitle}\n• Previous Time: ${p.currentDayFormatted} at ${p.currentTimeRange} IST\n• New Daytime Slot: ${chosenSlotData.day}, ${chosenSlotData.dayDate} from ${chosenSlotData.startTime} to ${chosenSlotData.endTime} IST\n\nYour Google Calendar invite has been updated with the new slot.\n\nBest regards,\n${userName || userEmail}`;
+        emailBody = `Hi everyone,\n\nTo respect biological recovery boundaries and adhere to calendar defense rules, I have rescheduled our meeting:\n\n• Meeting: ${cleanTitle}\n• Previous Time: ${p.currentDayFormatted} at ${p.currentTimeRange} IST\n• New Daytime Slot: ${chosenSlotData.day}, ${chosenSlotData.dayDate} from ${chosenSlotData.startTime} to ${chosenSlotData.endTime} IST\n\nThe calendar invite has been updated with the new time.\n\nBest regards,\n${userName || userEmail}`;
       } else {
         // User is an invitee / participant -> propose new conflict-free time to host
         const hostName = p.organizerName || p.organizerEmail || 'Organizer';
         emailSubject = `Time Conflict / Reschedule Request: ${cleanTitle}`;
-        emailBody = `Hi ${hostName},\n\nI received the invite for "${cleanTitle}" currently scheduled for ${p.currentDayFormatted} at ${p.currentTimeRange} IST.\n\nI have a hard calendar defense boundary during this time (protecting biological circadian recovery hours).\n\nCould we please reschedule to this conflict-free daytime slot?\n• Proposed Slot: ${chosenSlotData.day}, ${chosenSlotData.dayDate} from ${chosenSlotData.startTime} to ${chosenSlotData.endTime} IST\n\nPlease let me know if this slot works for you so the Google Calendar invite can be updated.\n\nBest regards,\n${userName || userEmail}`;
+        emailBody = `Hi ${hostName},\n\nI received the invite for "${cleanTitle}" currently scheduled for ${p.currentDayFormatted} at ${p.currentTimeRange} IST.\n\nI have a hard calendar defense boundary during this time (protecting biological circadian recovery hours).\n\nCould we please reschedule to this conflict-free daytime slot?\n• Proposed Slot: ${chosenSlotData.day}, ${chosenSlotData.dayDate} from ${chosenSlotData.startTime} to ${chosenSlotData.endTime} IST\n\nPlease let me know if this slot works for you so the invite can be updated.\n\nBest regards,\n${userName || userEmail}`;
       }
 
       const gcalUrl = buildGoogleCalendarUrl(
@@ -742,6 +752,8 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
         organizerName: p.organizerName,
         actionType: p.isUserOrganizer ? 'rescheduled_host' : 'proposed_invitee',
         eventId: p.event.id,
+        webLink: (p.event as any).webLink,
+        mailtoUrl: `mailto:${encodeURIComponent((p.isUserOrganizer ? p.invitees : p.organizerEmail ? [p.organizerEmail] : p.invitees).join(','))}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`,
       });
 
       return {
@@ -757,15 +769,21 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
     // 1. Move the user's own meetings in their real calendar (Google or Outlook).
     //    The calendar provider emails the updated invite to attendees.
     let movedIds = new Set<string>();
+    const failedReasons = new Map<string, string>();
+    let note: string | null = null;
+    const signInProvider = await getSignInProvider().catch(() => null);
+    let provider: 'microsoft' | 'google' | null = signInProvider === 'azure' ? 'microsoft' : signInProvider === 'google' ? 'google' : null;
     if (liveMoves.length > 0) {
+      const calendarName = provider === 'google' ? 'Google Calendar' : 'Outlook';
       try {
         const calendarAccess = await getProviderCalendarToken();
         if (calendarAccess) {
+          provider = calendarAccess.provider === 'azure' ? 'microsoft' : 'google';
           const res = await apiFetch('/api/calendar/reschedule', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              provider: calendarAccess.provider === 'azure' ? 'microsoft' : 'google',
+              provider,
               accessToken: calendarAccess.token,
               items: liveMoves,
               approvedByUser: true,
@@ -773,14 +791,22 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
           });
           const data = await res.json().catch(() => ({}));
           movedIds = new Set((data.results || []).filter((r: any) => r.status === 'moved').map((r: any) => r.eventId));
+          (data.results || []).filter((r: any) => r.status === 'failed').forEach((r: any) => failedReasons.set(r.eventId, r.error || 'Could not move this meeting.'));
+          if (!res.ok && data.error) note = `${data.error} Nothing else was changed.`;
+        } else {
+          note = `Your ${calendarName} connection has expired, so nothing was moved there. Reconnect your calendar and approve again, or use the links below.`;
         }
       } catch (err) {
         console.warn('[BAALANCE] Live reschedule failed:', err);
+        note = `We could not reach ${calendarName}, so nothing was moved there. Use the links below, or try again.`;
       }
     }
     for (const summary of confirmedSummaries) {
       summary.movedInCalendar = summary.eventId ? movedIds.has(summary.eventId) : false;
+      if (summary.eventId && failedReasons.has(summary.eventId)) summary.moveError = failedReasons.get(summary.eventId);
     }
+    setLiveProvider(provider);
+    setLiveMoveNote(note);
 
     // 2. Commit real-time changes to BAALANCE calendar
     onConfirmReschedules(results);
@@ -909,6 +935,13 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                   </div>
                 </div>
 
+                {liveMoveNote && (
+                  <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 flex items-start gap-3" role="status">
+                    <Mail className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-amber-900 leading-snug font-semibold">{liveMoveNote}</p>
+                  </div>
+                )}
+
                 {/* Actual Google Calendar Update Action */}
                 {confirmedItems.map((item, idx) => (
                   <div
@@ -942,9 +975,15 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                         </h4>
                         <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
                           {item.movedInCalendar
-                            ? `Moved in your calendar. Your calendar has sent the updated invite to ${item.invitees.length ? item.invitees.join(', ') : 'attendees'}.`
+                            ? `Moved in your ${liveProvider === 'microsoft' ? 'Outlook' : 'Google'} calendar. ${item.invitees.length ? `${liveProvider === 'microsoft' ? 'Outlook' : 'Google'} sends the updated invite to ${item.invitees.join(', ')}.` : 'There are no other attendees to notify.'}`
+                            : item.moveError
+                            ? `Not moved: ${item.moveError}`
                             : item.isUserOrganizer
-                            ? `Open Google Calendar with this daytime slot (in IST) and save it. Google then updates all guests: ${item.invitees.join(', ')}.`
+                            ? liveProvider === 'microsoft'
+                              ? `Open the meeting in Outlook, set this time (in IST) and save. Outlook then updates the attendees${item.invitees.length ? `: ${item.invitees.join(', ')}` : ''}.`
+                              : `Open Google Calendar with this daytime slot (in IST) and save it. Google then updates all guests${item.invitees.length ? `: ${item.invitees.join(', ')}` : ''}.`
+                            : liveProvider === 'microsoft'
+                            ? `Someone else organises this meeting, so only they can move it. A message proposing this time is ready to send to ${item.organizerEmail || 'the organiser'}.`
                             : `A reschedule proposal notice has been prepared for the organizer (${item.organizerEmail || 'host'}). You can also open the meeting directly in Google Calendar to propose this new time, or hold this preferred slot on your personal calendar.`}
                         </p>
                       </div>
@@ -955,6 +994,17 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                         <span className="px-3.5 py-2 rounded-xl bg-emerald-100 text-emerald-900 text-xs font-bold border border-emerald-300">
                           ✓ Updated in your calendar
                         </span>
+                      ) : liveProvider === 'microsoft' ? (
+                        <a
+                          href={item.webLink || 'https://outlook.office.com/calendar'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3.5 py-2 rounded-xl bg-[#0D4F59] hover:bg-[#0B434B] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                        >
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>Open in Outlook</span>
+                          <ExternalLink className="w-3 h-3 ml-0.5 opacity-80" />
+                        </a>
                       ) : item.isUserOrganizer ? (
                         <a
                           href={item.gcalUrl}
@@ -992,16 +1042,26 @@ export const CalendarDefenseModal: React.FC<CalendarDefenseModalProps> = ({
                         </>
                       )}
 
+                      {!(item.movedInCalendar && item.invitees.length === 0) && (
                       <a
-                        href={item.gmailUrl}
-                        target="_blank"
+                        href={liveProvider === 'microsoft' ? item.mailtoUrl : item.gmailUrl}
+                        target={liveProvider === 'microsoft' ? undefined : '_blank'}
                         rel="noopener noreferrer"
                         className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                       >
                         <Mail className="w-3.5 h-3.5 text-rose-500" />
-                        <span>{item.isUserOrganizer ? 'Open in Gmail' : 'Open Proposal in Gmail'}</span>
+                        <span>
+                          {liveProvider === 'microsoft'
+                            ? item.isUserOrganizer
+                              ? 'Email attendees'
+                              : 'Email the organiser'
+                            : item.isUserOrganizer
+                            ? 'Open in Gmail'
+                            : 'Open Proposal in Gmail'}
+                        </span>
                         <ExternalLink className="w-3 h-3 ml-0.5 opacity-60" />
                       </a>
+                      )}
                     </div>
                   </div>
                 ))}
