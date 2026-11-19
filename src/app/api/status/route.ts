@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAIStatus, azureIsPrimary } from '@/lib/ai';
 import { getSafetyStatus } from '@/lib/contentSafety';
-import { evidenceBackend, EVIDENCE } from '@/lib/evidence';
+import { searchStatus, EVIDENCE } from '@/lib/evidence';
 import { foundryStatus } from '@/lib/foundryAgent';
 import { SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY } from '@/lib/supabase';
 
@@ -25,7 +25,7 @@ export async function GET() {
     }
   } catch {}
 
-  const foundry = await foundryStatus();
+  const [foundry, search] = await Promise.all([foundryStatus(), searchStatus()]);
 
   return NextResponse.json({
     checkedAt: new Date().toISOString(),
@@ -34,7 +34,8 @@ export async function GET() {
     foundryAgent: { on: foundry.on, configured: foundry.configured, name: foundry.on ? foundry.agent : null, version: foundry.version },
     contentSafety: { on: safety.azureContentSafety },
     promptShields: { on: safety.promptShields },
-    grounding: { on: true, backend: evidenceBackend(), passages: EVIDENCE.length },
+    grounding: { on: true, backend: search.on ? 'azure-ai-search' : 'built-in', passages: EVIDENCE.length },
+    azureSearch: { on: search.on, configured: search.configured, index: search.on ? search.index : null, ranking: search.mode },
     maps: { on: !!(process.env.AZURE_MAPS_KEY || '').trim() },
     entraSignIn: { on: !!signIn?.microsoft },
     graphCalendar: { on: !!signIn?.microsoft },
