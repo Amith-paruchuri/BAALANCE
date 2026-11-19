@@ -7,6 +7,7 @@ interface Status {
   checkedAt: string;
   azureOpenAI: { on: boolean; model: string | null };
   agent: { on: boolean; tools: number };
+  foundryAgent?: { on: boolean; configured: boolean; name: string | null; version: string | null };
   contentSafety: { on: boolean };
   promptShields: { on: boolean };
   grounding: { on: boolean; backend: string; passages: number };
@@ -37,6 +38,16 @@ export default function AzurePage() {
       on: status?.azureOpenAI.on,
       what: 'The model behind Tricha, the AI coach, and the reader for uploaded lab reports.',
       detail: status?.azureOpenAI.model ? `Deployment: ${status.azureOpenAI.model}` : undefined,
+    },
+    {
+      name: 'Microsoft Foundry Agent Service',
+      on: status?.foundryAgent?.on,
+      what: 'Tricha is a hosted agent in our Foundry project. Foundry runs the conversation and decides when to call her tools; each tool runs on our server against your own data, and nothing is written by the agent.',
+      detail: status?.foundryAgent?.on
+        ? `Agent: ${status.foundryAgent.name}${status.foundryAgent.version ? `, version ${status.foundryAgent.version}` : ''}`
+        : status?.foundryAgent?.configured
+          ? 'Configured but not reachable right now; replies use the direct Azure OpenAI agent'
+          : undefined,
     },
     {
       name: 'Tool-using agent (function calling)',

@@ -31,6 +31,11 @@ or "BAALANCE AI". Prefer Microsoft features (Outlook/Teams via Graph, Azure Open
 - Tricha agent: `src/lib/trichaAgent.ts` (Azure OpenAI tool calling, six read-only tools). `/api/gemini-chat` tries the
   agent first and falls back to the single-prompt reply, then to rule-based answers. Evidence for grounding lives in
   `src/lib/evidence.ts` (Azure AI Search when `AZURE_SEARCH_*` is set, built-in search otherwise).
+- Foundry Agent Service: `src/lib/foundryAgent.ts` creates/updates the `tricha` agent in the Foundry project from code
+  (same instructions and tools as `trichaAgent.ts`) and runs each turn through `{endpoint}/openai/v1/responses`; tools run
+  on our server. Needs `FOUNDRY_PROJECT_ENDPOINT` + `AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET` (service principal with the
+  Azure AI User role on the project). Chat order: Foundry agent, then direct Azure OpenAI agent, then single prompt.
+  Reply `source` starts with `foundry-agent:` when Foundry answered.
 - Prompt Shields run with Content Safety on every user message (`src/lib/contentSafety.ts`).
 - `/azure` shows the live state of each Microsoft service from `/api/status`. `/api/mcp` is a small MCP server exposing
   the evidence library and helplines (no personal data).
