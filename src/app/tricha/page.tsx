@@ -138,7 +138,7 @@ export default function TrichaPage() {
         <h2>Pilot</h2>
         <p>
           150 resident doctors at AIIMS New Delhi, two hair samples three months apart, after ethics approval. The main measure: does the hair pick each
-          doctor&rsquo;s hardest month against the duty roster? Chance is 1 in 3; the target is 60%. We report the result either way.
+          doctor&rsquo;s hardest month against the duty roster? Chance is 1 in 3; the target is 70%. We report the result either way.
         </p>
         <p>
           See also <Link href="/azure">the live status of every Microsoft service</Link>.
